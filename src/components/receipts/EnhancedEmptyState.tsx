@@ -23,11 +23,11 @@ const EnhancedEmptyState: React.FC<EnhancedEmptyStateProps> = ({
         </div>
         
         <h3 className="text-2xl font-semibold text-gray-900 mb-3">
-          {getText('noReceiptsTitle')}
+          {getText('noReceiptsEmptyTitle')}
         </h3>
         
         <p className="text-gray-600 mb-8 leading-relaxed">
-          Get started by uploading your first receipt or exploring with sample data
+          Ladda upp dina kvitton eller utforska systemet med svenska exempeldata
         </p>
 
         <div className="space-y-4">
@@ -37,12 +37,12 @@ const EnhancedEmptyState: React.FC<EnhancedEmptyStateProps> = ({
             className="w-full sm:w-auto flex items-center gap-3 px-8 py-3"
           >
             <Upload size={20} />
-            Upload Your Receipts
+            {getText('uploadYourReceipts')}
           </Button>
           
           <div className="flex items-center gap-3 text-gray-400">
             <div className="flex-1 h-px bg-gray-200"></div>
-            <span className="text-sm">or</span>
+            <span className="text-sm">eller</span>
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
 
@@ -53,12 +53,13 @@ const EnhancedEmptyState: React.FC<EnhancedEmptyStateProps> = ({
             className="w-full sm:w-auto flex items-center gap-3 px-8 py-3"
           >
             <Plus size={20} />
-            Try Sample Data
+            {getText('trySampleData')}
           </Button>
         </div>
 
         <div className="mt-8 text-sm text-gray-500">
-          <p>Supported formats: JPG, PNG, PDF</p>
+          <p>Filformat som stöds: JPG, PNG, PDF</p>
+          <p className="mt-1 text-xs">Optimerat för svenska kvitton och redovisning</p>
         </div>
       </div>
     </div>

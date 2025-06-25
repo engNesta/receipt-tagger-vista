@@ -20,16 +20,16 @@ export const useReceiptFiltering = (receipts: Receipt[]) => {
       let aValue = a[tag as keyof Receipt];
       let bValue = b[tag as keyof Receipt];
 
-      // Handle price sorting (remove $ and convert to number)
+      // Handle Swedish price sorting (remove 'kr' and spaces, convert to number)
       if (tag === 'price') {
-        aValue = parseFloat(String(aValue).replace('$', '').replace(',', '')) as any;
-        bValue = parseFloat(String(bValue).replace('$', '').replace(',', '')) as any;
+        aValue = parseFloat(String(aValue).replace('kr', '').replace(/\s/g, '').replace(',', '.')) as any;
+        bValue = parseFloat(String(bValue).replace('kr', '').replace(/\s/g, '').replace(',', '.')) as any;
       }
 
       if (typeof aValue === 'string' && typeof bValue === 'string') {
         return order === 'asc' 
-          ? aValue.localeCompare(bValue)
-          : bValue.localeCompare(aValue);
+          ? aValue.localeCompare(bValue, 'sv-SE')
+          : bValue.localeCompare(aValue, 'sv-SE');
       }
 
       if (typeof aValue === 'number' && typeof bValue === 'number') {
