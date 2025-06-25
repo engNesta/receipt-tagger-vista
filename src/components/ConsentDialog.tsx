@@ -129,7 +129,7 @@ const ConsentDialog: React.FC<ConsentDialogProps> = ({ isOpen, onConsent, onDecl
             <Checkbox
               id="terms"
               checked={agreedToTerms}
-              onCheckedChange={setAgreedToTerms}
+              onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
               className="mt-1"
             />
             <label htmlFor="terms" className="text-sm font-medium leading-relaxed cursor-pointer">
@@ -141,7 +141,7 @@ const ConsentDialog: React.FC<ConsentDialogProps> = ({ isOpen, onConsent, onDecl
             <Checkbox
               id="dataProcessing"
               checked={agreedToDataProcessing}
-              onCheckedChange={setAgreedToDataProcessing}
+              onCheckedChange={(checked) => setAgreedToDataProcessing(checked === true)}
               className="mt-1"
             />
             <label htmlFor="dataProcessing" className="text-sm font-medium leading-relaxed cursor-pointer">
@@ -153,7 +153,7 @@ const ConsentDialog: React.FC<ConsentDialogProps> = ({ isOpen, onConsent, onDecl
             <Checkbox
               id="gdprRights"
               checked={acknowledgedGDPRRights}
-              onCheckedChange={setAcknowledgedGDPRRights}
+              onCheckedChange={(checked) => setAcknowledgedGDPRRights(checked === true)}
               className="mt-1"
             />
             <label htmlFor="gdprRights" className="text-sm font-medium leading-relaxed cursor-pointer">
