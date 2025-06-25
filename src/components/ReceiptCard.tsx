@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Receipt {
   id: number;
@@ -18,18 +19,20 @@ interface ReceiptCardProps {
 }
 
 const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt, selectedTag, onClick }) => {
+  const { getText } = useLanguage();
+
   const getDisplayValue = () => {
     if (!selectedTag) return null;
     
     switch (selectedTag) {
       case 'vendor':
-        return { label: 'Vendor', value: receipt.vendor };
+        return { label: getText('vendor'), value: receipt.vendor };
       case 'price':
-        return { label: 'Price', value: receipt.price };
+        return { label: getText('price'), value: receipt.price };
       case 'productName':
-        return { label: 'Product', value: receipt.productName };
+        return { label: getText('productName'), value: receipt.productName };
       case 'verificationLetter':
-        return { label: 'Verification', value: receipt.verificationLetter };
+        return { label: getText('verificationLetter'), value: receipt.verificationLetter };
       default:
         return null;
     }

@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Receipt {
   id: number;
@@ -19,6 +20,8 @@ interface ReceiptModalProps {
 }
 
 const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpen, onClose }) => {
+  const { getText } = useLanguage();
+
   if (!receipt) return null;
 
   const getDisplayValue = () => {
@@ -26,13 +29,13 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
     
     switch (selectedTag) {
       case 'vendor':
-        return { label: 'Vendor', value: receipt.vendor };
+        return { label: getText('vendor'), value: receipt.vendor };
       case 'price':
-        return { label: 'Price', value: receipt.price };
+        return { label: getText('price'), value: receipt.price };
       case 'productName':
-        return { label: 'Product', value: receipt.productName };
+        return { label: getText('productName'), value: receipt.productName };
       case 'verificationLetter':
-        return { label: 'Verification', value: receipt.verificationLetter };
+        return { label: getText('verificationLetter'), value: receipt.verificationLetter };
       default:
         return null;
     }
