@@ -14,9 +14,10 @@ interface Receipt {
 interface ReceiptCardProps {
   receipt: Receipt;
   selectedTag: string | null;
+  onClick: () => void;
 }
 
-const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt, selectedTag }) => {
+const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt, selectedTag, onClick }) => {
   const getDisplayValue = () => {
     if (!selectedTag) return null;
     
@@ -37,7 +38,10 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt, selectedTag }) => {
   const displayInfo = getDisplayValue();
 
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-all duration-300 hover:scale-105 bg-white">
+    <Card 
+      className="overflow-hidden hover:shadow-md transition-all duration-300 hover:scale-105 bg-white cursor-pointer"
+      onClick={onClick}
+    >
       <CardContent className="p-0">
         {/* Receipt Image */}
         <div className="aspect-[4/5] bg-gray-100 flex items-center justify-center border-b">

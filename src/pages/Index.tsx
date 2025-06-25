@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { Search, FileText, DollarSign, Package, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ReceiptCard from '@/components/ReceiptCard';
+import ReceiptModal from '@/components/ReceiptModal';
 
 // Sample receipt data
 const sampleReceipts = [
@@ -60,6 +60,8 @@ const sampleReceipts = [
 const Index = () => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const tags = [
     { name: 'Vendor', icon: FileText, key: 'vendor' },
@@ -73,6 +75,16 @@ const Index = () => {
     receipt.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     receipt.price.includes(searchTerm)
   );
+
+  const handleCardClick = (receipt: any) => {
+    setSelectedReceipt(receipt);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedReceipt(null);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -115,12 +127,13 @@ const Index = () => {
         </div>
 
         {/* Receipt Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-8 gap-3">
           {filteredReceipts.map((receipt) => (
             <ReceiptCard
               key={receipt.id}
               receipt={receipt}
               selectedTag={selectedTag}
+              onClick={() => handleCardClick(receipt)}
             />
           ))}
         </div>
@@ -133,6 +146,13 @@ const Index = () => {
           </div>
         )}
       </div>
+
+      <ReceiptModal
+        receipt={selectedReceipt}
+        selectedTag={selectedTag}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };
