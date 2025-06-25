@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, FileText, DollarSign, Package, CheckCircle } from 'lucide-react';
+import { Search, FileText, DollarSign, Package, CheckCircle, ArrowUpAZ, ArrowDownZA } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ReceiptCard from '@/components/ReceiptCard';
@@ -62,6 +62,7 @@ const Index = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
 
   const tags = [
     { name: 'Vendor', icon: FileText, key: 'vendor' },
@@ -70,11 +71,57 @@ const Index = () => {
     { name: 'Verification Letter', icon: CheckCircle, key: 'verificationLetter' }
   ];
 
-  const filteredReceipts = sampleReceipts.filter(receipt =>
+  const sortReceipts = (receipts: any[], tag: string, order: 'asc' | 'desc') => {
+    return [...receipts].sort((a, b) => {
+      let aValue = a[tag];
+      let bValue = b[tag];
+
+      // Handle price sorting (remove $ and convert to number)
+      if (tag === 'price') {
+        aValue = parseFloat(aValue.replace('$', '').replace(',', ''));
+        bValue = parseFloat(bValue.replace('$', '').replace(',', ''));
+      }
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return order === 'asc' 
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return order === 'asc' ? aValue - bValue : bValue - aValue;
+      }
+
+      return 0;
+    });
+  };
+
+  let filteredReceipts = sampleReceipts.filter(receipt =>
     receipt.vendor.toLowerCase().includes(searchTerm.toLowerCase()) ||
     receipt.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     receipt.price.includes(searchTerm)
   );
+
+  // Apply sorting if a tag is selected and sort order is set
+  if (selectedTag && sortOrder) {
+    filteredReceipts = sortReceipts(filteredReceipts, selectedTag, sortOrder);
+  }
+
+  const handleTagClick = (tagKey: string) => {
+    if (selectedTag === tagKey) {
+      setSelectedTag(null);
+      setSortOrder(null);
+    } else {
+      setSelectedTag(tagKey);
+      setSortOrder(null);
+    }
+  };
+
+  const handleSortClick = (order: 'asc' | 'desc') => {
+    if (selectedTag) {
+      setSortOrder(sortOrder === order ? null : order);
+    }
+  };
 
   const handleCardClick = (receipt: any) => {
     setSelectedReceipt(receipt);
@@ -105,7 +152,7 @@ const Index = () => {
               <Button
                 key={tag.key}
                 variant={selectedTag === tag.key ? "default" : "outline"}
-                onClick={() => setSelectedTag(selectedTag === tag.key ? null : tag.key)}
+                onClick={() => handleTagClick(tag.key)}
                 className="flex items-center gap-2 transition-all duration-200 hover:scale-105"
               >
                 <IconComponent size={16} />
@@ -114,6 +161,30 @@ const Index = () => {
             );
           })}
         </div>
+
+        {/* Sort Buttons - Only show when a tag is selected */}
+        {selectedTag && (
+          <div className="flex gap-2 mb-6">
+            <Button
+              variant={sortOrder === 'asc' ? "default" : "outline"}
+              onClick={() => handleSortClick('asc')}
+              className="flex items-center gap-2"
+              size="sm"
+            >
+              <ArrowUpAZ size={16} />
+              Ascending
+            </Button>
+            <Button
+              variant={sortOrder === 'desc' ? "default" : "outline"}
+              onClick={() => handleSortClick('desc')}
+              className="flex items-center gap-2"
+              size="sm"
+            >
+              <ArrowDownZA size={16} />
+              Descending
+            </Button>
+          </div>
+        )}
 
         {/* Search Bar */}
         <div className="relative mb-8">
