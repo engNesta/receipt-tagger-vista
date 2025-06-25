@@ -56,10 +56,16 @@ export const useReceiptFiltering = (receipts: Receipt[]) => {
   }, [receipts, searchTerm, selectedTag, sortOrder]);
 
   const handleTagClick = (tagKey: string) => {
-    if (selectedTag === tagKey) {
+    if (tagKey === '') {
+      // Clear filter
+      setSelectedTag(null);
+      setSortOrder(null);
+    } else if (selectedTag === tagKey) {
+      // Toggle off if same tag clicked
       setSelectedTag(null);
       setSortOrder(null);
     } else {
+      // Set new tag, reset sort order
       setSelectedTag(tagKey);
       setSortOrder(null);
     }
