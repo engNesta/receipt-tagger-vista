@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Search, FileText, DollarSign, Package, CheckCircle, ArrowUpAZ, ArrowDownZA } from 'lucide-react';
+import { Search, FileText, DollarSign, Package, CheckCircle, ArrowUpAZ, ArrowDownZA, Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ReceiptCard from '@/components/ReceiptCard';
 import ReceiptModal from '@/components/ReceiptModal';
 
@@ -63,12 +64,47 @@ const Index = () => {
   const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
+  const [language, setLanguage] = useState('en');
+
+  const getText = (key: string) => {
+    const translations = {
+      en: {
+        title: "Receipt Management System",
+        subtitle: "Organize and categorize receipts and invoices efficiently",
+        vendor: "Vendor",
+        price: "Price",
+        productName: "Product Name",
+        verificationLetter: "Verification Letter",
+        ascending: "Ascending",
+        descending: "Descending",
+        searchPlaceholder: "Search receipts by vendor, product, or price...",
+        noReceiptsTitle: "No receipts found",
+        noReceiptsDescription: "Try adjusting your search terms.",
+        language: "Language"
+      },
+      sv: {
+        title: "Kvitthanteringssystem",
+        subtitle: "Organisera och kategorisera kvitton och fakturor effektivt",
+        vendor: "Leverantör",
+        price: "Pris",
+        productName: "Produktnamn",
+        verificationLetter: "Verifieringsbrev",
+        ascending: "Stigande",
+        descending: "Fallande",
+        searchPlaceholder: "Sök kvitton efter leverantör, produkt eller pris...",
+        noReceiptsTitle: "Inga kvitton hittades",
+        noReceiptsDescription: "Försök justera dina söktermer.",
+        language: "Språk"
+      }
+    };
+    return translations[language as keyof typeof translations][key as keyof typeof translations.en];
+  };
 
   const tags = [
-    { name: 'Vendor', icon: FileText, key: 'vendor' },
-    { name: 'Price', icon: DollarSign, key: 'price' },
-    { name: 'Product Name', icon: Package, key: 'productName' },
-    { name: 'Verification Letter', icon: CheckCircle, key: 'verificationLetter' }
+    { name: getText('vendor'), icon: FileText, key: 'vendor' },
+    { name: getText('price'), icon: DollarSign, key: 'price' },
+    { name: getText('productName'), icon: Package, key: 'productName' },
+    { name: getText('verificationLetter'), icon: CheckCircle, key: 'verificationLetter' }
   ];
 
   const sortReceipts = (receipts: any[], tag: string, order: 'asc' | 'desc') => {
@@ -138,8 +174,8 @@ const Index = () => {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Receipt Management System</h1>
-          <p className="text-gray-600 mt-2">Organize and categorize receipts and invoices efficiently</p>
+          <h1 className="text-3xl font-bold text-gray-900">{getText('title')}</h1>
+          <p className="text-gray-600 mt-2">{getText('subtitle')}</p>
         </div>
       </div>
 
@@ -172,7 +208,7 @@ const Index = () => {
               size="sm"
             >
               <ArrowUpAZ size={16} />
-              Ascending
+              {getText('ascending')}
             </Button>
             <Button
               variant={sortOrder === 'desc' ? "default" : "outline"}
@@ -181,7 +217,7 @@ const Index = () => {
               size="sm"
             >
               <ArrowDownZA size={16} />
-              Descending
+              {getText('descending')}
             </Button>
           </div>
         )}
@@ -190,7 +226,7 @@ const Index = () => {
         <div className="relative mb-8">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
           <Input
-            placeholder="Search receipts by vendor, product, or price..."
+            placeholder={getText('searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 py-3 text-lg border-2 focus:border-blue-500 transition-colors"
@@ -212,10 +248,28 @@ const Index = () => {
         {filteredReceipts.length === 0 && (
           <div className="text-center py-12">
             <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No receipts found</h3>
-            <p className="text-gray-600">Try adjusting your search terms.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{getText('noReceiptsTitle')}</h3>
+            <p className="text-gray-600">{getText('noReceiptsDescription')}</p>
           </div>
         )}
+      </div>
+
+      {/* Language Selector */}
+      <div className="p-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center gap-2">
+            <Languages className="h-4 w-4 text-gray-600" />
+            <Select value={language} onValueChange={setLanguage}>
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="sv">Svenska</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
 
       <ReceiptModal
