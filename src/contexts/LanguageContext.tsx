@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 type Language = 'sv' | 'en';
@@ -55,7 +54,37 @@ const translations = {
     // Tomma tillståndet
     noReceiptsEmptyTitle: "Börja med dina kvitton",
     uploadYourReceipts: "Ladda upp dina kvitton",
-    trySampleData: "Prova exempeldata"
+    trySampleData: "Prova exempeldata",
+
+    // Samtycke och villkor
+    consentTitle: "📄 Samtycke & Villkor för Betatest",
+    consentWelcome: "Välkommen till vårt Betatestprogram",
+    consentIntro: "Innan du fortsätter, vänligen läs och bekräfta ditt godkännande av följande villkor:",
+    
+    consentPurpose: "1. Syfte & Omfattning",
+    consentPurposeText: "Genom att delta hjälper du oss att testa och förbättra vårt kvittohanteringsverktyg, som extraherar och organiserar dina kvittodata. Du förstår att detta är en förhandsversion i beta, som kan innehålla buggar och pågående utveckling.",
+    
+    consentData: "2. Databehandling & GDPR-efterlevnad",
+    consentDataText: "Vi kan behandla personlig och finansiell data från kvitton (t.ex. leverantör, datum, belopp). Behandlingen är laglig enligt GDPR Artikel 6(1)(b) (nödvändig för avtalsuppfyllelse) eller samtycke. Vi samlar endast data som är nödvändig för testet och behåller den endast så länge som behövs. En fullständig radering sker inom 30 dagar efter att betan stängs eller på begäran. Dina data lagras säkert (krypterade under överföring och i vila). Åtkomst är begränsad till auktoriserad personal. Du, som kontoinnehavare eller dataleverantör, har rätt att när som helst få tillgång till, korrigera, radera eller begränsa dina data.",
+    
+    consentConfidentiality: "3. Sekretess",
+    consentConfidentialityText: "All data - kvittobilder, extraherad text och utdata - är konfidentiell. Vi kommer inte att dela dina data med tredje parter förutom: Behandlare som är nödvändiga för tjänsteleverans (t.ex. OCR API-leverantörer), under strikta sekretessavtal. Juridiska skyldigheter (t.ex. stämningar eller myndighetskrav).",
+    
+    consentLiability: "4. Ansvarsbegränsning",
+    consentLiabilityText: "Eftersom detta är en betatjänst: Vi ger inga garantier angående noggrannhet eller tillgänglighet. Vi är inte ansvariga för någon förlust, fel eller problem som uppstår från behandling av dina data. I den utsträckning som är juridiskt tillåtet, är vårt ansvar begränsat till det belopp du betalat (om något).",
+    
+    consentWithdrawal: "5. Återkallelse & Uppsägning",
+    consentWithdrawalText: "Du kan när som helst dra dig ur betan genom att kontakta oss. Vid återkallelse kommer dina data att raderas permanent inom 30 dagar. Vi kan också pausa eller avsluta betan efter eget gottfinnande, med 30 dagars varsel.",
+    
+    consentAcceptance: "6. Godkännande",
+    consentAcceptanceText: "Genom att klicka på 'Jag godkänner' bekräftar du: Att du har läst och förstått dessa villkor. Att du samtycker till vår behandling av dina kvittodata. Att du erkänner dina GDPR-rättigheter och våra säkerhets-, sekretess- och bevarandeåtaganden.",
+    
+    iAgree: "Jag godkänner",
+    cancel: "Avbryt",
+    agreeToTerms: "Jag godkänner villkoren",
+    agreeToDataProcessing: "Jag samtycker till databehandling",
+    acknowledgeGDPRRights: "Jag erkänner mina GDPR-rättigheter",
+    consentRequired: "Du måste godkänna alla villkor för att fortsätta"
   },
   en: {
     // LoadReceipts page
@@ -102,7 +131,37 @@ const translations = {
     // Empty state
     noReceiptsEmptyTitle: "Get started with your receipts",
     uploadYourReceipts: "Upload Your Receipts",
-    trySampleData: "Try Sample Data"
+    trySampleData: "Try Sample Data",
+
+    // Consent and Terms
+    consentTitle: "📄 Consent & Beta Terms Agreement",
+    consentWelcome: "Welcome to our Beta Test Program",
+    consentIntro: "Before proceeding, please read and confirm your acceptance of the following terms:",
+    
+    consentPurpose: "1. Purpose & Scope",
+    consentPurposeText: "By participating, you help us test and improve our receipt processing tool, which extracts and organizes your receipt data. You understand this is a pre-release beta, subject to bugs and ongoing development.",
+    
+    consentData: "2. Data Processing & GDPR Compliance",
+    consentDataText: "We may process personal and financial data from receipts (e.g. vendor, date, amount). Processing is lawful under GDPR Article 6(1)(b) (necessary for contractual performance) or consent. We collect only data necessary for the test and retain it only as needed. A full deletion occurs within 30 days of beta closure or upon request. Your data is securely stored (encrypted in transit and at rest). Access is limited to authorized personnel. You, as account-holder or data-provider, have the right to access, correct, delete, or restrict your data at any time.",
+    
+    consentConfidentiality: "3. Confidentiality",
+    consentConfidentialityText: "All data—receipt images, extracted text, and outputs—are confidential. We will not share your data with third parties except: Processors necessary for service delivery (e.g. OCR API providers), under strict confidentiality agreements. Legal obligations (e.g. subpoenas or regulatory requests).",
+    
+    consentLiability: "4. Limitation of Liability",
+    consentLiabilityText: "As this is a beta service: We make no warranties regarding accuracy or availability. We are not liable for any loss, errors, or issues arising from processing your data. To the extent legally permissible, our liability is capped at the amount you paid (if any).",
+    
+    consentWithdrawal: "5. Withdrawal & Termination",
+    consentWithdrawalText: "You can withdraw from the beta at any time by contacting us. Upon withdrawal, your data will be permanently deleted within 30 days. We may also pause or terminate the beta at our discretion, with 30 days' notice.",
+    
+    consentAcceptance: "6. Acceptance",
+    consentAcceptanceText: "By clicking 'I Agree', you confirm: You have read and understood these terms. You consent to our processing of your receipt data. You acknowledge your GDPR rights and our security, confidentiality, and retention commitments.",
+    
+    iAgree: "I Agree",
+    cancel: "Cancel",
+    agreeToTerms: "I agree to the terms",
+    agreeToDataProcessing: "I consent to data processing",
+    acknowledgeGDPRRights: "I acknowledge my GDPR rights",
+    consentRequired: "You must accept all terms to continue"
   }
 };
 
