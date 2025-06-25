@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Search, FileText, DollarSign, Package, CheckCircle, ArrowUpAZ, ArrowDownZA, Languages } from 'lucide-react';
+import { Search, FileText, DollarSign, Package, CheckCircle, ArrowUpAZ, ArrowDownZA } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ReceiptCard from '@/components/ReceiptCard';
 import ReceiptModal from '@/components/ReceiptModal';
+import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSelector from '@/components/LanguageSelector';
 
 // Sample receipt data
 const sampleReceipts = [
@@ -64,41 +65,7 @@ const Index = () => {
   const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
-  const [language, setLanguage] = useState('en');
-
-  const getText = (key: string) => {
-    const translations = {
-      en: {
-        title: "Receipt Management System",
-        subtitle: "Organize and categorize receipts and invoices efficiently",
-        vendor: "Vendor",
-        price: "Price",
-        productName: "Product Name",
-        verificationLetter: "Verification Letter",
-        ascending: "Ascending",
-        descending: "Descending",
-        searchPlaceholder: "Search receipts by vendor, product, or price...",
-        noReceiptsTitle: "No receipts found",
-        noReceiptsDescription: "Try adjusting your search terms.",
-        language: "Language"
-      },
-      sv: {
-        title: "Kvitthanteringssystem",
-        subtitle: "Organisera och kategorisera kvitton och fakturor effektivt",
-        vendor: "Leverantör",
-        price: "Pris",
-        productName: "Produktnamn",
-        verificationLetter: "Verifieringsbrev",
-        ascending: "Stigande",
-        descending: "Fallande",
-        searchPlaceholder: "Sök kvitton efter leverantör, produkt eller pris...",
-        noReceiptsTitle: "Inga kvitton hittades",
-        noReceiptsDescription: "Försök justera dina söktermer.",
-        language: "Språk"
-      }
-    };
-    return translations[language as keyof typeof translations][key as keyof typeof translations.en];
-  };
+  const { getText } = useLanguage();
 
   const tags = [
     { name: getText('vendor'), icon: FileText, key: 'vendor' },
@@ -257,18 +224,7 @@ const Index = () => {
       {/* Language Selector */}
       <div className="p-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center gap-2">
-            <Languages className="h-4 w-4 text-gray-600" />
-            <Select value={language} onValueChange={setLanguage}>
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="sv">Svenska</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <LanguageSelector />
         </div>
       </div>
 

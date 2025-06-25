@@ -1,15 +1,16 @@
 
 import React, { useState } from 'react';
-import { Upload, FileText, ArrowRight, Loader2, Languages } from 'lucide-react';
+import { Upload, FileText, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSelector from '@/components/LanguageSelector';
 
 const LoadReceipts = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [language, setLanguage] = useState('en');
   const navigate = useNavigate();
+  const { getText } = useLanguage();
 
   const handleLoadReceipts = async () => {
     setIsLoading(true);
@@ -28,42 +29,6 @@ const LoadReceipts = () => {
       // Here you would typically process the uploaded files
       handleLoadReceipts();
     }
-  };
-
-  const getText = (key: string) => {
-    const translations = {
-      en: {
-        title: "Receipt Management System",
-        subtitle: "Upload and organize your receipts and invoices efficiently",
-        loadReceipts: "Load Your Receipts",
-        chooseMethod: "Choose how you'd like to load your receipts into the system",
-        uploadFiles: "Upload Receipt Files",
-        uploadDescription: "Select images or PDF files of your receipts to upload",
-        chooseFiles: "Choose Files",
-        useSample: "Use Sample Data",
-        sampleDescription: "Start with pre-loaded sample receipts to explore the system",
-        loadSampleData: "Load Sample Data",
-        loadingReceipts: "Loading Receipts...",
-        secureManage: "Securely manage and organize all your business receipts in one place",
-        language: "Language"
-      },
-      sv: {
-        title: "Kvitthanteringssystem",
-        subtitle: "Ladda upp och organisera dina kvitton och fakturor effektivt",
-        loadReceipts: "Ladda dina kvitton",
-        chooseMethod: "Välj hur du vill ladda dina kvitton i systemet",
-        uploadFiles: "Ladda upp kvittofiler",
-        uploadDescription: "Välj bilder eller PDF-filer med dina kvitton att ladda upp",
-        chooseFiles: "Välj filer",
-        useSample: "Använd exempeldata",
-        sampleDescription: "Börja med förladdade exempelkvitton för att utforska systemet",
-        loadSampleData: "Ladda exempeldata",
-        loadingReceipts: "Laddar kvitton...",
-        secureManage: "Hantera och organisera alla dina företagskvitton säkert på ett ställe",
-        language: "Språk"
-      }
-    };
-    return translations[language as keyof typeof translations][key as keyof typeof translations.en];
   };
 
   return (
@@ -170,18 +135,7 @@ const LoadReceipts = () => {
       {/* Language Selector */}
       <div className="p-4">
         <div className="max-w-2xl mx-auto">
-          <div className="flex items-center justify-center gap-2">
-            <Languages className="h-4 w-4 text-gray-600" />
-            <Select value={language} onValueChange={setLanguage}>
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="sv">Svenska</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <LanguageSelector />
         </div>
       </div>
     </div>
