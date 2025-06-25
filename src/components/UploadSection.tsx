@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Upload, FileText, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,10 +24,15 @@ const UploadSection: React.FC<UploadSectionProps> = ({
   const { getText } = useLanguage();
   const { hasConsent, grantConsent } = useConsent();
 
+  console.log('UploadSection - hasConsent:', hasConsent, 'showConsentDialog:', showConsentDialog);
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
+      console.log('File upload triggered, hasConsent:', hasConsent);
+      
       if (!hasConsent) {
+        console.log('No consent, showing dialog');
         setPendingAction('upload');
         setShowConsentDialog(true);
         return;
@@ -46,7 +50,10 @@ const UploadSection: React.FC<UploadSectionProps> = ({
   };
 
   const handleLoadSample = async () => {
+    console.log('Load sample triggered, hasConsent:', hasConsent);
+    
     if (!hasConsent) {
+      console.log('No consent, showing dialog for sample');
       setPendingAction('sample');
       setShowConsentDialog(true);
       return;
@@ -59,6 +66,7 @@ const UploadSection: React.FC<UploadSectionProps> = ({
   };
 
   const handleConsentGiven = async () => {
+    console.log('Consent given, pending action:', pendingAction);
     grantConsent();
     setShowConsentDialog(false);
     
@@ -78,6 +86,7 @@ const UploadSection: React.FC<UploadSectionProps> = ({
   };
 
   const handleConsentDeclined = () => {
+    console.log('Consent declined');
     setShowConsentDialog(false);
     setPendingAction(null);
   };

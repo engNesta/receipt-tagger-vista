@@ -20,14 +20,21 @@ export const useConsent = () => {
   const checkConsentStatus = () => {
     try {
       const consentData = localStorage.getItem('receipt-app-consent');
+      console.log('Checking consent status, found data:', consentData);
+      
       if (consentData) {
         const parsed: ConsentData = JSON.parse(consentData);
+        console.log('Parsed consent data:', parsed);
+        
         // Check if consent is valid (all required fields are true)
         const isValid = parsed.termsAccepted && 
                        parsed.dataProcessingConsent && 
                        parsed.gdprAcknowledged;
+        
+        console.log('Consent is valid:', isValid);
         setHasConsent(isValid);
       } else {
+        console.log('No consent data found, setting hasConsent to false');
         setHasConsent(false);
       }
     } catch (error) {
@@ -39,10 +46,12 @@ export const useConsent = () => {
   };
 
   const grantConsent = () => {
+    console.log('Granting consent');
     setHasConsent(true);
   };
 
   const revokeConsent = () => {
+    console.log('Revoking consent');
     localStorage.removeItem('receipt-app-consent');
     setHasConsent(false);
   };
