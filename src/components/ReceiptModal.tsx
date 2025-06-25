@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -80,7 +79,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
             </div>
           ) : (
             <div className="text-center py-4">
-              <p className="text-gray-400 text-sm italic">Select a tag to view specific information</p>
+              <p className="text-gray-400 text-sm italic">{getText('selectTagForInfo')}</p>
             </div>
           )}
         </div>

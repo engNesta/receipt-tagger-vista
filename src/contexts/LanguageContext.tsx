@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 type Language = 'en' | 'sv';
@@ -35,7 +34,11 @@ const translations = {
     descending: "Descending",
     searchPlaceholder: "Search receipts by vendor, product, or price...",
     noReceiptsTitle: "No receipts found",
-    noReceiptsDescription: "Try adjusting your search terms."
+    noReceiptsDescription: "Try adjusting your search terms.",
+    
+    // Receipt cards and modal
+    selectTagToView: "Select a tag to view information",
+    selectTagForInfo: "Select a tag to view specific information"
   },
   sv: {
     // LoadReceipts page
@@ -62,7 +65,11 @@ const translations = {
     descending: "Fallande",
     searchPlaceholder: "Sök kvitton efter leverantör, produkt eller pris...",
     noReceiptsTitle: "Inga kvitton hittades",
-    noReceiptsDescription: "Försök justera dina söktermer."
+    noReceiptsDescription: "Försök justera dina söktermer.",
+    
+    // Receipt cards and modal
+    selectTagToView: "Välj en tagg för att visa information",
+    selectTagForInfo: "Välj en tagg för att visa specifik information"
   }
 };
 

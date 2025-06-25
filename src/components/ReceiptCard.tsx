@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -75,7 +74,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt, selectedTag, onClick
               <p className="font-semibold text-gray-900 text-sm truncate">{displayInfo.value}</p>
             </div>
           ) : (
-            <p className="text-gray-400 text-xs italic">Select a tag to view information</p>
+            <p className="text-gray-400 text-xs italic">{getText('selectTagToView')}</p>
           )}
         </div>
       </CardContent>
