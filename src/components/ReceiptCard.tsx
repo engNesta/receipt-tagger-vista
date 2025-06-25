@@ -17,6 +17,25 @@ interface ReceiptCardProps {
 }
 
 const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt, selectedTag }) => {
+  const getDisplayValue = () => {
+    if (!selectedTag) return null;
+    
+    switch (selectedTag) {
+      case 'vendor':
+        return { label: 'Vendor', value: receipt.vendor };
+      case 'price':
+        return { label: 'Price', value: receipt.price };
+      case 'productName':
+        return { label: 'Product', value: receipt.productName };
+      case 'verificationLetter':
+        return { label: 'Verification', value: receipt.verificationLetter };
+      default:
+        return null;
+    }
+  };
+
+  const displayInfo = getDisplayValue();
+
   return (
     <Card className="overflow-hidden hover:shadow-md transition-all duration-300 hover:scale-105 bg-white">
       <CardContent className="p-0">
@@ -41,27 +60,16 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt, selectedTag }) => {
           />
         </div>
 
-        {/* Receipt Information */}
-        <div className="p-3 space-y-2">
-          <div className={`${selectedTag === 'vendor' ? 'bg-blue-50 border border-blue-200 rounded px-2 py-1' : ''}`}>
-            <p className="text-xs text-gray-500">Vendor</p>
-            <p className="font-medium text-gray-900 text-sm truncate">{receipt.vendor}</p>
-          </div>
-          
-          <div className={`${selectedTag === 'price' ? 'bg-blue-50 border border-blue-200 rounded px-2 py-1' : ''}`}>
-            <p className="text-xs text-gray-500">Price</p>
-            <p className="font-semibold text-gray-900 text-sm">{receipt.price}</p>
-          </div>
-          
-          <div className={`${selectedTag === 'productName' ? 'bg-blue-50 border border-blue-200 rounded px-2 py-1' : ''}`}>
-            <p className="text-xs text-gray-500">Product</p>
-            <p className="font-medium text-gray-900 text-sm truncate">{receipt.productName}</p>
-          </div>
-          
-          <div className={`${selectedTag === 'verificationLetter' ? 'bg-blue-50 border border-blue-200 rounded px-2 py-1' : ''}`}>
-            <p className="text-xs text-gray-500">Verification</p>
-            <p className="font-medium text-gray-900 text-sm">{receipt.verificationLetter}</p>
-          </div>
+        {/* Selected Tag Information */}
+        <div className="p-3 min-h-[60px] flex items-center justify-center">
+          {displayInfo ? (
+            <div className="text-center w-full">
+              <p className="text-xs text-gray-500 mb-1">{displayInfo.label}</p>
+              <p className="font-semibold text-gray-900 text-sm truncate">{displayInfo.value}</p>
+            </div>
+          ) : (
+            <p className="text-gray-400 text-xs italic">Select a tag to view information</p>
+          )}
         </div>
       </CardContent>
     </Card>
