@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 type Language = 'en' | 'sv';
@@ -24,6 +25,7 @@ const translations = {
     loadingReceipts: "Loading Receipts...",
     secureManage: "Securely manage and organize all your business receipts in one place",
     language: "Language",
+    loadMoreReceipts: "Load More Receipts",
     
     // Index page
     vendor: "Vendor",
@@ -55,6 +57,7 @@ const translations = {
     loadingReceipts: "Laddar kvitton...",
     secureManage: "Hantera och organisera alla dina företagskvitton säkert på ett ställe",
     language: "Språk",
+    loadMoreReceipts: "Ladda fler kvitton",
     
     // Index page
     vendor: "Leverantör",

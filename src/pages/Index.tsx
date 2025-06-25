@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
-import { Search, FileText, DollarSign, Package, CheckCircle, ArrowUpAZ, ArrowDownZA } from 'lucide-react';
+import { Search, FileText, DollarSign, Package, CheckCircle, ArrowUpAZ, ArrowDownZA, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ReceiptCard from '@/components/ReceiptCard';
 import ReceiptModal from '@/components/ReceiptModal';
+import LoadMoreModal from '@/components/LoadMoreModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import LanguageSelector from '@/components/LanguageSelector';
 
@@ -64,7 +66,9 @@ const Index = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoadMoreModalOpen, setIsLoadMoreModalOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
+  const [receipts, setReceipts] = useState(sampleReceipts);
   const { getText } = useLanguage();
 
   const tags = [
@@ -99,7 +103,7 @@ const Index = () => {
     });
   };
 
-  let filteredReceipts = sampleReceipts.filter(receipt =>
+  let filteredReceipts = receipts.filter(receipt =>
     receipt.vendor.toLowerCase().includes(searchTerm.toLowerCase()) ||
     receipt.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     receipt.price.includes(searchTerm)
@@ -136,13 +140,49 @@ const Index = () => {
     setSelectedReceipt(null);
   };
 
+  const handleReceiptsAdded = () => {
+    // Simulate adding new receipts (in a real app, this would be actual new data)
+    const newReceipts = [
+      {
+        id: receipts.length + 1,
+        imageUrl: "/placeholder.svg",
+        vendor: "New Supplier Ltd.",
+        price: "$156.23",
+        productName: "Fresh Office Equipment",
+        verificationLetter: "Verification B"
+      },
+      {
+        id: receipts.length + 2,
+        imageUrl: "/placeholder.svg",
+        vendor: "Digital Services Co.",
+        price: "$89.99",
+        productName: "Software Subscription",
+        verificationLetter: "Verification B"
+      }
+    ];
+    
+    setReceipts(prevReceipts => [...prevReceipts, ...newReceipts]);
+    console.log('New receipts added:', newReceipts.length);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">{getText('title')}</h1>
-          <p className="text-gray-600 mt-2">{getText('subtitle')}</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">{getText('title')}</h1>
+              <p className="text-gray-600 mt-2">{getText('subtitle')}</p>
+            </div>
+            <Button
+              onClick={() => setIsLoadMoreModalOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus size={16} />
+              {getText('loadMoreReceipts')}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -233,6 +273,12 @@ const Index = () => {
         selectedTag={selectedTag}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+      />
+
+      <LoadMoreModal
+        isOpen={isLoadMoreModalOpen}
+        onClose={() => setIsLoadMoreModalOpen(false)}
+        onReceiptsAdded={handleReceiptsAdded}
       />
     </div>
   );
