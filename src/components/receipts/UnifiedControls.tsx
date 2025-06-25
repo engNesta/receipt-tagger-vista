@@ -40,11 +40,11 @@ const UnifiedControls: React.FC<UnifiedControlsProps> = ({
   ];
 
   const sortOptions = [
-    { key: 'recent', label: 'Most Recent' },
-    { key: 'price-high', label: 'Price: High to Low' },
-    { key: 'price-low', label: 'Price: Low to High' },
-    { key: 'vendor-az', label: 'Vendor: A-Z' },
-    { key: 'vendor-za', label: 'Vendor: Z-A' }
+    { key: 'recent', label: getText('mostRecent') },
+    { key: 'price-high', label: getText('priceHighToLow') },
+    { key: 'price-low', label: getText('priceLowToHigh') },
+    { key: 'vendor-az', label: getText('vendorAZ') },
+    { key: 'vendor-za', label: getText('vendorZA') }
   ];
 
   const handleSortSelection = (sortKey: string) => {
@@ -78,15 +78,15 @@ const UnifiedControls: React.FC<UnifiedControlsProps> = ({
   };
 
   const getCurrentSortLabel = () => {
-    if (!selectedTag || !sortOrder) return 'Most Recent';
+    if (!selectedTag || !sortOrder) return getText('mostRecent');
     
     if (selectedTag === 'price') {
-      return sortOrder === 'desc' ? 'Price: High to Low' : 'Price: Low to High';
+      return sortOrder === 'desc' ? getText('priceHighToLow') : getText('priceLowToHigh');
     }
     if (selectedTag === 'vendor') {
-      return sortOrder === 'desc' ? 'Vendor: Z-A' : 'Vendor: A-Z';
+      return sortOrder === 'desc' ? getText('vendorZA') : getText('vendorAZ');
     }
-    return 'Most Recent';
+    return getText('mostRecent');
   };
 
   return (
@@ -115,7 +115,7 @@ const UnifiedControls: React.FC<UnifiedControlsProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+            <DropdownMenuLabel>{getText('filterBy')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {filterOptions.map((option) => (
               <DropdownMenuItem
@@ -128,7 +128,7 @@ const UnifiedControls: React.FC<UnifiedControlsProps> = ({
             ))}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => onTagClick('')}>
-              Clear Filter
+              {getText('clearFilter')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -145,7 +145,7 @@ const UnifiedControls: React.FC<UnifiedControlsProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+            <DropdownMenuLabel>{getText('sortBy')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {sortOptions.map((option) => (
               <DropdownMenuItem

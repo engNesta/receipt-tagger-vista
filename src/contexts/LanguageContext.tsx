@@ -38,6 +38,16 @@ const translations = {
     noReceiptsTitle: "Inga kvitton hittades",
     noReceiptsDescription: "Försök justera dina söktermer.",
     
+    // Sortering och filtrering
+    filterBy: "Filtrera efter",
+    sortBy: "Sortera efter",
+    clearFilter: "Rensa filter",
+    mostRecent: "Senaste",
+    priceHighToLow: "Belopp: Högst till lägst",
+    priceLowToHigh: "Belopp: Lägst till högst",
+    vendorAZ: "Leverantör: A-Ö",
+    vendorZA: "Leverantör: Ö-A",
+    
     // Kvittokort och modal
     selectTagToView: "Välj en kategori för att visa information",
     selectTagForInfo: "Välj en kategori för att visa specifik information",
@@ -74,6 +84,16 @@ const translations = {
     searchPlaceholder: "Search receipts by vendor, product, or amount...",
     noReceiptsTitle: "No receipts found",
     noReceiptsDescription: "Try adjusting your search terms.",
+    
+    // Sorting and filtering
+    filterBy: "Filter by",
+    sortBy: "Sort by",
+    clearFilter: "Clear Filter",
+    mostRecent: "Most Recent",
+    priceHighToLow: "Price: High to Low",
+    priceLowToHigh: "Price: Low to High",
+    vendorAZ: "Vendor: A-Z",
+    vendorZA: "Vendor: Z-A",
     
     // Receipt cards and modal
     selectTagToView: "Select a category to view information",
