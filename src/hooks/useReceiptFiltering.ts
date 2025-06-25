@@ -22,8 +22,8 @@ export const useReceiptFiltering = (receipts: Receipt[]) => {
 
       // Handle price sorting (remove $ and convert to number)
       if (tag === 'price') {
-        aValue = parseFloat(aValue.replace('$', '').replace(',', '')) as any;
-        bValue = parseFloat(bValue.replace('$', '').replace(',', '')) as any;
+        aValue = parseFloat(String(aValue).replace('$', '').replace(',', '')) as any;
+        bValue = parseFloat(String(bValue).replace('$', '').replace(',', '')) as any;
       }
 
       if (typeof aValue === 'string' && typeof bValue === 'string') {
