@@ -127,7 +127,7 @@ Deno.serve(async (req) => {
       bytes[i] = binaryString.charCodeAt(i)
     }
 
-    const containerName = 'raw_drop';
+    const containerName = 'rawdrop';
     const timestamp = Date.now()
     
     // Create simple blob name with extension
