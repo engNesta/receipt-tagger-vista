@@ -1,4 +1,3 @@
-
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -151,7 +150,7 @@ Deno.serve(async (req) => {
       bytes[i] = binaryString.charCodeAt(i)
     }
 
-    const containerName = 'raw-drop';
+    const containerName = 'raw_drop';
     const timestamp = Date.now()
     const uniqueFileName = `${userId}/${timestamp}-${fileName}`
 
