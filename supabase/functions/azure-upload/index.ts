@@ -1,3 +1,4 @@
+
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -152,7 +153,16 @@ Deno.serve(async (req) => {
 
     const containerName = 'raw_drop';
     const timestamp = Date.now()
-    const uniqueFileName = `${userId}/${timestamp}-${fileName}`
+    
+    // Sanitize fileName to ensure Azure compliance
+    const sanitizedFileName = fileName
+      .replace(/[^a-zA-Z0-9._-]/g, '_') // Replace invalid characters with underscores
+      .replace(/_{2,}/g, '_'); // Replace multiple underscores with single underscore
+    
+    // Create Azure-compliant blob name (using forward slashes for virtual folders)
+    const uniqueFileName = `${userId}/${timestamp}_${sanitizedFileName}`;
+    
+    console.log('Sanitized file name:', uniqueFileName);
 
     // Create the blob URL
     const blobUrl = `https://${azureConfig.accountName}.blob.${azureConfig.endpointSuffix}/${containerName}/${uniqueFileName}`;
