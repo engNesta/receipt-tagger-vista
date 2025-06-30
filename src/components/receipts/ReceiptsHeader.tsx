@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileText, Plus, Processor } from 'lucide-react';
+import { FileText, Plus, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
@@ -37,7 +37,7 @@ const ReceiptsHeader: React.FC<ReceiptsHeaderProps> = ({ onLoadMoreClick }) => {
               onClick={() => navigate('/file-processor')}
               className="flex items-center gap-2"
             >
-              <Processor className="h-4 w-4" />
+              <Settings className="h-4 w-4" />
               File Processor
             </Button>
             <Button onClick={onLoadMoreClick} className="flex items-center gap-2">
