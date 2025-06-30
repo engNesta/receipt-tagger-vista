@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import Index from '@/pages/Index';
 import NotFound from '@/pages/NotFound';
-import FileProcessor from '@/pages/FileProcessor';
 import { Toaster } from '@/components/ui/toaster';
 
 function App() {
@@ -14,8 +13,6 @@ function App() {
         <div className="min-h-screen bg-background">
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/receipts" element={<Index />} />
-            <Route path="/processor" element={<FileProcessor />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
