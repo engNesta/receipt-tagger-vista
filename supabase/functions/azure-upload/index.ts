@@ -1,7 +1,6 @@
-
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-// Use a Deno-compatible version of Azure Storage
-import { BlobServiceClient } from 'https://esm.sh/@azure/storage-blob@12.24.0/dist-esm/storage-blob.js'
+// Use the correct Azure Storage SDK import for Deno
+import { BlobServiceClient } from 'https://esm.sh/@azure/storage-blob@12.24.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
