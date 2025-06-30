@@ -1,5 +1,6 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { BlobServiceClient } from 'https://esm.sh/@azure/storage-blob@12.17.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,18 +21,24 @@ Deno.serve(async (req) => {
   }
 
   try {
-    console.log('Azure upload function called');
+    console.log('Azure upload function called with real Azure integration');
 
     // Initialize Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '', // Use service role key instead of anon key
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       {
         global: {
           headers: { Authorization: req.headers.get('Authorization')! },
         },
       }
     )
+
+    // Get Azure connection string
+    const azureConnectionString = Deno.env.get('AZURE_STORAGE_CONNECTION_STRING');
+    if (!azureConnectionString) {
+      throw new Error('Azure Storage Connection String not configured');
+    }
 
     // Get the current user - more lenient approach
     const authHeader = req.headers.get('Authorization');
@@ -68,15 +75,42 @@ Deno.serve(async (req) => {
       bytes[i] = binaryString.charCodeAt(i)
     }
 
+    // Initialize Azure Blob Service Client
+    const blobServiceClient = BlobServiceClient.fromConnectionString(azureConnectionString);
+    const containerName = 'raw-drop';
+    const containerClient = blobServiceClient.getContainerClient(containerName);
+
+    // Ensure container exists
+    try {
+      await containerClient.createIfNotExists({
+        access: 'blob' // Public read access for blobs
+      });
+      console.log('Container "raw-drop" ready');
+    } catch (containerError) {
+      console.log('Container may already exist or creation failed:', containerError);
+    }
+
     // Generate unique filename
     const timestamp = Date.now()
     const uniqueFileName = `${userId}/${timestamp}-${fileName}`
 
-    // For now, simulate successful upload without actual Azure connection
-    // This will allow the frontend to work while Azure credentials are being set up
-    const mockBlobUrl = `https://mockstore.blob.core.windows.net/dropzone/${uniqueFileName}`;
+    // Get blob client and upload
+    const blockBlobClient = containerClient.getBlockBlobClient(uniqueFileName);
     
-    console.log('Mock upload successful for:', uniqueFileName);
+    console.log('Uploading to Azure Blob Storage:', uniqueFileName);
+    
+    // Upload the file
+    const uploadResponse = await blockBlobClient.upload(bytes, bytes.length, {
+      blobHTTPHeaders: {
+        blobContentType: mimeType,
+      },
+    });
+
+    console.log('Azure upload successful:', uploadResponse.requestId);
+
+    // Get the blob URL
+    const blobUrl = blockBlobClient.url;
+    console.log('File available at:', blobUrl);
 
     // Save metadata to Supabase (only if we have a real user)
     let fileRecord = null;
@@ -89,7 +123,7 @@ Deno.serve(async (req) => {
             original_name: fileName,
             file_size: fileSize,
             mime_type: mimeType,
-            azure_blob_url: mockBlobUrl,
+            azure_blob_url: blobUrl,
             upload_status: 'completed'
           })
           .select()
@@ -110,8 +144,8 @@ Deno.serve(async (req) => {
       JSON.stringify({ 
         success: true, 
         file: fileRecord,
-        url: mockBlobUrl,
-        message: 'File uploaded successfully (mock mode)'
+        url: blobUrl,
+        message: `File uploaded successfully to Azure Blob Storage: ${uniqueFileName}`
       }),
       { 
         headers: { 
@@ -122,7 +156,7 @@ Deno.serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Upload error:', error)
+    console.error('Azure upload error:', error)
     return new Response(
       JSON.stringify({ 
         success: false,
