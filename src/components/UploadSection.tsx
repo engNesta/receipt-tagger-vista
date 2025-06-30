@@ -1,6 +1,5 @@
-
 import React, { useState, useCallback, useRef } from 'react';
-import { Upload, FileText, Loader2, CheckCircle, AlertCircle, X } from 'lucide-react';
+import { Upload, FileText, Loader2, CheckCircle, AlertCircle, X, Cloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -14,6 +13,7 @@ interface FileWithStatus {
   status: 'pending' | 'processing' | 'completed' | 'error';
   progress: number;
   error?: string;
+  azureUrl?: string;
 }
 
 interface UploadSectionProps {
@@ -35,7 +35,7 @@ const UploadSection: React.FC<UploadSectionProps> = ({
   const { hasConsent, grantConsent } = useConsent();
   const { processFiles, isProcessing, stats } = useFilePipeline();
 
-  // File processing with visual feedback
+  // File processing with visual feedback and Azure storage
   const processFileWithStatus = async (fileWithStatus: FileWithStatus): Promise<void> => {
     return new Promise((resolve) => {
       let progress = 0;
@@ -61,9 +61,9 @@ const UploadSection: React.FC<UploadSectionProps> = ({
     });
   };
 
-  // Main file upload handler
+  // Main file upload handler with Azure integration
   const handleFilesUpload = async (files: File[]) => {
-    console.log('Processing files through enhanced pipeline:', files.length);
+    console.log('Processing files through Azure-enhanced pipeline:', files.length);
 
     // Create file status objects
     const filesWithStatus: FileWithStatus[] = files.map(file => ({
@@ -75,9 +75,20 @@ const UploadSection: React.FC<UploadSectionProps> = ({
 
     setUploadingFiles(filesWithStatus);
 
-    // Process files through the pipeline for duplicate detection
+    // Process files through the pipeline (now includes Azure storage)
     const pipelineResult = await processFiles(files);
-    console.log('Pipeline result:', pipelineResult);
+    console.log('Pipeline result with Azure storage:', pipelineResult);
+
+    // Update file status with Azure URLs if available
+    if (pipelineResult.processed) {
+      pipelineResult.processed.forEach(processedFile => {
+        setUploadingFiles(prev => prev.map(f => 
+          f.file.name === processedFile.file.name 
+            ? { ...f, azureUrl: processedFile.azureUrl }
+            : f
+        ));
+      });
+    }
 
     // Process each file with visual feedback
     for (const fileWithStatus of filesWithStatus) {
@@ -153,10 +164,10 @@ const UploadSection: React.FC<UploadSectionProps> = ({
     setUploadingFiles(prev => prev.filter(f => f.id !== fileId));
   };
 
-  const getStatusIcon = (status: FileWithStatus['status']) => {
+  const getStatusIcon = (status: FileWithStatus['status'], hasAzureUrl?: boolean) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return hasAzureUrl ? <Cloud className="h-4 w-4 text-blue-500" /> : <CheckCircle className="h-4 w-4 text-green-500" />;
       case 'error':
         return <AlertCircle className="h-4 w-4 text-red-500" />;
       case 'processing':
@@ -209,7 +220,7 @@ const UploadSection: React.FC<UploadSectionProps> = ({
                 {isUploading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Processing...
+                    Processing & Storing...
                   </>
                 ) : (
                   getText('chooseFiles')
@@ -218,12 +229,15 @@ const UploadSection: React.FC<UploadSectionProps> = ({
             </Button>
           </label>
 
-          {/* Processing Stats */}
+          {/* Processing Stats with Azure indicator */}
           {stats.totalProcessed > 0 && !isCompact && (
-            <div className="mt-4 text-xs text-gray-500">
-              Processed: {stats.totalProcessed} files • 
-              Success: {stats.successCount} • 
-              {stats.lastProcessed && ` Last: ${stats.lastProcessed.toLocaleTimeString()}`}
+            <div className="mt-4 text-xs text-gray-500 flex items-center justify-center space-x-2">
+              <Cloud className="h-3 w-3" />
+              <span>
+                Processed: {stats.totalProcessed} files • 
+                Success: {stats.successCount} • 
+                {stats.lastProcessed && ` Last: ${stats.lastProcessed.toLocaleTimeString()}`}
+              </span>
             </div>
           )}
         </div>
@@ -232,7 +246,10 @@ const UploadSection: React.FC<UploadSectionProps> = ({
         {uploadingFiles.length > 0 && (
           <div className="bg-white rounded-lg border p-4">
             <div className="flex items-center justify-between mb-3">
-              <h4 className="font-semibold text-sm">Processing Files</h4>
+              <h4 className="font-semibold text-sm flex items-center space-x-2">
+                <span>Processing & Storing Files</span>
+                <Cloud className="h-4 w-4 text-blue-500" />
+              </h4>
               <span className="text-xs text-gray-500">
                 {uploadingFiles.filter(f => f.status === 'completed').length} / {uploadingFiles.length}
               </span>
@@ -241,13 +258,19 @@ const UploadSection: React.FC<UploadSectionProps> = ({
             <div className="space-y-2 max-h-32 overflow-y-auto">
               {uploadingFiles.map((fileWithStatus) => (
                 <div key={fileWithStatus.id} className="flex items-center space-x-3 p-2 bg-gray-50 rounded text-sm">
-                  {getStatusIcon(fileWithStatus.status)}
+                  {getStatusIcon(fileWithStatus.status, !!fileWithStatus.azureUrl)}
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-gray-900 truncate">
                       {fileWithStatus.file.name}
                     </p>
-                    <p className="text-xs text-gray-500">
-                      {(fileWithStatus.file.size / 1024 / 1024).toFixed(2)} MB
+                    <p className="text-xs text-gray-500 flex items-center space-x-2">
+                      <span>{(fileWithStatus.file.size / 1024 / 1024).toFixed(2)} MB</span>
+                      {fileWithStatus.azureUrl && (
+                        <>
+                          <span>•</span>
+                          <span className="text-blue-600">Stored in cloud</span>
+                        </>
+                      )}
                     </p>
                   </div>
                   {fileWithStatus.status === 'processing' && (

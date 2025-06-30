@@ -1,10 +1,10 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Index from '@/pages/Index';
 import NotFound from '@/pages/NotFound';
 import FileProcessor from '@/pages/FileProcessor';
 import { Toaster } from '@/components/ui/toaster';
-import AzureFileUpload from '@/pages/AzureFileUpload';
 
 function App() {
   return (
@@ -14,7 +14,6 @@ function App() {
           <Route path="/" element={<Index />} />
           <Route path="/receipts" element={<Index />} />
           <Route path="/processor" element={<FileProcessor />} />
-          <Route path="/azure-upload" element={<AzureFileUpload />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

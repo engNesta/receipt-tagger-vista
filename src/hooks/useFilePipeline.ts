@@ -1,5 +1,6 @@
 
 import { useState, useCallback } from 'react';
+import { useAzureUpload } from './useAzureUpload';
 
 interface ProcessedFile {
   file: File;
@@ -10,6 +11,7 @@ interface ProcessedFile {
     type: string;
     lastModified: number;
   };
+  azureUrl?: string;
 }
 
 interface PipelineStats {
@@ -28,6 +30,8 @@ export const useFilePipeline = () => {
     errorCount: 0,
     lastProcessed: null
   });
+
+  const { uploadFile } = useAzureUpload();
 
   const detectNewFiles = useCallback((newFiles: File[], existingFiles: ProcessedFile[]) => {
     const existingFileHashes = new Set(
@@ -58,8 +62,8 @@ export const useFilePipeline = () => {
 
     for (const file of newFiles) {
       try {
-        // Simulate processing time
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Upload file to Azure storage
+        const uploadResult = await uploadFile(file);
         
         const processedFile: ProcessedFile = {
           file,
@@ -69,12 +73,19 @@ export const useFilePipeline = () => {
             size: file.size,
             type: file.type,
             lastModified: file.lastModified
-          }
+          },
+          azureUrl: uploadResult.success ? uploadResult.url : undefined
         };
 
         processed.push(processedFile);
-        successCount++;
-        console.log('Pipeline: Successfully processed', file.name);
+        
+        if (uploadResult.success) {
+          successCount++;
+          console.log('Pipeline: Successfully processed and stored', file.name);
+        } else {
+          errorCount++;
+          console.error('Pipeline: Upload failed for', file.name, uploadResult.error);
+        }
       } catch (error) {
         console.error('Pipeline: Error processing', file.name, error);
         errorCount++;
@@ -96,7 +107,7 @@ export const useFilePipeline = () => {
       skipped: files.length - newFiles.length,
       errors: errorCount 
     };
-  }, [processedFiles, detectNewFiles]);
+  }, [processedFiles, detectNewFiles, uploadFile]);
 
   const clearProcessedFiles = useCallback(() => {
     setProcessedFiles([]);
