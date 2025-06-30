@@ -18,11 +18,6 @@ const LoadMoreModal: React.FC<LoadMoreModalProps> = ({ isOpen, onClose, onReceip
     onClose();
   };
 
-  const handleLoadSample = () => {
-    onReceiptsAdded();
-    onClose();
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
@@ -33,8 +28,6 @@ const LoadMoreModal: React.FC<LoadMoreModalProps> = ({ isOpen, onClose, onReceip
         <div className="mt-4">
           <UploadSection
             onUploadComplete={handleUploadComplete}
-            onLoadSample={handleLoadSample}
-            showSampleOption={true}
             isCompact={true}
           />
         </div>
