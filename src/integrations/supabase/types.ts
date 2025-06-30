@@ -9,42 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      contact_submissions: {
+      files: {
         Row: {
-          company_name: string | null
+          azure_blob_url: string
           created_at: string
-          email: string
+          error_message: string | null
+          file_size: number
           id: string
+          mime_type: string
+          original_name: string
+          updated_at: string
+          upload_status: string
+          user_id: string | null
         }
         Insert: {
-          company_name?: string | null
+          azure_blob_url: string
           created_at?: string
-          email: string
+          error_message?: string | null
+          file_size: number
           id?: string
+          mime_type: string
+          original_name: string
+          updated_at?: string
+          upload_status?: string
+          user_id?: string | null
         }
         Update: {
-          company_name?: string | null
+          azure_blob_url?: string
           created_at?: string
-          email?: string
+          error_message?: string | null
+          file_size?: number
           id?: string
-        }
-        Relationships: []
-      }
-      interest_survey_responses: {
-        Row: {
-          benefit_response: string
-          created_at: string
-          id: string
-        }
-        Insert: {
-          benefit_response: string
-          created_at?: string
-          id?: string
-        }
-        Update: {
-          benefit_response?: string
-          created_at?: string
-          id?: string
+          mime_type?: string
+          original_name?: string
+          updated_at?: string
+          upload_status?: string
+          user_id?: string | null
         }
         Relationships: []
       }
