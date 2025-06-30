@@ -1,3 +1,4 @@
+
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -29,21 +30,6 @@ function parseConnectionString(connectionString: string) {
     accountKey: config.AccountKey,
     endpointSuffix: config.EndpointSuffix || 'core.windows.net'
   };
-}
-
-// Helper function to sanitize filename
-function sanitizeFileName(fileName: string): string {
-  console.log('Original filename:', fileName);
-  
-  // Simple sanitization - replace problematic characters with hyphens
-  const sanitized = fileName
-    .toLowerCase()
-    .replace(/[^a-z0-9.-]/g, '-') // Keep dots for extensions
-    .replace(/-+/g, '-') // Replace multiple hyphens with single
-    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
-  
-  console.log('Sanitized filename:', sanitized);
-  return sanitized || 'file';
 }
 
 // Helper function to create Azure Storage REST API signature
@@ -143,11 +129,10 @@ Deno.serve(async (req) => {
     const containerName = 'raw_drop';
     const timestamp = Date.now()
     
-    // Create simple blob name: timestamp-filename
-    const sanitizedFileName = sanitizeFileName(fileName);
-    const blobName = `${timestamp}-${sanitizedFileName}`;
+    // Create ultra-simple blob name: just timestamp
+    const blobName = `${timestamp}`;
     
-    console.log('Final blob name:', blobName);
+    console.log('Ultra-simple blob name:', blobName);
 
     // Create the blob URL
     const blobUrl = `https://${azureConfig.accountName}.blob.${azureConfig.endpointSuffix}/${containerName}/${blobName}`;
