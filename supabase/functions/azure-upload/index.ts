@@ -51,10 +51,10 @@ Deno.serve(async (req) => {
     const containerName = 'dropzone';
     const timestamp = Date.now()
     
-    // Create simple blob name with extension
-    const blobName = `${timestamp}.jpg`;
+    // Create blob path with rawdrop subfolder and extension
+    const blobName = `rawdrop/${timestamp}.jpg`;
     
-    console.log('Blob name with extension:', blobName);
+    console.log('Blob name with path:', blobName);
 
     // Create the blob URL
     const blobUrl = `https://${azureConfig.accountName}.blob.${azureConfig.endpointSuffix}/${containerName}/${blobName}`;
