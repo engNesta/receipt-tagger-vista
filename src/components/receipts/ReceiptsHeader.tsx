@@ -1,9 +1,8 @@
 
 import React from 'react';
-import { FileText, Plus, Settings } from 'lucide-react';
+import { FileText, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useNavigate } from 'react-router-dom';
 
 interface ReceiptsHeaderProps {
   onLoadMoreClick: () => void;
@@ -11,7 +10,6 @@ interface ReceiptsHeaderProps {
 
 const ReceiptsHeader: React.FC<ReceiptsHeaderProps> = ({ onLoadMoreClick }) => {
   const { getText } = useLanguage();
-  const navigate = useNavigate();
 
   return (
     <div className="bg-white shadow-sm border-b">
@@ -32,14 +30,6 @@ const ReceiptsHeader: React.FC<ReceiptsHeaderProps> = ({ onLoadMoreClick }) => {
           </div>
           
           <div className="flex items-center space-x-3">
-            <Button 
-              variant="outline"
-              onClick={() => navigate('/file-processor')}
-              className="flex items-center gap-2"
-            >
-              <Settings className="h-4 w-4" />
-              File Processor
-            </Button>
             <Button onClick={onLoadMoreClick} className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
               {getText('addReceipts')}

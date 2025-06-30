@@ -1,9 +1,20 @@
-import React, { useState } from 'react';
-import { Upload, FileText, ArrowRight, Loader2 } from 'lucide-react';
+
+import React, { useState, useCallback, useRef } from 'react';
+import { Upload, FileText, ArrowRight, Loader2, CheckCircle, AlertCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useConsent } from '@/hooks/useConsent';
+import { useFilePipeline } from '@/hooks/useFilePipeline';
 import ConsentDialog from './ConsentDialog';
+
+interface FileWithStatus {
+  file: File;
+  id: string;
+  status: 'pending' | 'processing' | 'completed' | 'error';
+  progress: number;
+  error?: string;
+}
 
 interface UploadSectionProps {
   onUploadComplete?: () => void;
@@ -18,67 +29,131 @@ const UploadSection: React.FC<UploadSectionProps> = ({
   showSampleOption = true,
   isCompact = false 
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [uploadingFiles, setUploadingFiles] = useState<FileWithStatus[]>([]);
   const [showConsentDialog, setShowConsentDialog] = useState(false);
   const [pendingAction, setPendingAction] = useState<'upload' | 'sample' | null>(null);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const { getText } = useLanguage();
   const { hasConsent, grantConsent } = useConsent();
+  const { processFiles, isProcessing, stats } = useFilePipeline();
 
-  console.log('UploadSection - hasConsent:', hasConsent, 'showConsentDialog:', showConsentDialog);
+  const processFileWithStatus = async (fileWithStatus: FileWithStatus): Promise<void> => {
+    return new Promise((resolve) => {
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 25 + 5;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          setUploadingFiles(prev => prev.map(f => 
+            f.id === fileWithStatus.id 
+              ? { ...f, status: 'completed', progress: 100 }
+              : f
+          ));
+          resolve();
+        } else {
+          setUploadingFiles(prev => prev.map(f => 
+            f.id === fileWithStatus.id 
+              ? { ...f, status: 'processing', progress }
+              : f
+          ));
+        }
+      }, 150);
+    });
+  };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFilesUpload = async (files: File[]) => {
+    console.log('Processing files through enhanced pipeline:', files.length);
+
+    // Create file status objects
+    const filesWithStatus: FileWithStatus[] = files.map(file => ({
+      file,
+      id: `${Date.now()}-${Math.random()}`,
+      status: 'pending',
+      progress: 0
+    }));
+
+    setUploadingFiles(filesWithStatus);
+
+    // Process files through the pipeline for duplicate detection
+    const pipelineResult = await processFiles(files);
+    console.log('Pipeline result:', pipelineResult);
+
+    // Process each file with visual feedback
+    for (const fileWithStatus of filesWithStatus) {
+      await processFileWithStatus(fileWithStatus);
+    }
+
+    // Clear completed files after a delay
+    setTimeout(() => {
+      setUploadingFiles([]);
+      onUploadComplete?.();
+    }, 2000);
+  };
+
+  const handleFileInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
-      console.log('File upload triggered, hasConsent:', hasConsent);
+      const fileArray = Array.from(files);
       
       if (!hasConsent) {
-        console.log('No consent, showing dialog');
+        setPendingFiles(fileArray);
         setPendingAction('upload');
         setShowConsentDialog(true);
         return;
       }
 
-      setIsLoading(true);
-      console.log('Files selected:', files.length);
-      
-      // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setIsLoading(false);
-      onUploadComplete?.();
+      await handleFilesUpload(fileArray);
     }
   };
 
-  const handleLoadSample = async () => {
-    console.log('Load sample triggered, hasConsent:', hasConsent);
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const droppedFiles = Array.from(e.dataTransfer.files);
     
     if (!hasConsent) {
-      console.log('No consent, showing dialog for sample');
+      setPendingFiles(droppedFiles);
+      setPendingAction('upload');
+      setShowConsentDialog(true);
+      return;
+    }
+
+    await handleFilesUpload(droppedFiles);
+  }, [hasConsent]);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  }, []);
+
+  const handleLoadSample = async () => {
+    if (!hasConsent) {
       setPendingAction('sample');
       setShowConsentDialog(true);
       return;
     }
 
-    setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsLoading(false);
     onLoadSample?.();
   };
 
   const handleConsentGiven = async () => {
-    console.log('Consent given, pending action:', pendingAction);
     grantConsent();
     setShowConsentDialog(false);
     
-    // Execute the pending action
-    if (pendingAction === 'upload') {
-      // Trigger file input click
-      const fileInput = document.getElementById(`file-upload-${isCompact ? 'modal' : 'main'}`);
-      fileInput?.click();
+    if (pendingAction === 'upload' && pendingFiles.length > 0) {
+      await handleFilesUpload(pendingFiles);
+      setPendingFiles([]);
     } else if (pendingAction === 'sample') {
-      setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setIsLoading(false);
       onLoadSample?.();
     }
     
@@ -86,47 +161,71 @@ const UploadSection: React.FC<UploadSectionProps> = ({
   };
 
   const handleConsentDeclined = () => {
-    console.log('Consent declined');
     setShowConsentDialog(false);
     setPendingAction(null);
+    setPendingFiles([]);
   };
 
-  const containerClass = isCompact 
-    ? "space-y-4" 
-    : "space-y-6";
-    
+  const removeFile = (fileId: string) => {
+    setUploadingFiles(prev => prev.filter(f => f.id !== fileId));
+  };
+
+  const getStatusIcon = (status: FileWithStatus['status']) => {
+    switch (status) {
+      case 'completed':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'error':
+        return <AlertCircle className="h-4 w-4 text-red-500" />;
+      case 'processing':
+        return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />;
+      default:
+        return <FileText className="h-4 w-4 text-gray-400" />;
+    }
+  };
+
+  const containerClass = isCompact ? "space-y-4" : "space-y-6";
   const uploadAreaClass = isCompact
     ? "border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors"
     : "border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors";
 
+  const isUploading = uploadingFiles.length > 0;
+
   return (
     <>
       <div className={containerClass}>
-        {/* Upload Files Option */}
-        <div className={uploadAreaClass}>
+        {/* Enhanced Upload Area with Drag & Drop */}
+        <div 
+          className={`${uploadAreaClass} ${isDragOver ? 'border-blue-500 bg-blue-50' : ''}`}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+        >
           <Upload className={`mx-auto ${isCompact ? 'h-8 w-8' : 'h-12 w-12'} text-gray-400 mb-2`} />
           <h3 className={`${isCompact ? 'text-base' : 'text-lg'} font-semibold text-gray-900 mb-2`}>
             {getText('uploadFiles')}
           </h3>
           <p className={`text-gray-600 mb-4 ${isCompact ? 'text-sm' : ''}`}>
-            {getText('uploadDescription')}
+            {isDragOver ? 'Drop files here to process' : 'Drag & drop files or click to browse'}
           </p>
+          
           <input
+            ref={fileInputRef}
             type="file"
             multiple
             accept="image/*,application/pdf"
-            onChange={handleFileUpload}
+            onChange={handleFileInputChange}
             className="hidden"
             id={`file-upload-${isCompact ? 'modal' : 'main'}`}
-            disabled={isLoading}
+            disabled={isUploading}
           />
+          
           <label htmlFor={`file-upload-${isCompact ? 'modal' : 'main'}`}>
-            <Button asChild className="cursor-pointer" disabled={isLoading}>
+            <Button asChild className="cursor-pointer" disabled={isUploading}>
               <span>
-                {isLoading ? (
+                {isUploading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    {getText('loadingReceipts')}
+                    Processing...
                   </>
                 ) : (
                   getText('chooseFiles')
@@ -134,7 +233,59 @@ const UploadSection: React.FC<UploadSectionProps> = ({
               </span>
             </Button>
           </label>
+
+          {/* Processing Stats */}
+          {stats.totalProcessed > 0 && !isCompact && (
+            <div className="mt-4 text-xs text-gray-500">
+              Processed: {stats.totalProcessed} files • 
+              Success: {stats.successCount} • 
+              {stats.lastProcessed && ` Last: ${stats.lastProcessed.toLocaleTimeString()}`}
+            </div>
+          )}
         </div>
+
+        {/* File Processing Status */}
+        {uploadingFiles.length > 0 && (
+          <div className="bg-white rounded-lg border p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-sm">Processing Files</h4>
+              <span className="text-xs text-gray-500">
+                {uploadingFiles.filter(f => f.status === 'completed').length} / {uploadingFiles.length}
+              </span>
+            </div>
+            
+            <div className="space-y-2 max-h-32 overflow-y-auto">
+              {uploadingFiles.map((fileWithStatus) => (
+                <div key={fileWithStatus.id} className="flex items-center space-x-3 p-2 bg-gray-50 rounded text-sm">
+                  {getStatusIcon(fileWithStatus.status)}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900 truncate">
+                      {fileWithStatus.file.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {(fileWithStatus.file.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                  {fileWithStatus.status === 'processing' && (
+                    <div className="w-16">
+                      <Progress value={fileWithStatus.progress} className="h-1" />
+                    </div>
+                  )}
+                  {fileWithStatus.status === 'completed' && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeFile(fileWithStatus.id)}
+                      className="p-1 h-auto"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {showSampleOption && (
           <>
@@ -158,21 +309,12 @@ const UploadSection: React.FC<UploadSectionProps> = ({
               </p>
               <Button 
                 onClick={handleLoadSample}
-                disabled={isLoading}
+                disabled={isUploading}
                 className="flex items-center gap-2 mx-auto"
                 size={isCompact ? "sm" : "lg"}
               >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    {getText('loadingReceipts')}
-                  </>
-                ) : (
-                  <>
-                    {getText('loadSampleData')}
-                    <ArrowRight className="h-4 w-4" />
-                  </>
-                )}
+                {getText('loadSampleData')}
+                <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           </>
