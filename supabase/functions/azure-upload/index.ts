@@ -1,4 +1,3 @@
-
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -32,64 +31,19 @@ function parseConnectionString(connectionString: string) {
   };
 }
 
-// Helper function to sanitize filename while preserving extension
+// Helper function to sanitize filename
 function sanitizeFileName(fileName: string): string {
   console.log('Original filename:', fileName);
   
-  // Extract file extension
-  const lastDotIndex = fileName.lastIndexOf('.');
-  let name = fileName;
-  let extension = '';
-  
-  if (lastDotIndex > 0 && lastDotIndex < fileName.length - 1) {
-    name = fileName.substring(0, lastDotIndex);
-    extension = fileName.substring(lastDotIndex); // includes the dot
-    console.log('Name part:', name, 'Extension:', extension);
-  }
-  
-  // Sanitize the name part only (keep extension as-is if valid)
-  let sanitizedName = name
+  // Simple sanitization - replace problematic characters with hyphens
+  const sanitized = fileName
     .toLowerCase()
-    .replace(/[^a-z0-9]/g, '-') // Replace any non-alphanumeric with hyphen
-    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+    .replace(/[^a-z0-9.-]/g, '-') // Keep dots for extensions
+    .replace(/-+/g, '-') // Replace multiple hyphens with single
     .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
   
-  // Ensure we have a valid name
-  if (!sanitizedName || sanitizedName.length === 0) {
-    sanitizedName = 'file';
-    console.log('Empty name after sanitization, using fallback:', sanitizedName);
-  }
-  
-  // Sanitize extension (remove any problematic characters but keep basic structure)
-  let sanitizedExtension = '';
-  if (extension) {
-    sanitizedExtension = extension
-      .toLowerCase()
-      .replace(/[^a-z0-9.]/g, ''); // Only keep alphanumeric and dots
-    
-    // Ensure extension starts with a dot and has content after it
-    if (!sanitizedExtension.startsWith('.') || sanitizedExtension.length <= 1) {
-      sanitizedExtension = '';
-    }
-  }
-  
-  const result = sanitizedName + sanitizedExtension;
-  console.log('Sanitized filename result:', result);
-  return result;
-}
-
-// Helper function to sanitize user ID for directory name
-function sanitizeUserId(userId: string): string {
-  console.log('Original user ID:', userId);
-  
-  const sanitized = userId
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '') // Only alphanumeric for directory names
-    .substring(0, 20); // Limit length
-  
-  const result = sanitized || 'user';
-  console.log('Sanitized user ID:', result);
-  return result;
+  console.log('Sanitized filename:', sanitized);
+  return sanitized || 'file';
 }
 
 // Helper function to create Azure Storage REST API signature
@@ -153,7 +107,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    console.log('Azure upload function called with REST API approach');
+    console.log('Azure upload function called');
 
     // Initialize Supabase client
     const supabaseClient = createClient(
@@ -176,31 +130,6 @@ Deno.serve(async (req) => {
     const azureConfig = parseConnectionString(azureConnectionString);
     console.log('Azure config parsed for account:', azureConfig.accountName);
 
-    // Get the current user - more lenient approach
-    const authHeader = req.headers.get('Authorization');
-    console.log('Auth header present:', !!authHeader);
-
-    let userId = null;
-    if (authHeader) {
-      try {
-        const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-        if (user) {
-          userId = user.id;
-          console.log('User authenticated:', userId);
-        } else {
-          console.log('No user found, proceeding with anonymous upload');
-        }
-      } catch (authErr) {
-        console.log('Auth error, proceeding with anonymous upload:', authErr);
-      }
-    }
-
-    // If no user, create a temporary user ID for anonymous uploads
-    if (!userId) {
-      userId = 'anonymous' + Date.now();
-      console.log('Using anonymous user ID:', userId);
-    }
-
     const { fileName, fileSize, mimeType, fileData }: UploadRequest = await req.json()
     console.log('Processing file:', fileName, 'Size:', fileSize);
 
@@ -211,37 +140,19 @@ Deno.serve(async (req) => {
       bytes[i] = binaryString.charCodeAt(i)
     }
 
-    const containerName = 'raw_drop'; // Use underscore as requested
+    const containerName = 'raw_drop';
     const timestamp = Date.now()
     
-    // Sanitize components following Azure naming rules
-    const sanitizedUserId = sanitizeUserId(userId);
+    // Create simple blob name: timestamp-filename
     const sanitizedFileName = sanitizeFileName(fileName);
-    
-    // Create Azure-compliant blob name using the pattern: users/{userId}/files/{timestamp}-{filename}
-    // This ensures no path segments end with dots and follows Azure conventions
-    const blobName = `users/${sanitizedUserId}/files/${timestamp}-${sanitizedFileName}`;
+    const blobName = `${timestamp}-${sanitizedFileName}`;
     
     console.log('Final blob name:', blobName);
-    console.log('Blob name length:', blobName.length);
-
-    // Validate blob name doesn't exceed limits and doesn't have problematic endings
-    if (blobName.length > 1024) {
-      throw new Error('Blob name too long');
-    }
-
-    // Check for problematic endings in each path segment
-    const pathSegments = blobName.split('/');
-    for (const segment of pathSegments) {
-      if (segment.endsWith('.') || segment.endsWith('/') || segment.endsWith('\\')) {
-        throw new Error(`Invalid path segment ending: ${segment}`);
-      }
-    }
 
     // Create the blob URL
     const blobUrl = `https://${azureConfig.accountName}.blob.${azureConfig.endpointSuffix}/${containerName}/${blobName}`;
     
-    console.log('Attempting upload to Azure via REST API:', blobUrl);
+    console.log('Uploading to:', blobUrl);
 
     // Prepare headers for the PUT request
     const uploadHeaders: { [key: string]: string } = {
@@ -277,40 +188,11 @@ Deno.serve(async (req) => {
 
     console.log('Azure upload completed successfully');
 
-    // Save metadata to Supabase (only if we have a real user)
-    let fileRecord = null;
-    if (userId && !userId.startsWith('anonymous')) {
-      try {
-        const { data, error: dbError } = await supabaseClient
-          .from('files')
-          .insert({
-            user_id: userId,
-            original_name: fileName,
-            file_size: fileSize,
-            mime_type: mimeType,
-            azure_blob_url: blobUrl,
-            upload_status: 'completed'
-          })
-          .select()
-          .single()
-
-        if (dbError) {
-          console.error('Database error:', dbError)
-        } else {
-          fileRecord = data;
-          console.log('File metadata saved to database');
-        }
-      } catch (dbErr) {
-        console.error('Database operation failed:', dbErr);
-      }
-    }
-
     return new Response(
       JSON.stringify({ 
         success: true, 
-        file: fileRecord,
         url: blobUrl,
-        message: `File uploaded successfully to Azure Blob Storage: ${blobName}`
+        message: `File uploaded successfully: ${blobName}`
       }),
       { 
         headers: { 
