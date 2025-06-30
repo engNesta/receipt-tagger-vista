@@ -1,4 +1,3 @@
-
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -30,6 +29,66 @@ function parseConnectionString(connectionString: string) {
     accountKey: config.AccountKey,
     endpointSuffix: config.EndpointSuffix || 'core.windows.net'
   };
+}
+
+// Helper function to sanitize filename while preserving extension
+function sanitizeFileName(fileName: string): string {
+  console.log('Original filename:', fileName);
+  
+  // Extract file extension
+  const lastDotIndex = fileName.lastIndexOf('.');
+  let name = fileName;
+  let extension = '';
+  
+  if (lastDotIndex > 0 && lastDotIndex < fileName.length - 1) {
+    name = fileName.substring(0, lastDotIndex);
+    extension = fileName.substring(lastDotIndex); // includes the dot
+    console.log('Name part:', name, 'Extension:', extension);
+  }
+  
+  // Sanitize the name part only (keep extension as-is if valid)
+  let sanitizedName = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '-') // Replace any non-alphanumeric with hyphen
+    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+  
+  // Ensure we have a valid name
+  if (!sanitizedName || sanitizedName.length === 0) {
+    sanitizedName = 'file';
+    console.log('Empty name after sanitization, using fallback:', sanitizedName);
+  }
+  
+  // Sanitize extension (remove any problematic characters but keep basic structure)
+  let sanitizedExtension = '';
+  if (extension) {
+    sanitizedExtension = extension
+      .toLowerCase()
+      .replace(/[^a-z0-9.]/g, ''); // Only keep alphanumeric and dots
+    
+    // Ensure extension starts with a dot and has content after it
+    if (!sanitizedExtension.startsWith('.') || sanitizedExtension.length <= 1) {
+      sanitizedExtension = '';
+    }
+  }
+  
+  const result = sanitizedName + sanitizedExtension;
+  console.log('Sanitized filename result:', result);
+  return result;
+}
+
+// Helper function to sanitize user ID for directory name
+function sanitizeUserId(userId: string): string {
+  console.log('Original user ID:', userId);
+  
+  const sanitized = userId
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '') // Only alphanumeric for directory names
+    .substring(0, 20); // Limit length
+  
+  const result = sanitized || 'user';
+  console.log('Sanitized user ID:', result);
+  return result;
 }
 
 // Helper function to create Azure Storage REST API signature
@@ -137,7 +196,7 @@ Deno.serve(async (req) => {
 
     // If no user, create a temporary user ID for anonymous uploads
     if (!userId) {
-      userId = 'anonymous_' + Date.now();
+      userId = 'anonymous' + Date.now();
       console.log('Using anonymous user ID:', userId);
     }
 
@@ -151,31 +210,35 @@ Deno.serve(async (req) => {
       bytes[i] = binaryString.charCodeAt(i)
     }
 
-    const containerName = 'raw_drop';
+    const containerName = 'raw-drop'; // Use hyphen instead of underscore
     const timestamp = Date.now()
     
-    // Sanitize userId to ensure Azure compliance (replace hyphens and other invalid chars)
-    const sanitizedUserId = userId
-      .replace(/[^a-zA-Z0-9]/g, '_')
-      .replace(/_{2,}/g, '_')
-      .toLowerCase();
+    // Sanitize components following Azure naming rules
+    const sanitizedUserId = sanitizeUserId(userId);
+    const sanitizedFileName = sanitizeFileName(fileName);
     
-    // Sanitize fileName to ensure Azure compliance
-    const sanitizedFileName = fileName
-      .replace(/[^a-zA-Z0-9._]/g, '_') // Only allow letters, numbers, dots, and underscores
-      .replace(/_{2,}/g, '_') // Replace multiple underscores with single underscore
-      .replace(/^_+|_+$/g, '') // Remove leading/trailing underscores
-      .toLowerCase(); // Convert to lowercase for consistency
+    // Create Azure-compliant blob name using the pattern: users/{userId}/files/{timestamp}-{filename}
+    // This ensures no path segments end with dots and follows Azure conventions
+    const blobName = `users/${sanitizedUserId}/files/${timestamp}-${sanitizedFileName}`;
     
-    // Create Azure-compliant blob name (using forward slashes for virtual folders)
-    const uniqueFileName = `${sanitizedUserId}/${timestamp}_${sanitizedFileName}`;
-    
-    console.log('Sanitized user ID:', sanitizedUserId);
-    console.log('Sanitized file name:', sanitizedFileName);
-    console.log('Final blob name:', uniqueFileName);
+    console.log('Final blob name:', blobName);
+    console.log('Blob name length:', blobName.length);
+
+    // Validate blob name doesn't exceed limits and doesn't have problematic endings
+    if (blobName.length > 1024) {
+      throw new Error('Blob name too long');
+    }
+
+    // Check for problematic endings in each path segment
+    const pathSegments = blobName.split('/');
+    for (const segment of pathSegments) {
+      if (segment.endsWith('.') || segment.endsWith('/') || segment.endsWith('\\')) {
+        throw new Error(`Invalid path segment ending: ${segment}`);
+      }
+    }
 
     // Create the blob URL
-    const blobUrl = `https://${azureConfig.accountName}.blob.${azureConfig.endpointSuffix}/${containerName}/${uniqueFileName}`;
+    const blobUrl = `https://${azureConfig.accountName}.blob.${azureConfig.endpointSuffix}/${containerName}/${blobName}`;
     
     console.log('Attempting upload to Azure via REST API:', blobUrl);
 
@@ -215,7 +278,7 @@ Deno.serve(async (req) => {
 
     // Save metadata to Supabase (only if we have a real user)
     let fileRecord = null;
-    if (userId && !userId.startsWith('anonymous_')) {
+    if (userId && !userId.startsWith('anonymous')) {
       try {
         const { data, error: dbError } = await supabaseClient
           .from('files')
@@ -246,7 +309,7 @@ Deno.serve(async (req) => {
         success: true, 
         file: fileRecord,
         url: blobUrl,
-        message: `File uploaded successfully to Azure Blob Storage: ${uniqueFileName}`
+        message: `File uploaded successfully to Azure Blob Storage: ${blobName}`
       }),
       { 
         headers: { 
