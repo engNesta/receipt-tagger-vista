@@ -1,6 +1,5 @@
+
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-// Use the correct Azure Storage SDK import for Deno
-import { BlobServiceClient } from 'https://esm.sh/@azure/storage-blob@12.24.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,6 +13,79 @@ interface UploadRequest {
   fileData: string; // base64 encoded
 }
 
+// Helper function to parse Azure connection string
+function parseConnectionString(connectionString: string) {
+  const parts = connectionString.split(';');
+  const config: { [key: string]: string } = {};
+  
+  parts.forEach(part => {
+    const [key, value] = part.split('=');
+    if (key && value) {
+      config[key] = value;
+    }
+  });
+  
+  return {
+    accountName: config.AccountName,
+    accountKey: config.AccountKey,
+    endpointSuffix: config.EndpointSuffix || 'core.windows.net'
+  };
+}
+
+// Helper function to create Azure Storage REST API signature
+async function createSharedKeySignature(
+  accountName: string,
+  accountKey: string,
+  method: string,
+  url: string,
+  headers: { [key: string]: string },
+  contentLength: number
+) {
+  const dateString = new Date().toUTCString();
+  headers['x-ms-date'] = dateString;
+  headers['x-ms-version'] = '2020-04-08';
+  
+  const canonicalizedHeaders = Object.keys(headers)
+    .filter(key => key.startsWith('x-ms-'))
+    .sort()
+    .map(key => `${key}:${headers[key]}`)
+    .join('\n');
+  
+  const urlPath = new URL(url).pathname;
+  const canonicalizedResource = `/${accountName}${urlPath}`;
+  
+  const stringToSign = [
+    method,
+    '', // Content-Encoding
+    '', // Content-Language
+    contentLength || '', // Content-Length
+    '', // Content-MD5
+    headers['Content-Type'] || '', // Content-Type
+    '', // Date
+    '', // If-Modified-Since
+    '', // If-Match
+    '', // If-None-Match
+    '', // If-Unmodified-Since
+    '', // Range
+    canonicalizedHeaders,
+    canonicalizedResource
+  ].join('\n');
+
+  const keyData = Uint8Array.from(atob(accountKey), c => c.charCodeAt(0));
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  
+  const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(stringToSign));
+  const signatureBase64 = btoa(String.fromCharCode(...new Uint8Array(signature)));
+  
+  return `SharedKey ${accountName}:${signatureBase64}`;
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -21,7 +93,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    console.log('Azure upload function called with compatible SDK');
+    console.log('Azure upload function called with REST API approach');
 
     // Initialize Supabase client
     const supabaseClient = createClient(
@@ -39,6 +111,10 @@ Deno.serve(async (req) => {
     if (!azureConnectionString) {
       throw new Error('Azure Storage Connection String not configured');
     }
+
+    // Parse connection string
+    const azureConfig = parseConnectionString(azureConnectionString);
+    console.log('Azure config parsed for account:', azureConfig.accountName);
 
     // Get the current user - more lenient approach
     const authHeader = req.headers.get('Authorization');
@@ -68,62 +144,55 @@ Deno.serve(async (req) => {
     const { fileName, fileSize, mimeType, fileData }: UploadRequest = await req.json()
     console.log('Processing file:', fileName, 'Size:', fileSize);
 
-    // Convert base64 to blob
+    // Convert base64 to bytes
     const binaryString = atob(fileData)
     const bytes = new Uint8Array(binaryString.length)
     for (let i = 0; i < binaryString.length; i++) {
       bytes[i] = binaryString.charCodeAt(i)
     }
 
-    // Try to initialize Azure Blob Service Client with error handling
-    let blobServiceClient;
-    try {
-      blobServiceClient = BlobServiceClient.fromConnectionString(azureConnectionString);
-    } catch (azureInitError) {
-      console.error('Failed to initialize Azure client:', azureInitError);
-      throw new Error('Failed to connect to Azure Storage. Please check your connection string.');
-    }
-
     const containerName = 'raw-drop';
-    const containerClient = blobServiceClient.getContainerClient(containerName);
-
-    // Ensure container exists with better error handling
-    try {
-      await containerClient.createIfNotExists({
-        access: 'blob'
-      });
-      console.log('Container "raw-drop" is ready');
-    } catch (containerError) {
-      console.warn('Container operation warning:', containerError);
-      // Continue anyway as container might already exist
-    }
-
-    // Generate unique filename
     const timestamp = Date.now()
     const uniqueFileName = `${userId}/${timestamp}-${fileName}`
 
-    // Get blob client and upload
-    const blockBlobClient = containerClient.getBlockBlobClient(uniqueFileName);
+    // Create the blob URL
+    const blobUrl = `https://${azureConfig.accountName}.blob.${azureConfig.endpointSuffix}/${containerName}/${uniqueFileName}`;
     
-    console.log('Attempting upload to Azure:', uniqueFileName);
-    
-    // Upload the file with retry logic
-    let uploadResponse;
-    try {
-      uploadResponse = await blockBlobClient.upload(bytes, bytes.length, {
-        blobHTTPHeaders: {
-          blobContentType: mimeType,
-        },
-      });
-      console.log('Azure upload completed:', uploadResponse.requestId);
-    } catch (uploadError) {
-      console.error('Azure upload failed:', uploadError);
-      throw new Error(`Failed to upload to Azure: ${uploadError.message}`);
+    console.log('Attempting upload to Azure via REST API:', blobUrl);
+
+    // Prepare headers for the PUT request
+    const uploadHeaders: { [key: string]: string } = {
+      'Content-Type': mimeType,
+      'Content-Length': bytes.length.toString(),
+      'x-ms-blob-type': 'BlockBlob',
+    };
+
+    // Create the authorization signature
+    const authorization = await createSharedKeySignature(
+      azureConfig.accountName,
+      azureConfig.accountKey,
+      'PUT',
+      blobUrl,
+      uploadHeaders,
+      bytes.length
+    );
+
+    uploadHeaders['Authorization'] = authorization;
+
+    // Upload the file to Azure Blob Storage
+    const uploadResponse = await fetch(blobUrl, {
+      method: 'PUT',
+      headers: uploadHeaders,
+      body: bytes,
+    });
+
+    if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text();
+      console.error('Azure upload failed:', uploadResponse.status, errorText);
+      throw new Error(`Azure upload failed: ${uploadResponse.status} - ${errorText}`);
     }
 
-    // Get the blob URL
-    const blobUrl = blockBlobClient.url;
-    console.log('File accessible at:', blobUrl);
+    console.log('Azure upload completed successfully');
 
     // Save metadata to Supabase (only if we have a real user)
     let fileRecord = null;
