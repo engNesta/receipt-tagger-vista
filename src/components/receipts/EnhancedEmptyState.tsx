@@ -78,8 +78,8 @@ const EnhancedEmptyState: React.FC<EnhancedEmptyStateProps> = ({
             </p>
           </div>
 
-          {/* Action Buttons with proper spacing */}
-          <div className="space-y-6 mb-10">
+          {/* Action Buttons with proper spacing - centered */}
+          <div className="flex flex-col items-center space-y-6 mb-10">
             <Button 
               onClick={handleUploadClick}
               size="lg"
@@ -90,7 +90,7 @@ const EnhancedEmptyState: React.FC<EnhancedEmptyStateProps> = ({
             </Button>
             
             {/* Divider with better visual balance */}
-            <div className="flex items-center gap-4 py-2">
+            <div className="flex items-center gap-4 py-2 w-full max-w-xs">
               <div className="flex-1 h-px bg-gray-200"></div>
               <span className="text-sm text-gray-400 font-medium px-2">eller</span>
               <div className="flex-1 h-px bg-gray-200"></div>
