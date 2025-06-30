@@ -137,7 +137,7 @@ Deno.serve(async (req) => {
 
     // If no user, create a temporary user ID for anonymous uploads
     if (!userId) {
-      userId = 'anonymous-' + Date.now();
+      userId = 'anonymous_' + Date.now();
       console.log('Using anonymous user ID:', userId);
     }
 
@@ -154,15 +154,25 @@ Deno.serve(async (req) => {
     const containerName = 'raw_drop';
     const timestamp = Date.now()
     
+    // Sanitize userId to ensure Azure compliance (replace hyphens and other invalid chars)
+    const sanitizedUserId = userId
+      .replace(/[^a-zA-Z0-9]/g, '_')
+      .replace(/_{2,}/g, '_')
+      .toLowerCase();
+    
     // Sanitize fileName to ensure Azure compliance
     const sanitizedFileName = fileName
-      .replace(/[^a-zA-Z0-9._-]/g, '_') // Replace invalid characters with underscores
-      .replace(/_{2,}/g, '_'); // Replace multiple underscores with single underscore
+      .replace(/[^a-zA-Z0-9._]/g, '_') // Only allow letters, numbers, dots, and underscores
+      .replace(/_{2,}/g, '_') // Replace multiple underscores with single underscore
+      .replace(/^_+|_+$/g, '') // Remove leading/trailing underscores
+      .toLowerCase(); // Convert to lowercase for consistency
     
     // Create Azure-compliant blob name (using forward slashes for virtual folders)
-    const uniqueFileName = `${userId}/${timestamp}_${sanitizedFileName}`;
+    const uniqueFileName = `${sanitizedUserId}/${timestamp}_${sanitizedFileName}`;
     
-    console.log('Sanitized file name:', uniqueFileName);
+    console.log('Sanitized user ID:', sanitizedUserId);
+    console.log('Sanitized file name:', sanitizedFileName);
+    console.log('Final blob name:', uniqueFileName);
 
     // Create the blob URL
     const blobUrl = `https://${azureConfig.accountName}.blob.${azureConfig.endpointSuffix}/${containerName}/${uniqueFileName}`;
@@ -205,7 +215,7 @@ Deno.serve(async (req) => {
 
     // Save metadata to Supabase (only if we have a real user)
     let fileRecord = null;
-    if (userId && !userId.startsWith('anonymous-')) {
+    if (userId && !userId.startsWith('anonymous_')) {
       try {
         const { data, error: dbError } = await supabaseClient
           .from('files')
