@@ -1,5 +1,4 @@
 
-
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -127,7 +126,7 @@ Deno.serve(async (req) => {
       bytes[i] = binaryString.charCodeAt(i)
     }
 
-    const containerName = 'rawdrop';
+    const containerName = 'dropzone';
     const timestamp = Date.now()
     
     // Create simple blob name with extension
@@ -205,4 +204,3 @@ Deno.serve(async (req) => {
     )
   }
 })
-
