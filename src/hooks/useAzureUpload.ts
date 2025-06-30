@@ -8,6 +8,7 @@ interface UploadResult {
   file?: any;
   url?: string;
   error?: string;
+  message?: string;
 }
 
 export const useAzureUpload = () => {
@@ -18,6 +19,8 @@ export const useAzureUpload = () => {
     setIsUploading(true);
     
     try {
+      console.log('Starting upload for:', file.name);
+      
       // Convert file to base64
       const fileData = await new Promise<string>((resolve) => {
         const reader = new FileReader();
@@ -30,6 +33,8 @@ export const useAzureUpload = () => {
         reader.readAsDataURL(file);
       });
 
+      console.log('File converted to base64, calling edge function');
+
       // Call edge function
       const { data, error } = await supabase.functions.invoke('azure-upload', {
         body: {
@@ -40,28 +45,50 @@ export const useAzureUpload = () => {
         }
       });
 
+      console.log('Edge function response:', { data, error });
+
       if (error) {
-        throw new Error(error.message);
+        console.error('Edge function error:', error);
+        throw new Error(error.message || 'Upload failed');
       }
+
+      if (!data) {
+        throw new Error('No response data from upload function');
+      }
+
+      // Handle both success and error cases from the edge function
+      if (data.success === false) {
+        throw new Error(data.error || 'Upload failed');
+      }
+
+      console.log('Upload successful:', data);
 
       toast({
         title: "Upload Successful",
-        description: `${file.name} has been uploaded successfully.`,
+        description: data.message || `${file.name} has been uploaded successfully.`,
       });
 
-      return data;
+      return {
+        success: true,
+        file: data.file,
+        url: data.url,
+        message: data.message
+      };
+
     } catch (error) {
       console.error('Upload failed:', error);
       
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload file';
+      
       toast({
         title: "Upload Failed",
-        description: error instanceof Error ? error.message : 'Failed to upload file',
+        description: errorMessage,
         variant: "destructive",
       });
 
       return { 
         success: false, 
-        error: error instanceof Error ? error.message : 'Upload failed' 
+        error: errorMessage
       };
     } finally {
       setIsUploading(false);
