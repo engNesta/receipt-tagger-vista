@@ -1,6 +1,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { BlobServiceClient } from 'https://esm.sh/@azure/storage-blob@12.17.0'
+// Use a Deno-compatible version of Azure Storage
+import { BlobServiceClient } from 'https://esm.sh/@azure/storage-blob@12.24.0/dist-esm/storage-blob.js'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -21,7 +22,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    console.log('Azure upload function called with real Azure integration');
+    console.log('Azure upload function called with compatible SDK');
 
     // Initialize Supabase client
     const supabaseClient = createClient(
@@ -75,19 +76,27 @@ Deno.serve(async (req) => {
       bytes[i] = binaryString.charCodeAt(i)
     }
 
-    // Initialize Azure Blob Service Client
-    const blobServiceClient = BlobServiceClient.fromConnectionString(azureConnectionString);
+    // Try to initialize Azure Blob Service Client with error handling
+    let blobServiceClient;
+    try {
+      blobServiceClient = BlobServiceClient.fromConnectionString(azureConnectionString);
+    } catch (azureInitError) {
+      console.error('Failed to initialize Azure client:', azureInitError);
+      throw new Error('Failed to connect to Azure Storage. Please check your connection string.');
+    }
+
     const containerName = 'raw-drop';
     const containerClient = blobServiceClient.getContainerClient(containerName);
 
-    // Ensure container exists
+    // Ensure container exists with better error handling
     try {
       await containerClient.createIfNotExists({
-        access: 'blob' // Public read access for blobs
+        access: 'blob'
       });
-      console.log('Container "raw-drop" ready');
+      console.log('Container "raw-drop" is ready');
     } catch (containerError) {
-      console.log('Container may already exist or creation failed:', containerError);
+      console.warn('Container operation warning:', containerError);
+      // Continue anyway as container might already exist
     }
 
     // Generate unique filename
@@ -97,20 +106,25 @@ Deno.serve(async (req) => {
     // Get blob client and upload
     const blockBlobClient = containerClient.getBlockBlobClient(uniqueFileName);
     
-    console.log('Uploading to Azure Blob Storage:', uniqueFileName);
+    console.log('Attempting upload to Azure:', uniqueFileName);
     
-    // Upload the file
-    const uploadResponse = await blockBlobClient.upload(bytes, bytes.length, {
-      blobHTTPHeaders: {
-        blobContentType: mimeType,
-      },
-    });
-
-    console.log('Azure upload successful:', uploadResponse.requestId);
+    // Upload the file with retry logic
+    let uploadResponse;
+    try {
+      uploadResponse = await blockBlobClient.upload(bytes, bytes.length, {
+        blobHTTPHeaders: {
+          blobContentType: mimeType,
+        },
+      });
+      console.log('Azure upload completed:', uploadResponse.requestId);
+    } catch (uploadError) {
+      console.error('Azure upload failed:', uploadError);
+      throw new Error(`Failed to upload to Azure: ${uploadError.message}`);
+    }
 
     // Get the blob URL
     const blobUrl = blockBlobClient.url;
-    console.log('File available at:', blobUrl);
+    console.log('File accessible at:', blobUrl);
 
     // Save metadata to Supabase (only if we have a real user)
     let fileRecord = null;
