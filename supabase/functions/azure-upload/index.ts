@@ -1,3 +1,4 @@
+
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -210,7 +211,7 @@ Deno.serve(async (req) => {
       bytes[i] = binaryString.charCodeAt(i)
     }
 
-    const containerName = 'raw-drop'; // Use hyphen instead of underscore
+    const containerName = 'raw_drop'; // Use underscore as requested
     const timestamp = Date.now()
     
     // Sanitize components following Azure naming rules
