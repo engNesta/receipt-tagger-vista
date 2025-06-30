@@ -1,4 +1,5 @@
 
+
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -129,10 +130,10 @@ Deno.serve(async (req) => {
     const containerName = 'raw_drop';
     const timestamp = Date.now()
     
-    // Create ultra-simple blob name: just timestamp
-    const blobName = `${timestamp}`;
+    // Create simple blob name with extension
+    const blobName = `${timestamp}.jpg`;
     
-    console.log('Ultra-simple blob name:', blobName);
+    console.log('Blob name with extension:', blobName);
 
     // Create the blob URL
     const blobUrl = `https://${azureConfig.accountName}.blob.${azureConfig.endpointSuffix}/${containerName}/${blobName}`;
@@ -204,3 +205,4 @@ Deno.serve(async (req) => {
     )
   }
 })
+
