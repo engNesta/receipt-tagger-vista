@@ -1,6 +1,6 @@
 
 import React from 'react';
-import ConsentDialog from './ConsentDialog';
+import GDPRConsentDialog from './GDPRConsentDialog';
 import UploadArea from './UploadArea';
 import FileStatusList from './FileStatusList';
 import { useFileUpload } from '@/hooks/useFileUpload';
@@ -64,7 +64,7 @@ const UploadSection: React.FC<UploadSectionProps> = ({
         />
       </div>
 
-      <ConsentDialog
+      <GDPRConsentDialog
         isOpen={showConsentDialog}
         onConsent={handleConsentGiven}
         onDecline={handleConsentDeclined}

@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 interface ConsentData {
   timestamp: string;
   version: string;
-  termsAccepted: boolean;
   dataProcessingConsent: boolean;
-  gdprAcknowledged: boolean;
+  policyRead: boolean;
+  ipAddress?: string;
+  userAgent?: string;
 }
 
 export const useConsent = () => {
@@ -19,23 +20,30 @@ export const useConsent = () => {
 
   const checkConsentStatus = () => {
     try {
-      const consentData = localStorage.getItem('receipt-app-consent');
-      console.log('Checking consent status, found data:', consentData);
+      // Check for new GDPR consent format first
+      const gdprConsentData = localStorage.getItem('gdpr-receipt-consent');
+      console.log('Checking GDPR consent status, found data:', gdprConsentData);
       
-      if (consentData) {
-        const parsed: ConsentData = JSON.parse(consentData);
-        console.log('Parsed consent data:', parsed);
+      if (gdprConsentData) {
+        const parsed: ConsentData = JSON.parse(gdprConsentData);
+        console.log('Parsed GDPR consent data:', parsed);
         
-        // Check if consent is valid (all required fields are true)
-        const isValid = parsed.termsAccepted && 
-                       parsed.dataProcessingConsent && 
-                       parsed.gdprAcknowledged;
-        
-        console.log('Consent is valid:', isValid);
+        const isValid = parsed.dataProcessingConsent && parsed.policyRead;
+        console.log('GDPR consent is valid:', isValid);
         setHasConsent(isValid);
       } else {
-        console.log('No consent data found, setting hasConsent to false');
-        setHasConsent(false);
+        // Fallback to old consent format for backward compatibility
+        const oldConsentData = localStorage.getItem('receipt-app-consent');
+        if (oldConsentData) {
+          const parsed = JSON.parse(oldConsentData);
+          const isValid = parsed.termsAccepted && 
+                         parsed.dataProcessingConsent && 
+                         parsed.gdprAcknowledged;
+          setHasConsent(isValid);
+        } else {
+          console.log('No consent data found, setting hasConsent to false');
+          setHasConsent(false);
+        }
       }
     } catch (error) {
       console.error('Error checking consent status:', error);
@@ -52,13 +60,14 @@ export const useConsent = () => {
 
   const revokeConsent = () => {
     console.log('Revoking consent');
-    localStorage.removeItem('receipt-app-consent');
+    localStorage.removeItem('gdpr-receipt-consent');
+    localStorage.removeItem('receipt-app-consent'); // Also remove old format
     setHasConsent(false);
   };
 
   const getConsentData = (): ConsentData | null => {
     try {
-      const consentData = localStorage.getItem('receipt-app-consent');
+      const consentData = localStorage.getItem('gdpr-receipt-consent');
       return consentData ? JSON.parse(consentData) : null;
     } catch (error) {
       console.error('Error getting consent data:', error);
