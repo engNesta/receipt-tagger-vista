@@ -1,10 +1,6 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useReceiptDeletion } from '@/hooks/useReceiptDeletion';
 
 interface Receipt {
   id: number;
@@ -13,7 +9,6 @@ interface Receipt {
   price: string;
   productName: string;
   verificationLetter: string;
-  fileId?: string;
 }
 
 interface ReceiptModalProps {
@@ -21,35 +16,12 @@ interface ReceiptModalProps {
   selectedTag: string | null;
   isOpen: boolean;
   onClose: () => void;
-  onDeleted?: () => void;
 }
 
-const ReceiptModal: React.FC<ReceiptModalProps> = ({ 
-  receipt, 
-  selectedTag, 
-  isOpen, 
-  onClose,
-  onDeleted 
-}) => {
+const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpen, onClose }) => {
   const { getText } = useLanguage();
-  const { deleteReceipt, isDeleting } = useReceiptDeletion();
 
   if (!receipt) return null;
-
-  const handleDelete = async () => {
-    if (!receipt.fileId) {
-      console.warn('No fileId available for deletion');
-      return;
-    }
-
-    const success = await deleteReceipt(receipt.fileId);
-    if (success) {
-      onClose();
-      if (onDeleted) {
-        onDeleted();
-      }
-    }
-  };
 
   const getDisplayValue = () => {
     if (!selectedTag) return null;
@@ -74,20 +46,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>Receipt #{receipt.id}</DialogTitle>
-            {receipt.fileId && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
+          <DialogTitle>Receipt #{receipt.id}</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">

@@ -83,7 +83,6 @@ export const useReceiptData = () => {
   const loadReceiptsFromDatabase = async () => {
     if (!user) {
       console.log('No user authenticated, skipping database load');
-      setReceipts([]); // Clear receipts when no user
       return;
     }
 
@@ -110,7 +109,7 @@ export const useReceiptData = () => {
         price: '0 kr',
         productName: file.original_name.replace(/\.[^/.]+$/, ""),
         verificationLetter: `V${String(Date.now()).slice(-3)}${index.toString().padStart(2, '0')}`,
-        fileId: file.id // Include fileId for deletion
+        fileId: file.id
       })) || [];
 
       setReceipts(dbReceipts);
