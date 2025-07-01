@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,11 +52,14 @@ const Index = () => {
     setShowLoadMoreModal(false);
   };
 
-  // Handle successful file uploads by creating receipts
+  // Handle successful file uploads by reloading from database
   const handleUploadComplete = (processedFiles: any[]) => {
-    console.log('Files uploaded successfully, creating receipts:', processedFiles.length);
+    console.log('Files uploaded successfully, reloading receipts from database:', processedFiles.length);
     if (processedFiles.length > 0) {
-      createReceiptsFromFiles(processedFiles);
+      // Wait a brief moment for files to be saved to database, then reload
+      setTimeout(() => {
+        loadReceiptsFromDatabase();
+      }, 1000);
     }
   };
 
