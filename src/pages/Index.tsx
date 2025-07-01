@@ -22,7 +22,6 @@ const Index = () => {
   const { user } = useAuth();
   const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showUploadModal, setShowUploadModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showLoadMoreModal, setShowLoadMoreModal] = useState(false);
 
@@ -40,10 +39,6 @@ const Index = () => {
   const handleReceiptClick = (receipt: any) => {
     setSelectedReceipt(receipt);
     setIsModalOpen(true);
-  };
-
-  const handleUploadComplete = () => {
-    setShowUploadModal(false);
   };
 
   const handleLoadMoreComplete = () => {
@@ -92,67 +87,36 @@ const Index = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Main Action Section */}
+        {/* Main Upload Section - Now full width */}
         <div className="mb-8">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">{getText('uploadFiles')}</h2>
             <p className="text-gray-600">{getText('dragDropUpload')}</p>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Upload Area */}
-            <div className="lg:col-span-2">
-              <UploadSection onUploadComplete={() => console.log('Upload completed')} />
-            </div>
-            
-            {/* Quick Actions */}
-            <div className="space-y-4">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">{getText('quickActions')}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
-                    <DialogTrigger asChild>
-                      <Button className="w-full justify-start" size="sm">
-                        <Upload className="h-4 w-4 mr-2" />
-                        {getText('uploadModal')}
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
-                      <DialogHeader>
-                        <DialogTitle>{getText('uploadFiles')}</DialogTitle>
-                      </DialogHeader>
-                      <UploadSection 
-                        onUploadComplete={handleUploadComplete}
-                        isCompact={true}
-                      />
-                    </DialogContent>
-                  </Dialog>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    size="sm"
-                    onClick={() => setShowLoadMoreModal(true)}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    {getText('loadMoreFiles')}
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+          {/* Upload Area - Full width */}
+          <div className="max-w-4xl mx-auto">
+            <UploadSection onUploadComplete={() => console.log('Upload completed')} />
           </div>
         </div>
 
         {/* Receipts Section */}
         <div className="space-y-6">
-          {/* Section Header */}
+          {/* Section Header with Load More Button */}
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-xl font-semibold text-gray-900">{getText('yourReceipts')}</h3>
               <p className="text-sm text-gray-600">{filteredReceipts.length} {getText('receiptsFound')}</p>
             </div>
+            
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={() => setShowLoadMoreModal(true)}
+            >
+              <Plus className="h-4 w-4" />
+              {getText('loadMoreFiles')}
+            </Button>
           </div>
 
           {/* Controls */}
