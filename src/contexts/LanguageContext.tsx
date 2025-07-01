@@ -58,6 +58,9 @@ const translations = {
     loadMoreReceipts: "Ladda fler kvitton",
     quickActions: "Snabbåtgärder",
     loadMoreFiles: "Ladda fler filer",
+    yourReceipts: "Dina kvitton",
+    receiptsFound: "kvitton hittades",
+    dragDropUpload: "Dra och släpp filer här eller klicka för att välja",
     
     // Kvitthantering
     vendor: "Leverantör",
@@ -167,6 +170,9 @@ const translations = {
     loadMoreReceipts: "Load More Receipts",
     quickActions: "Quick Actions",
     loadMoreFiles: "Load More Files",
+    yourReceipts: "Your Receipts",
+    receiptsFound: "receipts found",
+    dragDropUpload: "Drag and drop files here or click to select",
     
     // Index page
     vendor: "Vendor",
