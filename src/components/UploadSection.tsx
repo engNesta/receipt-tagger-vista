@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef } from 'react';
 import { Upload, FileText, Loader2, CheckCircle, AlertCircle, X, Cloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -76,12 +75,8 @@ const UploadSection: React.FC<UploadSectionProps> = ({
 
     setUploadingFiles(filesWithStatus);
 
-    // Process files through the pipeline with receipt creation callback
-    const pipelineResult = await processFiles(files, (processedFiles) => {
-      console.log('Upload complete - creating receipts from processed files');
-      onUploadComplete?.(processedFiles);
-    });
-
+    // Process files through the pipeline
+    const pipelineResult = await processFiles(files);
     console.log('Pipeline result with Azure storage:', pipelineResult);
 
     // Update file status with Azure URLs if available
@@ -98,6 +93,13 @@ const UploadSection: React.FC<UploadSectionProps> = ({
     // Process each file with visual feedback
     for (const fileWithStatus of filesWithStatus) {
       await processFileWithStatus(fileWithStatus);
+    }
+
+    // Notify parent component about successful uploads for receipt creation
+    const successfullyProcessed = pipelineResult.processed?.filter(pf => pf.azureUrl) || [];
+    if (successfullyProcessed.length > 0 && onUploadComplete) {
+      console.log('Notifying parent component about successful uploads:', successfullyProcessed.length);
+      onUploadComplete(successfullyProcessed);
     }
 
     // Clear completed files after a delay

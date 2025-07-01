@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -31,27 +32,22 @@ export const useReceiptData = () => {
 
   // Create receipts from uploaded files
   const createReceiptsFromFiles = async (processedFiles: ProcessedFile[]) => {
-    if (!user) {
-      console.log('User not authenticated, cannot create receipts');
-      return;
-    }
-
     console.log('Creating receipts from processed files:', processedFiles.length);
+    console.log('Current user:', user ? 'authenticated' : 'not authenticated');
 
     const newReceipts = processedFiles
       .filter(pf => pf.azureUrl) // Only create receipts for successfully uploaded files
       .map((processedFile, index) => ({
         id: Date.now() + index, // Temporary ID until we get from database
         imageUrl: processedFile.azureUrl!,
-        vendor: 'Unknown', // Will be populated by cloud processing
+        vendor: 'Processing...', // Will be populated by cloud processing
         price: '0 kr', // Will be populated by cloud processing
         productName: processedFile.file.name.replace(/\.[^/.]+$/, ""), // Use filename without extension
         verificationLetter: `V${String(Date.now()).slice(-3)}${index.toString().padStart(2, '0')}`, // Generate temp verification
         fileId: processedFile.id
       }));
 
-    // Store in Supabase files table (this is already done by the pipeline)
-    // For now, just add to local state - later we'll read from database
+    // Add to local state first for immediate display
     setReceipts(prevReceipts => [...prevReceipts, ...newReceipts]);
     
     console.log('Created receipts from uploads:', newReceipts.length);
@@ -83,11 +79,16 @@ export const useReceiptData = () => {
     console.log('Added demo receipts:', newReceipts.length);
   };
 
-  // Load receipts from database (placeholder for future implementation)
+  // Load receipts from database when user becomes authenticated
   const loadReceiptsFromDatabase = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('No user authenticated, skipping database load');
+      return;
+    }
 
     try {
+      console.log('Loading receipts from database for user:', user.id);
+      
       const { data, error } = await supabase
         .from('files')
         .select('*')
@@ -117,6 +118,13 @@ export const useReceiptData = () => {
       console.error('Error loading receipts:', error);
     }
   };
+
+  // Load receipts when user becomes available
+  useEffect(() => {
+    if (user) {
+      loadReceiptsFromDatabase();
+    }
+  }, [user]);
 
   return {
     receipts,
