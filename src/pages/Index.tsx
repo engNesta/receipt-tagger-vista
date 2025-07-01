@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,9 +11,6 @@ import UploadSection from '@/components/UploadSection';
 import UserProfile from '@/components/auth/UserProfile';
 import ReceiptCard from '@/components/ReceiptCard';
 import ReceiptModal from '@/components/ReceiptModal';
-import TagFilters from '@/components/receipts/TagFilters';
-import SearchBar from '@/components/receipts/SearchBar';
-import SortControls from '@/components/receipts/SortControls';
 import UnifiedControls from '@/components/receipts/UnifiedControls';
 import LoadMoreModal from '@/components/LoadMoreModal';
 import { useReceiptData } from '@/hooks/useReceiptData';
@@ -25,18 +23,17 @@ const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showLoadMoreModal, setShowLoadMoreModal] = useState(false);
 
-  const { receipts } = useReceiptData();
+  const { receipts, handleReceiptsAdded } = useReceiptData();
   const {
     filteredReceipts,
     selectedTag,
-    setSelectedTag,
     searchTerm,
     setSearchTerm,
-    sortBy,
-    setSortBy,
     sortOrder,
-    setSortOrder
+    handleTagClick,
+    handleSortClick
   } = useReceiptFiltering(receipts);
 
   const handleReceiptClick = (receipt: any) => {
@@ -46,6 +43,11 @@ const Index = () => {
 
   const handleUploadComplete = () => {
     setShowUploadModal(false);
+  };
+
+  const handleLoadMoreComplete = () => {
+    handleReceiptsAdded();
+    setShowLoadMoreModal(false);
   };
 
   return (
@@ -111,9 +113,13 @@ const Index = () => {
                   </DialogContent>
                 </Dialog>
                 
-                <Button variant="outline" className="flex items-center space-x-2">
+                <Button 
+                  variant="outline" 
+                  className="flex items-center space-x-2"
+                  onClick={() => setShowLoadMoreModal(true)}
+                >
                   <FileText className="h-4 w-4" />
-                  <span>View Files</span>
+                  <span>Load More Files</span>
                 </Button>
               </div>
             </CardContent>
@@ -129,13 +135,11 @@ const Index = () => {
           <div className="space-y-6">
             <UnifiedControls
               selectedTag={selectedTag}
-              onTagChange={setSelectedTag}
+              onTagClick={handleTagClick}
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
-              sortBy={sortBy}
-              onSortByChange={setSortBy}
               sortOrder={sortOrder}
-              onSortOrderChange={setSortOrder}
+              onSortClick={handleSortClick}
             />
           </div>
         </div>
@@ -153,7 +157,11 @@ const Index = () => {
           </div>
         </div>
 
-        <LoadMoreModal />
+        <LoadMoreModal 
+          isOpen={showLoadMoreModal}
+          onClose={() => setShowLoadMoreModal(false)}
+          onReceiptsAdded={handleLoadMoreComplete}
+        />
       </div>
 
       <ReceiptModal

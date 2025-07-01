@@ -79,10 +79,12 @@ export const useReceiptFiltering = (receipts: Receipt[]) => {
 
   return {
     selectedTag,
+    setSelectedTag,
     searchTerm,
-    sortOrder,
-    filteredReceipts,
     setSearchTerm,
+    sortOrder,
+    setSortOrder,
+    filteredReceipts,
     handleTagClick,
     handleSortClick
   };
