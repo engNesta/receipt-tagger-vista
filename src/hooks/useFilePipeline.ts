@@ -44,7 +44,7 @@ export const useFilePipeline = () => {
     });
   }, []);
 
-  const processFiles = useCallback(async (files: File[]) => {
+  const processFiles = useCallback(async (files: File[], onReceiptsCreated?: (processedFiles: ProcessedFile[]) => void) => {
     console.log('Pipeline: Processing', files.length, 'files');
     setIsProcessing(true);
 
@@ -99,6 +99,13 @@ export const useFilePipeline = () => {
       errorCount: prev.errorCount + errorCount,
       lastProcessed: new Date()
     }));
+
+    // Notify about successfully processed files so receipts can be created
+    const successfullyProcessed = processed.filter(pf => pf.azureUrl);
+    if (successfullyProcessed.length > 0 && onReceiptsCreated) {
+      console.log('Pipeline: Notifying about successful uploads for receipt creation');
+      onReceiptsCreated(successfullyProcessed);
+    }
 
     setIsProcessing(false);
     

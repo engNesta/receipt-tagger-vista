@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -25,7 +25,7 @@ const Index = () => {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showLoadMoreModal, setShowLoadMoreModal] = useState(false);
 
-  const { receipts, handleReceiptsAdded } = useReceiptData();
+  const { receipts, handleReceiptsAdded, createReceiptsFromFiles, loadReceiptsFromDatabase } = useReceiptData();
   const {
     filteredReceipts,
     selectedTag,
@@ -36,6 +36,13 @@ const Index = () => {
     handleSortClick
   } = useReceiptFiltering(receipts);
 
+  // Load existing receipts when component mounts and user is authenticated
+  useEffect(() => {
+    if (user) {
+      loadReceiptsFromDatabase();
+    }
+  }, [user]);
+
   const handleReceiptClick = (receipt: any) => {
     setSelectedReceipt(receipt);
     setIsModalOpen(true);
@@ -44,6 +51,14 @@ const Index = () => {
   const handleLoadMoreComplete = () => {
     handleReceiptsAdded();
     setShowLoadMoreModal(false);
+  };
+
+  // Handle successful file uploads by creating receipts
+  const handleUploadComplete = (processedFiles: any[]) => {
+    console.log('Files uploaded successfully, creating receipts:', processedFiles.length);
+    if (processedFiles.length > 0) {
+      createReceiptsFromFiles(processedFiles);
+    }
   };
 
   return (
@@ -94,9 +109,9 @@ const Index = () => {
             <p className="text-gray-600">{getText('dragDropUpload')}</p>
           </div>
           
-          {/* Upload Area - Full width */}
+          {/* Upload Area - Full width with receipt creation callback */}
           <div className="max-w-4xl mx-auto">
-            <UploadSection onUploadComplete={() => console.log('Upload completed')} />
+            <UploadSection onUploadComplete={handleUploadComplete} />
           </div>
         </div>
 
