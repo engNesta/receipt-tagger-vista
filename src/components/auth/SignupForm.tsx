@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SignupFormProps {
   onSuccess?: () => void;
@@ -21,6 +22,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, switchToLogin }) => 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const { getText } = useLanguage();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,13 +30,13 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, switchToLogin }) => 
     setError(null);
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(getText('passwordsDoNotMatch'));
       setIsLoading(false);
       return;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError(getText('passwordTooShort'));
       setIsLoading(false);
       return;
     }
@@ -51,13 +53,13 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, switchToLogin }) => 
       }
 
       toast({
-        title: "Account created!",
-        description: "Please check your email to verify your account.",
+        title: getText('accountCreated'),
+        description: getText('checkEmailVerification'),
       });
 
       onSuccess?.();
     } catch (err) {
-      setError('An unexpected error occurred');
+      setError(getText('unexpectedError'));
     } finally {
       setIsLoading(false);
     }
@@ -66,9 +68,9 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, switchToLogin }) => 
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Create Account</CardTitle>
+        <CardTitle>{getText('createAccount')}</CardTitle>
         <CardDescription>
-          Sign up to start uploading and managing your files
+          {getText('signUpDescription')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -80,7 +82,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, switchToLogin }) => 
           )}
           
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{getText('email')}</Label>
             <Input
               id="email"
               type="email"
@@ -92,7 +94,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, switchToLogin }) => 
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{getText('password')}</Label>
             <Input
               id="password"
               type="password"
@@ -105,7 +107,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, switchToLogin }) => 
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Label htmlFor="confirmPassword">{getText('confirmPassword')}</Label>
             <Input
               id="confirmPassword"
               type="password"
@@ -121,22 +123,22 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, switchToLogin }) => 
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating account...
+                {getText('creatingAccount')}
               </>
             ) : (
-              'Create Account'
+              getText('createAccount')
             )}
           </Button>
           
           {switchToLogin && (
             <div className="text-center text-sm">
-              Already have an account?{' '}
+              {getText('alreadyHaveAccount')}{' '}
               <button
                 type="button"
                 onClick={switchToLogin}
                 className="text-blue-600 hover:underline"
               >
-                Sign in
+                {getText('signIn')}
               </button>
             </div>
           )}

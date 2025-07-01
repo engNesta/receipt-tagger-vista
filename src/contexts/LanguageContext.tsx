@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 type Language = 'sv' | 'en';
@@ -10,6 +11,36 @@ interface LanguageContextType {
 
 const translations = {
   sv: {
+    // Autentisering
+    signIn: "Logga in",
+    signUp: "Skapa konto",
+    createAccount: "Skapa konto",
+    email: "E-post",
+    password: "Lösenord",
+    confirmPassword: "Bekräfta lösenord",
+    signingIn: "Loggar in...",
+    creatingAccount: "Skapar konto...",
+    signInDescription: "Ange dina uppgifter för att komma åt ditt konto",
+    signUpDescription: "Registrera dig för att börja ladda upp och hantera dina filer",
+    dontHaveAccount: "Har du inget konto?",
+    alreadyHaveAccount: "Har du redan ett konto?",
+    welcomeBack: "Välkommen tillbaka!",
+    loginSuccess: "Du har loggats in framgångsrikt.",
+    accountCreated: "Konto skapat!",
+    checkEmailVerification: "Kontrollera din e-post för att verifiera ditt konto.",
+    passwordsDoNotMatch: "Lösenorden stämmer inte överens",
+    passwordTooShort: "Lösenordet måste vara minst 6 tecken långt",
+    unexpectedError: "Ett oväntat fel inträffade",
+    loading: "Laddar...",
+    profile: "Profil",
+    signOut: "Logga ut",
+    signedOut: "Utloggad",
+    signOutSuccess: "Du har loggats ut framgångsrikt.",
+    signOutError: "Misslyckades med att logga ut. Försök igen.",
+    joined: "Registrerad",
+    secureFileUpload: "Säker filuppladdning och hantering",
+    filesSecurelyStored: "Dina filer lagras säkert och är endast tillgängliga för dig",
+
     // Huvudsida
     title: "Kvitthanteringssystem",
     subtitle: "Ladda upp och organisera dina kvitton och fakturor effektivt för svensk redovisning",
@@ -25,6 +56,8 @@ const translations = {
     secureManage: "Hantera och organisera alla dina företagskvitton säkert på ett ställe - redo för Fortnox, Visma och Bokio",
     language: "Språk",
     loadMoreReceipts: "Ladda fler kvitton",
+    quickActions: "Snabbåtgärder",
+    loadMoreFiles: "Ladda fler filer",
     
     // Kvitthantering
     vendor: "Leverantör",
@@ -87,6 +120,36 @@ const translations = {
     consentRequired: "Du måste godkänna alla villkor för att fortsätta"
   },
   en: {
+    // Authentication
+    signIn: "Sign In",
+    signUp: "Sign Up",
+    createAccount: "Create Account",
+    email: "Email",
+    password: "Password",
+    confirmPassword: "Confirm Password",
+    signingIn: "Signing in...",
+    creatingAccount: "Creating account...",
+    signInDescription: "Enter your credentials to access your account",
+    signUpDescription: "Sign up to start uploading and managing your files",
+    dontHaveAccount: "Don't have an account?",
+    alreadyHaveAccount: "Already have an account?",
+    welcomeBack: "Welcome back!",
+    loginSuccess: "You have been logged in successfully.",
+    accountCreated: "Account created!",
+    checkEmailVerification: "Please check your email to verify your account.",
+    passwordsDoNotMatch: "Passwords do not match",
+    passwordTooShort: "Password must be at least 6 characters long",
+    unexpectedError: "An unexpected error occurred",
+    loading: "Loading...",
+    profile: "Profile",
+    signOut: "Sign Out",
+    signedOut: "Signed out",
+    signOutSuccess: "You have been signed out successfully.",
+    signOutError: "Failed to sign out. Please try again.",
+    joined: "Joined",
+    secureFileUpload: "Secure file upload and management",
+    filesSecurelyStored: "Your files are securely stored and only accessible by you",
+
     // LoadReceipts page
     title: "Receipt Management System",
     subtitle: "Upload and organize your receipts and invoices efficiently for Swedish accounting",
@@ -102,6 +165,8 @@ const translations = {
     secureManage: "Securely manage and organize all your business receipts in one place - ready for Fortnox, Visma and Bokio",
     language: "Language",
     loadMoreReceipts: "Load More Receipts",
+    quickActions: "Quick Actions",
+    loadMoreFiles: "Load More Files",
     
     // Index page
     vendor: "Vendor",

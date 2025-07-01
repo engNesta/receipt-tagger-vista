@@ -6,22 +6,24 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { LogOut, User } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const UserProfile: React.FC = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const { getText } = useLanguage();
 
   const handleSignOut = async () => {
     try {
       await signOut();
       toast({
-        title: "Signed out",
-        description: "You have been signed out successfully.",
+        title: getText('signedOut'),
+        description: getText('signOutSuccess'),
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to sign out. Please try again.",
+        description: getText('signOutError'),
         variant: "destructive",
       });
     }
@@ -41,7 +43,7 @@ const UserProfile: React.FC = () => {
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <User className="h-5 w-5" />
-          <span>Profile</span>
+          <span>{getText('profile')}</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -52,7 +54,7 @@ const UserProfile: React.FC = () => {
           <div>
             <p className="font-medium">{user.email}</p>
             <p className="text-sm text-gray-500">
-              Joined {new Date(user.created_at).toLocaleDateString()}
+              {getText('joined')} {new Date(user.created_at).toLocaleDateString()}
             </p>
           </div>
         </div>
@@ -63,7 +65,7 @@ const UserProfile: React.FC = () => {
           className="w-full"
         >
           <LogOut className="h-4 w-4 mr-2" />
-          Sign Out
+          {getText('signOut')}
         </Button>
       </CardContent>
     </Card>

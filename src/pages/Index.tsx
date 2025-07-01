@@ -58,7 +58,7 @@ const Index = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <h1 className="text-2xl font-bold text-gray-900">RawDrop</h1>
-              <span className="text-sm text-gray-500">Secure File Management</span>
+              <span className="text-sm text-gray-500">{getText('secureManage')}</span>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -68,12 +68,12 @@ const Index = () => {
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm">
                     <User className="h-4 w-4 mr-2" />
-                    {user?.email?.split('@')[0] || 'Profile'}
+                    {user?.email?.split('@')[0] || getText('profile')}
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>User Profile</DialogTitle>
+                    <DialogTitle>{getText('profile')}</DialogTitle>
                   </DialogHeader>
                   <UserProfile />
                 </DialogContent>
@@ -90,7 +90,7 @@ const Index = () => {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Settings className="h-5 w-5" />
-                <span>Quick Actions</span>
+                <span>{getText('quickActions')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -119,7 +119,7 @@ const Index = () => {
                   onClick={() => setShowLoadMoreModal(true)}
                 >
                   <FileText className="h-4 w-4" />
-                  <span>Load More Files</span>
+                  <span>{getText('loadMoreFiles')}</span>
                 </Button>
               </div>
             </CardContent>

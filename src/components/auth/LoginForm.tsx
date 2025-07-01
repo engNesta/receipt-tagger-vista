@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -20,6 +21,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, switchToSignup }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const { getText } = useLanguage();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,13 +40,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, switchToSignup }) => {
       }
 
       toast({
-        title: "Welcome back!",
-        description: "You have been logged in successfully.",
+        title: getText('welcomeBack'),
+        description: getText('loginSuccess'),
       });
 
       onSuccess?.();
     } catch (err) {
-      setError('An unexpected error occurred');
+      setError(getText('unexpectedError'));
     } finally {
       setIsLoading(false);
     }
@@ -53,9 +55,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, switchToSignup }) => {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Sign In</CardTitle>
+        <CardTitle>{getText('signIn')}</CardTitle>
         <CardDescription>
-          Enter your credentials to access your account
+          {getText('signInDescription')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -67,7 +69,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, switchToSignup }) => {
           )}
           
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{getText('email')}</Label>
             <Input
               id="email"
               type="email"
@@ -79,7 +81,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, switchToSignup }) => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{getText('password')}</Label>
             <Input
               id="password"
               type="password"
@@ -94,22 +96,22 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, switchToSignup }) => {
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Signing in...
+                {getText('signingIn')}
               </>
             ) : (
-              'Sign In'
+              getText('signIn')
             )}
           </Button>
           
           {switchToSignup && (
             <div className="text-center text-sm">
-              Don't have an account?{' '}
+              {getText('dontHaveAccount')}{' '}
               <button
                 type="button"
                 onClick={switchToSignup}
                 className="text-blue-600 hover:underline"
               >
-                Sign up
+                {getText('signUp')}
               </button>
             </div>
           )}

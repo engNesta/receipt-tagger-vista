@@ -3,6 +3,7 @@ import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Shield } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import LoginForm from './LoginForm';
 import SignupForm from './SignupForm';
 
@@ -13,6 +14,7 @@ interface AuthGuardProps {
 
 const AuthGuard: React.FC<AuthGuardProps> = ({ children, fallback }) => {
   const { user, loading } = useAuth();
+  const { getText } = useLanguage();
   const [showSignup, setShowSignup] = React.useState(false);
 
   if (loading) {
@@ -21,7 +23,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children, fallback }) => {
         <Card className="w-full max-w-md">
           <CardContent className="flex items-center justify-center p-8">
             <Loader2 className="h-8 w-8 animate-spin" />
-            <span className="ml-3">Loading...</span>
+            <span className="ml-3">{getText('loading')}</span>
           </CardContent>
         </Card>
       </div>
@@ -49,10 +51,10 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children, fallback }) => {
           <div className="mt-6 text-center">
             <div className="flex items-center justify-center text-sm text-gray-500 mb-2">
               <Shield className="h-4 w-4 mr-2" />
-              Secure file upload and management
+              {getText('secureFileUpload')}
             </div>
             <p className="text-xs text-gray-400">
-              Your files are securely stored and only accessible by you
+              {getText('filesSecurelyStored')}
             </p>
           </div>
         </div>
