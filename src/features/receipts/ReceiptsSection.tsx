@@ -37,21 +37,12 @@ const ReceiptsSection: React.FC<ReceiptsSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Section Header with Load More Button */}
-      <div className="flex items-center justify-between">
+      {/* Section Header */}
+      <div className="flex items-center justify-center text-center">
         <div>
           <h3 className="text-xl font-semibold text-gray-900">{getText('yourReceipts')}</h3>
           <p className="text-sm text-gray-600">{filteredReceipts.length} {getText('receiptsFound')}</p>
         </div>
-        
-        <Button 
-          variant="outline" 
-          className="flex items-center gap-2"
-          onClick={onLoadMoreClick}
-        >
-          <Plus className="h-4 w-4" />
-          {getText('loadMoreFiles')}
-        </Button>
       </div>
 
       {/* Controls */}
