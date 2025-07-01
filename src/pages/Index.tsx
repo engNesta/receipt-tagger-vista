@@ -3,15 +3,16 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { User, Upload, FileText, Settings } from 'lucide-react';
+import { User, Upload, FileText, Plus } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import LanguageSelector from '@/components/LanguageSelector';
 import UploadSection from '@/components/UploadSection';
 import UserProfile from '@/components/auth/UserProfile';
-import ReceiptCard from '@/components/ReceiptCard';
 import ReceiptModal from '@/components/ReceiptModal';
 import UnifiedControls from '@/components/receipts/UnifiedControls';
+import ReceiptsGrid from '@/components/receipts/ReceiptsGrid';
+import EmptyState from '@/components/receipts/EmptyState';
 import LoadMoreModal from '@/components/LoadMoreModal';
 import { useReceiptData } from '@/hooks/useReceiptData';
 import { useReceiptFiltering } from '@/hooks/useReceiptFiltering';
@@ -52,23 +53,30 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-      {/* Header with user profile */}
-      <header className="bg-white shadow-sm border-b">
+      {/* Clean Header */}
+      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-gray-900">RawDrop</h1>
-              <span className="text-sm text-gray-500">{getText('secureManage')}</span>
+            {/* Brand */}
+            <div className="flex items-center space-x-3">
+              <div className="bg-blue-600 text-white p-2 rounded-lg">
+                <FileText className="h-6 w-6" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">RawDrop</h1>
+                <p className="text-xs text-gray-500">{getText('secureManage')}</p>
+              </div>
             </div>
             
-            <div className="flex items-center space-x-4">
+            {/* Header Actions */}
+            <div className="flex items-center space-x-3">
               <LanguageSelector />
               
               <Dialog open={showProfileModal} onOpenChange={setShowProfileModal}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <User className="h-4 w-4 mr-2" />
-                    {user?.email?.split('@')[0] || getText('profile')}
+                  <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                    <User className="h-4 w-4" />
+                    <span className="hidden sm:inline">{user?.email?.split('@')[0] || getText('profile')}</span>
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
@@ -84,92 +92,105 @@ const Index = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Quick Actions */}
+        {/* Main Action Section */}
         <div className="mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Settings className="h-5 w-5" />
-                <span>{getText('quickActions')}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-4">
-                <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
-                  <DialogTrigger asChild>
-                    <Button className="flex items-center space-x-2">
-                      <Upload className="h-4 w-4" />
-                      <span>{getText('uploadFiles')}</span>
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>{getText('uploadFiles')}</DialogTitle>
-                    </DialogHeader>
-                    <UploadSection 
-                      onUploadComplete={handleUploadComplete}
-                      isCompact={true}
-                    />
-                  </DialogContent>
-                </Dialog>
-                
-                <Button 
-                  variant="outline" 
-                  className="flex items-center space-x-2"
-                  onClick={() => setShowLoadMoreModal(true)}
-                >
-                  <FileText className="h-4 w-4" />
-                  <span>{getText('loadMoreFiles')}</span>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main upload section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <UploadSection onUploadComplete={() => console.log('Upload completed')} />
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{getText('uploadFiles')}</h2>
+            <p className="text-gray-600">{getText('dragDropUpload')}</p>
           </div>
           
-          <div className="space-y-6">
-            <UnifiedControls
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Upload Area */}
+            <div className="lg:col-span-2">
+              <UploadSection onUploadComplete={() => console.log('Upload completed')} />
+            </div>
+            
+            {/* Quick Actions */}
+            <div className="space-y-4">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">{getText('quickActions')}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
+                    <DialogTrigger asChild>
+                      <Button className="w-full justify-start" size="sm">
+                        <Upload className="h-4 w-4 mr-2" />
+                        {getText('uploadModal')}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>{getText('uploadFiles')}</DialogTitle>
+                      </DialogHeader>
+                      <UploadSection 
+                        onUploadComplete={handleUploadComplete}
+                        isCompact={true}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    size="sm"
+                    onClick={() => setShowLoadMoreModal(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    {getText('loadMoreFiles')}
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+
+        {/* Receipts Section */}
+        <div className="space-y-6">
+          {/* Section Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900">{getText('yourReceipts')}</h3>
+              <p className="text-sm text-gray-600">{filteredReceipts.length} {getText('receiptsFound')}</p>
+            </div>
+          </div>
+
+          {/* Controls */}
+          <UnifiedControls
+            selectedTag={selectedTag}
+            onTagClick={handleTagClick}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            sortOrder={sortOrder}
+            onSortClick={handleSortClick}
+          />
+
+          {/* Receipts Grid or Empty State */}
+          {filteredReceipts.length > 0 ? (
+            <ReceiptsGrid
+              receipts={filteredReceipts}
               selectedTag={selectedTag}
-              onTagClick={handleTagClick}
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              sortOrder={sortOrder}
-              onSortClick={handleSortClick}
+              onCardClick={handleReceiptClick}
             />
-          </div>
+          ) : (
+            <EmptyState />
+          )}
         </div>
 
-        <div className="mt-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-            {filteredReceipts.map((receipt) => (
-              <ReceiptCard
-                key={receipt.id}
-                receipt={receipt}
-                selectedTag={selectedTag}
-                onClick={() => handleReceiptClick(receipt)}
-              />
-            ))}
-          </div>
-        </div>
-
+        {/* Modals */}
         <LoadMoreModal 
           isOpen={showLoadMoreModal}
           onClose={() => setShowLoadMoreModal(false)}
           onReceiptsAdded={handleLoadMoreComplete}
         />
-      </div>
 
-      <ReceiptModal
-        receipt={selectedReceipt}
-        selectedTag={selectedTag}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+        <ReceiptModal
+          receipt={selectedReceipt}
+          selectedTag={selectedTag}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      </div>
     </div>
   );
 };

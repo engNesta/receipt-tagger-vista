@@ -1,6 +1,8 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { FileText } from 'lucide-react';
 
 interface Receipt {
   id: number;
@@ -41,40 +43,54 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt, selectedTag, onClick
 
   return (
     <Card 
-      className="overflow-hidden hover:shadow-md transition-all duration-300 hover:scale-105 bg-white cursor-pointer"
+      className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer bg-white border-gray-200 hover:border-blue-200"
       onClick={onClick}
     >
       <CardContent className="p-0">
         {/* Receipt Image */}
-        <div className="aspect-[4/5] bg-gray-100 flex items-center justify-center border-b">
+        <div className="aspect-[3/4] bg-gray-50 relative overflow-hidden">
           <img
             src={receipt.imageUrl}
             alt={`Receipt ${receipt.id}`}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.style.display = 'none';
               target.parentElement!.innerHTML = `
-                <div class="flex flex-col items-center justify-center h-full text-gray-400">
-                  <svg class="w-12 h-12 mb-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
-                  </svg>
-                  <p class="text-xs font-medium">Receipt ${receipt.id}</p>
+                <div class="flex flex-col items-center justify-center h-full text-gray-400 bg-gray-50">
+                  <div class="bg-gray-100 rounded-full p-4 mb-3">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/>
+                      <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+                    </svg>
+                  </div>
+                  <p class="text-xs font-medium text-center px-2">Receipt ${receipt.id}</p>
                 </div>
               `;
             }}
           />
+          
+          {/* Overlay on hover */}
+          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" />
         </div>
 
-        {/* Selected Tag Information */}
-        <div className="p-3 min-h-[60px] flex items-center justify-center">
+        {/* Information Panel */}
+        <div className="p-3 bg-white border-t border-gray-100">
           {displayInfo ? (
-            <div className="text-center w-full">
-              <p className="text-xs text-gray-500 mb-1">{displayInfo.label}</p>
-              <p className="font-semibold text-gray-900 text-sm truncate">{displayInfo.value}</p>
+            <div className="space-y-1">
+              <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+                {displayInfo.label}
+              </p>
+              <p className="font-semibold text-gray-900 text-sm leading-tight line-clamp-2">
+                {displayInfo.value}
+              </p>
             </div>
           ) : (
-            <p className="text-gray-400 text-xs italic">{getText('selectTagToView')}</p>
+            <div className="flex items-center justify-center py-2">
+              <p className="text-gray-400 text-xs italic text-center">
+                {getText('selectTagToView')}
+              </p>
+            </div>
           )}
         </div>
       </CardContent>
