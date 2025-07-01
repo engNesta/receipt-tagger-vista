@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 type Language = 'sv' | 'en';
@@ -77,6 +76,7 @@ const translations = {
     filterBy: "Filtrera efter",
     sortBy: "Sortera efter",
     clearFilter: "Rensa filter",
+    allReceipts: "Alla kvitton",
     mostRecent: "Senaste",
     priceHighToLow: "Belopp: Högst till lägst",
     priceLowToHigh: "Belopp: Lägst till högst",
@@ -189,6 +189,7 @@ const translations = {
     filterBy: "Filter by",
     sortBy: "Sort by",
     clearFilter: "Clear Filter",
+    allReceipts: "All Receipts",
     mostRecent: "Most Recent",
     priceHighToLow: "Price: High to Low",
     priceLowToHigh: "Price: Low to High",
