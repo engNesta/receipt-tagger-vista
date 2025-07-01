@@ -233,7 +233,7 @@ const translations = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('en'); // Changed default to English
+  const [language, setLanguage] = useState<Language>('sv'); // Changed default back to Swedish
 
   const getText = (key: string): string => {
     return translations[language][key as keyof typeof translations.sv] || key;
