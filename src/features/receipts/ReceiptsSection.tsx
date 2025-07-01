@@ -13,10 +13,10 @@ interface ReceiptsSectionProps {
   filteredReceipts: Receipt[];
   selectedTag: string | null;
   searchTerm: string;
-  sortOrder: string;
+  sortOrder: 'asc' | 'desc' | null;
   onTagClick: (tag: string | null) => void;
   onSearchChange: (term: string) => void;
-  onSortClick: (order: string) => void;
+  onSortClick: (order: 'asc' | 'desc') => void;
   onReceiptClick: (receipt: Receipt) => void;
   onLoadMoreClick: () => void;
 }
