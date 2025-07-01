@@ -9,42 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      cleanup_logs: {
-        Row: {
-          cleanup_type: string
-          completed_at: string | null
-          created_at: string
-          error_message: string | null
-          files_checked: number
-          files_removed: number
-          id: string
-          started_at: string
-          user_id: string | null
-        }
-        Insert: {
-          cleanup_type: string
-          completed_at?: string | null
-          created_at?: string
-          error_message?: string | null
-          files_checked?: number
-          files_removed?: number
-          id?: string
-          started_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          cleanup_type?: string
-          completed_at?: string | null
-          created_at?: string
-          error_message?: string | null
-          files_checked?: number
-          files_removed?: number
-          id?: string
-          started_at?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       files: {
         Row: {
           azure_blob_url: string
@@ -52,7 +16,6 @@ export type Database = {
           error_message: string | null
           file_size: number
           id: string
-          last_validated: string | null
           mime_type: string
           original_name: string
           updated_at: string
@@ -65,7 +28,6 @@ export type Database = {
           error_message?: string | null
           file_size: number
           id?: string
-          last_validated?: string | null
           mime_type: string
           original_name: string
           updated_at?: string
@@ -78,7 +40,6 @@ export type Database = {
           error_message?: string | null
           file_size?: number
           id?: string
-          last_validated?: string | null
           mime_type?: string
           original_name?: string
           updated_at?: string

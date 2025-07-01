@@ -2,14 +2,12 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useImageCleanup } from '@/hooks/useImageCleanup';
 import type { Receipt, ProcessedFile } from '@/types';
 import { transformFileToReceipt, transformProcessedFileToReceipt, createDemoReceipts } from '@/utils/receiptTransformers';
 
 export const useReceiptData = () => {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const { user } = useAuth();
-  const { runAutomaticCleanup } = useImageCleanup();
 
   const createReceiptsFromFiles = async (processedFiles: ProcessedFile[]) => {
     console.log('Creating receipts from processed files:', processedFiles.length);
@@ -54,20 +52,6 @@ export const useReceiptData = () => {
       const dbReceipts = data?.map((file, index) => transformFileToReceipt(file, index)) || [];
       setReceipts(dbReceipts);
       console.log('Loaded receipts from database:', dbReceipts.length);
-
-      // Run automatic cleanup if we haven't done it recently
-      if (dbReceipts.length > 0) {
-        console.log('Running automatic cleanup check...');
-        const cleanupResult = await runAutomaticCleanup();
-        
-        // If cleanup removed files, reload the receipts
-        if (cleanupResult.success && cleanupResult.filesRemoved > 0) {
-          console.log('Cleanup removed files, reloading receipts...');
-          setTimeout(() => {
-            loadReceiptsFromDatabase();
-          }, 1000);
-        }
-      }
     } catch (error) {
       console.error('Error loading receipts:', error);
     }
