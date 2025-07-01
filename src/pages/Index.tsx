@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { User, Upload, FileText, Plus } from 'lucide-react';
+import { User, Upload, FileText, Plus, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import LanguageSelector from '@/components/LanguageSelector';
@@ -15,6 +15,8 @@ import EmptyState from '@/components/receipts/EmptyState';
 import LoadMoreModal from '@/components/LoadMoreModal';
 import { useReceiptData } from '@/hooks/useReceiptData';
 import { useReceiptFiltering } from '@/hooks/useReceiptFiltering';
+import { useReceiptDeletion } from '@/hooks/useReceiptDeletion';
+import DeleteAllDialog from '@/components/DeleteAllDialog';
 
 const Index = () => {
   const { getText } = useLanguage();
@@ -23,6 +25,7 @@ const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showLoadMoreModal, setShowLoadMoreModal] = useState(false);
+  const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
 
   const { receipts, handleReceiptsAdded, createReceiptsFromFiles, loadReceiptsFromDatabase } = useReceiptData();
   const {
@@ -34,6 +37,8 @@ const Index = () => {
     handleTagClick,
     handleSortClick
   } = useReceiptFiltering(receipts);
+
+  const { deleteAllReceipts, isDeleting } = useReceiptDeletion();
 
   // Load existing receipts when component mounts and user is authenticated
   useEffect(() => {
@@ -60,6 +65,19 @@ const Index = () => {
       setTimeout(() => {
         loadReceiptsFromDatabase();
       }, 1000);
+    }
+  };
+
+  const handleReceiptDeleted = () => {
+    // Refresh receipts after deletion
+    loadReceiptsFromDatabase();
+  };
+
+  const handleDeleteAll = async () => {
+    const success = await deleteAllReceipts();
+    if (success) {
+      setShowDeleteAllDialog(false);
+      loadReceiptsFromDatabase();
     }
   };
 
@@ -126,14 +144,29 @@ const Index = () => {
               <p className="text-sm text-gray-600">{filteredReceipts.length} {getText('receiptsFound')}</p>
             </div>
             
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2"
-              onClick={() => setShowLoadMoreModal(true)}
-            >
-              <Plus className="h-4 w-4" />
-              {getText('loadMoreFiles')}
-            </Button>
+            <div className="flex items-center gap-3">
+              {/* Delete All Button */}
+              {receipts.length > 0 && (
+                <Button 
+                  variant="outline" 
+                  className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => setShowDeleteAllDialog(true)}
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete All
+                </Button>
+              )}
+              
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2"
+                onClick={() => setShowLoadMoreModal(true)}
+              >
+                <Plus className="h-4 w-4" />
+                {getText('loadMoreFiles')}
+              </Button>
+            </div>
           </div>
 
           {/* Controls */}
@@ -170,6 +203,15 @@ const Index = () => {
           selectedTag={selectedTag}
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
+          onDeleted={handleReceiptDeleted}
+        />
+
+        <DeleteAllDialog
+          isOpen={showDeleteAllDialog}
+          onClose={() => setShowDeleteAllDialog(false)}
+          onConfirm={handleDeleteAll}
+          isDeleting={isDeleting}
+          receiptCount={receipts.length}
         />
       </div>
     </div>
