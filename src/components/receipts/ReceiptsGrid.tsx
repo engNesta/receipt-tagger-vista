@@ -1,15 +1,8 @@
 
 import React from 'react';
 import ReceiptCard from '@/components/ReceiptCard';
-
-interface Receipt {
-  id: number;
-  imageUrl: string;
-  vendor: string;
-  price: string;
-  productName: string;
-  verificationLetter: string;
-}
+import type { Receipt } from '@/types';
+import { APP_CONFIG } from '@/constants';
 
 interface ReceiptsGridProps {
   receipts: Receipt[];
@@ -17,9 +10,9 @@ interface ReceiptsGridProps {
   onCardClick: (receipt: Receipt) => void;
 }
 
-const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ receipts, selectedTag, onCardClick }) => {
+const ReceiptsGrid: React.FC<ReceiptsGridProps> = React.memo(({ receipts, selectedTag, onCardClick }) => {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4">
+    <div className={`grid ${APP_CONFIG.RECEIPT_GRID_COLUMNS.DEFAULT} gap-4`}>
       {receipts.map((receipt) => (
         <ReceiptCard
           key={receipt.id}
@@ -30,6 +23,8 @@ const ReceiptsGrid: React.FC<ReceiptsGridProps> = ({ receipts, selectedTag, onCa
       ))}
     </div>
   );
-};
+});
+
+ReceiptsGrid.displayName = 'ReceiptsGrid';
 
 export default ReceiptsGrid;

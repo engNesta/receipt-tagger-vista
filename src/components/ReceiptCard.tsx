@@ -2,16 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { FileText } from 'lucide-react';
-
-interface Receipt {
-  id: number;
-  imageUrl: string;
-  vendor: string;
-  price: string;
-  productName: string;
-  verificationLetter: string;
-}
+import type { Receipt } from '@/types';
 
 interface ReceiptCardProps {
   receipt: Receipt;
@@ -19,7 +10,7 @@ interface ReceiptCardProps {
   onClick: () => void;
 }
 
-const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt, selectedTag, onClick }) => {
+const ReceiptCard: React.FC<ReceiptCardProps> = React.memo(({ receipt, selectedTag, onClick }) => {
   const { getText } = useLanguage();
 
   const getDisplayValue = () => {
@@ -70,7 +61,6 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt, selectedTag, onClick
             }}
           />
           
-          {/* Overlay on hover */}
           <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" />
         </div>
 
@@ -96,6 +86,8 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({ receipt, selectedTag, onClick
       </CardContent>
     </Card>
   );
-};
+});
+
+ReceiptCard.displayName = 'ReceiptCard';
 
 export default ReceiptCard;

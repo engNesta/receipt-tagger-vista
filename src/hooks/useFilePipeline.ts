@@ -1,25 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { useAzureUpload } from './useAzureUpload';
-
-interface ProcessedFile {
-  file: File;
-  id: string;
-  timestamp: number;
-  metadata: {
-    size: number;
-    type: string;
-    lastModified: number;
-  };
-  azureUrl?: string;
-}
-
-interface PipelineStats {
-  totalProcessed: number;
-  successCount: number;
-  errorCount: number;
-  lastProcessed: Date | null;
-}
+import type { ProcessedFile, PipelineStats } from '@/types';
 
 export const useFilePipeline = () => {
   const [processedFiles, setProcessedFiles] = useState<ProcessedFile[]>([]);
@@ -62,7 +44,6 @@ export const useFilePipeline = () => {
 
     for (const file of newFiles) {
       try {
-        // Upload file to Azure storage
         const uploadResult = await uploadFile(file);
         
         const processedFile: ProcessedFile = {
@@ -96,11 +77,10 @@ export const useFilePipeline = () => {
     setStats(prev => ({
       totalProcessed: prev.totalProcessed + processed.length,
       successCount: prev.successCount + successCount,
-      errorCount: prev.errorCount + errorCount,
+      errorCount: prev.errorCount! + errorCount,
       lastProcessed: new Date()
     }));
 
-    // Notify about successfully processed files so receipts can be created
     const successfullyProcessed = processed.filter(pf => pf.azureUrl);
     if (successfullyProcessed.length > 0 && onReceiptsCreated) {
       console.log('Pipeline: Notifying about successful uploads for receipt creation');

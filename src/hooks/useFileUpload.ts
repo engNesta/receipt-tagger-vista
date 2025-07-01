@@ -1,22 +1,10 @@
-
 import { useState, useCallback } from 'react';
 import { useConsent } from '@/hooks/useConsent';
 import { useFilePipeline } from '@/hooks/useFilePipeline';
+import type { FileWithStatus, UploadCallbacks } from '@/types';
+import { APP_CONFIG } from '@/constants';
 
-interface FileWithStatus {
-  file: File;
-  id: string;
-  status: 'pending' | 'processing' | 'completed' | 'error';
-  progress: number;
-  error?: string;
-  azureUrl?: string;
-}
-
-interface UseFileUploadProps {
-  onUploadComplete?: (processedFiles?: any[]) => void;
-}
-
-export const useFileUpload = ({ onUploadComplete }: UseFileUploadProps) => {
+export const useFileUpload = ({ onUploadComplete }: UploadCallbacks) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState<FileWithStatus[]>([]);
   const [showConsentDialog, setShowConsentDialog] = useState(false);
@@ -47,7 +35,7 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadProps) => {
               : f
           ));
         }
-      }, 150);
+      }, APP_CONFIG.UPLOAD.PROGRESS_INTERVAL);
     });
   };
 
@@ -95,7 +83,7 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadProps) => {
     // Clear completed files after a delay
     setTimeout(() => {
       setUploadingFiles([]);
-    }, 2000);
+    }, APP_CONFIG.UPLOAD.CLEAR_DELAY);
   };
 
   // Event handlers

@@ -1,15 +1,8 @@
+
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
-
-interface Receipt {
-  id: number;
-  imageUrl: string;
-  vendor: string;
-  price: string;
-  productName: string;
-  verificationLetter: string;
-}
+import type { Receipt } from '@/types';
 
 interface ReceiptModalProps {
   receipt: Receipt | null;
@@ -50,7 +43,6 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
         </DialogHeader>
         
         <div className="space-y-4">
-          {/* Receipt Image */}
           <div className="aspect-[4/5] bg-gray-100 flex items-center justify-center rounded-lg overflow-hidden">
             <img
               src={receipt.imageUrl}
@@ -71,7 +63,6 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
             />
           </div>
 
-          {/* Selected Tag Information */}
           {displayInfo ? (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
               <p className="text-sm text-gray-600 mb-2">{displayInfo.label}</p>
