@@ -20,7 +20,7 @@ export type Database = {
           original_name: string
           updated_at: string
           upload_status: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           azure_blob_url: string
@@ -32,7 +32,7 @@ export type Database = {
           original_name: string
           updated_at?: string
           upload_status?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           azure_blob_url?: string
@@ -44,7 +44,7 @@ export type Database = {
           original_name?: string
           updated_at?: string
           upload_status?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }

@@ -1,111 +1,166 @@
-
 import React, { useState } from 'react';
-import ReceiptModal from '@/components/ReceiptModal';
-import LoadMoreModal from '@/components/LoadMoreModal';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { User, Upload, FileText, Settings } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/hooks/useAuth';
 import LanguageSelector from '@/components/LanguageSelector';
-import ReceiptsHeader from '@/components/receipts/ReceiptsHeader';
+import UploadSection from '@/components/UploadSection';
+import UserProfile from '@/components/auth/UserProfile';
+import ReceiptCard from '@/components/ReceiptCard';
+import ReceiptModal from '@/components/ReceiptModal';
+import TagFilters from '@/components/receipts/TagFilters';
+import SearchBar from '@/components/receipts/SearchBar';
+import SortControls from '@/components/receipts/SortControls';
 import UnifiedControls from '@/components/receipts/UnifiedControls';
-import ReceiptsGrid from '@/components/receipts/ReceiptsGrid';
-import EnhancedEmptyState from '@/components/receipts/EnhancedEmptyState';
+import LoadMoreModal from '@/components/LoadMoreModal';
 import { useReceiptData } from '@/hooks/useReceiptData';
 import { useReceiptFiltering } from '@/hooks/useReceiptFiltering';
 
 const Index = () => {
+  const { getText } = useLanguage();
+  const { user } = useAuth();
   const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoadMoreModalOpen, setIsLoadMoreModalOpen] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
-  const { receipts, handleReceiptsAdded } = useReceiptData();
+  const { receipts } = useReceiptData();
   const {
-    selectedTag,
-    searchTerm,
-    sortOrder,
     filteredReceipts,
+    selectedTag,
+    setSelectedTag,
+    searchTerm,
     setSearchTerm,
-    handleTagClick,
-    handleSortClick
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder
   } = useReceiptFiltering(receipts);
 
-  const handleCardClick = (receipt: any) => {
+  const handleReceiptClick = (receipt: any) => {
     setSelectedReceipt(receipt);
     setIsModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedReceipt(null);
+  const handleUploadComplete = () => {
+    setShowUploadModal(false);
   };
-
-  const handleUploadClick = () => {
-    setIsLoadMoreModalOpen(true);
-  };
-
-  const handleLoadSample = () => {
-    handleReceiptsAdded();
-  };
-
-  const showEmptyState = receipts.length === 0;
-  const showNoResults = receipts.length > 0 && filteredReceipts.length === 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <ReceiptsHeader onLoadMoreClick={() => setIsLoadMoreModalOpen(true)} />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+      {/* Header with user profile */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4">
+              <h1 className="text-2xl font-bold text-gray-900">RawDrop</h1>
+              <span className="text-sm text-gray-500">Secure File Management</span>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <LanguageSelector />
+              
+              <Dialog open={showProfileModal} onOpenChange={setShowProfileModal}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <User className="h-4 w-4 mr-2" />
+                    {user?.email?.split('@')[0] || 'Profile'}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>User Profile</DialogTitle>
+                  </DialogHeader>
+                  <UserProfile />
+                </DialogContent>
+              </Dialog>
+            </div>
+          </div>
+        </div>
+      </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {showEmptyState ? (
-          <EnhancedEmptyState 
-            onUploadClick={handleUploadClick}
-            onLoadSampleClick={handleLoadSample}
-          />
-        ) : (
-          <>
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Settings className="h-5 w-5" />
+                <span>Quick Actions</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-4">
+                <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
+                  <DialogTrigger asChild>
+                    <Button className="flex items-center space-x-2">
+                      <Upload className="h-4 w-4" />
+                      <span>{getText('uploadFiles')}</span>
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>{getText('uploadFiles')}</DialogTitle>
+                    </DialogHeader>
+                    <UploadSection 
+                      onUploadComplete={handleUploadComplete}
+                      isCompact={true}
+                    />
+                  </DialogContent>
+                </Dialog>
+                
+                <Button variant="outline" className="flex items-center space-x-2">
+                  <FileText className="h-4 w-4" />
+                  <span>View Files</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main upload section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <UploadSection onUploadComplete={() => console.log('Upload completed')} />
+          </div>
+          
+          <div className="space-y-6">
             <UnifiedControls
+              selectedTag={selectedTag}
+              onTagChange={setSelectedTag}
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
-              selectedTag={selectedTag}
+              sortBy={sortBy}
+              onSortByChange={setSortBy}
               sortOrder={sortOrder}
-              onTagClick={handleTagClick}
-              onSortClick={handleSortClick}
+              onSortOrderChange={setSortOrder}
             />
-
-            {showNoResults ? (
-              <div className="text-center py-12">
-                <div className="text-gray-400 mb-4">
-                  <svg className="w-16 h-16 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No matching receipts</h3>
-                <p className="text-gray-600">Try adjusting your search or filter criteria</p>
-              </div>
-            ) : (
-              <ReceiptsGrid
-                receipts={filteredReceipts}
-                selectedTag={selectedTag}
-                onCardClick={handleCardClick}
-              />
-            )}
-          </>
-        )}
-      </div>
-
-      <div className="p-4">
-        <div className="max-w-7xl mx-auto">
-          <LanguageSelector />
+          </div>
         </div>
+
+        <div className="mt-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            {filteredReceipts.map((receipt) => (
+              <ReceiptCard
+                key={receipt.id}
+                receipt={receipt}
+                selectedTag={selectedTag}
+                onClick={() => handleReceiptClick(receipt)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <LoadMoreModal />
       </div>
 
       <ReceiptModal
         receipt={selectedReceipt}
         selectedTag={selectedTag}
         isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
-
-      <LoadMoreModal
-        isOpen={isLoadMoreModalOpen}
-        onClose={() => setIsLoadMoreModalOpen(false)}
-        onReceiptsAdded={handleReceiptsAdded}
+        onClose={() => setIsModalOpen(false)}
       />
     </div>
   );
