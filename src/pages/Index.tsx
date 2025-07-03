@@ -6,6 +6,7 @@ import UploadHero from '@/features/upload/UploadHero';
 import ReceiptsSection from '@/features/receipts/ReceiptsSection';
 import ReceiptModal from '@/components/ReceiptModal';
 import LoadMoreModal from '@/components/LoadMoreModal';
+import MongoDBTest from '@/components/MongoDBTest';
 import { useReceiptData } from '@/hooks/useReceiptData';
 import { useReceiptFiltering } from '@/hooks/useReceiptFiltering';
 import type { Receipt } from '@/types';
@@ -62,7 +63,11 @@ const Index = () => {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <UploadHero onUploadComplete={handleUploadComplete} />
+        <MongoDBTest />
+        
+        <div className="mt-8">
+          <UploadHero onUploadComplete={handleUploadComplete} />
+        </div>
 
         <ReceiptsSection
           receipts={receipts}
