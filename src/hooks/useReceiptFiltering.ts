@@ -41,17 +41,26 @@ export const useReceiptFiltering = (receipts: Receipt[]) => {
   };
 
   const filteredReceipts = useMemo(() => {
+    console.log('Filtering receipts - Input:', receipts.length, 'receipts');
+    console.log('Search term:', searchTerm);
+    console.log('Selected tag:', selectedTag);
+    console.log('Sort order:', sortOrder);
+    
     let filtered = receipts.filter(receipt =>
       receipt.vendor.toLowerCase().includes(searchTerm.toLowerCase()) ||
       receipt.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       receipt.price.includes(searchTerm)
     );
 
+    console.log('After search filter:', filtered.length, 'receipts');
+
     // Apply sorting if a tag is selected and sort order is set
     if (selectedTag && sortOrder) {
       filtered = sortReceipts(filtered, selectedTag, sortOrder);
+      console.log('After sorting:', filtered.length, 'receipts');
     }
 
+    console.log('Final filtered receipts:', filtered);
     return filtered;
   }, [receipts, searchTerm, selectedTag, sortOrder]);
 

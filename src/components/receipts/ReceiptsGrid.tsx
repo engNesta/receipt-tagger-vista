@@ -11,6 +11,9 @@ interface ReceiptsGridProps {
 }
 
 const ReceiptsGrid: React.FC<ReceiptsGridProps> = React.memo(({ receipts, selectedTag, onCardClick }) => {
+  console.log('ReceiptsGrid render - Receipts to display:', receipts.length);
+  console.log('ReceiptsGrid render - Receipt data:', receipts);
+  
   return (
     <div className={`grid ${APP_CONFIG.RECEIPT_GRID_COLUMNS.DEFAULT} gap-4`}>
       {receipts.map((receipt) => (

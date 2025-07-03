@@ -49,7 +49,9 @@ export const useReceiptData = () => {
         return;
       }
 
+      console.log('Raw database data:', data);
       const dbReceipts = data?.map((file, index) => transformFileToReceipt(file, index)) || [];
+      console.log('Transformed receipts:', dbReceipts);
       setReceipts(dbReceipts);
       console.log('Loaded receipts from database:', dbReceipts.length);
     } catch (error) {

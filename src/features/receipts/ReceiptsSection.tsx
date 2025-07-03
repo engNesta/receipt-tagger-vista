@@ -35,6 +35,11 @@ const ReceiptsSection: React.FC<ReceiptsSectionProps> = ({
 }) => {
   const { getText } = useLanguage();
 
+  console.log('ReceiptsSection render - Total receipts:', receipts.length);
+  console.log('ReceiptsSection render - Filtered receipts:', filteredReceipts.length);
+  console.log('ReceiptsSection render - Receipts data:', receipts);
+  console.log('ReceiptsSection render - Filtered data:', filteredReceipts);
+
   return (
     <div className="space-y-6">
       {/* Section Header */}
