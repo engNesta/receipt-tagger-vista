@@ -1,9 +1,11 @@
-
-import React from 'react';
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Play, Loader2 } from 'lucide-react';
 import GDPRConsentDialog from './GDPRConsentDialog';
 import UploadArea from './UploadArea';
 import FileStatusList from './FileStatusList';
 import { useFileUpload } from '@/hooks/useFileUpload';
+import { useFastApiProcessor } from '@/hooks/useFastApiProcessor';
 
 interface UploadSectionProps {
   onUploadComplete?: (processedFiles?: any[]) => void;
@@ -14,13 +16,13 @@ const UploadSection: React.FC<UploadSectionProps> = ({
   onUploadComplete, 
   isCompact = false 
 }) => {
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  
   const {
     isDragOver,
     uploadingFiles,
     showConsentDialog,
-    isProcessing,
     stats,
-    handleFilesUpload,
     handleDrop,
     handleDragOver,
     handleDragLeave,
@@ -29,35 +31,140 @@ const UploadSection: React.FC<UploadSectionProps> = ({
     removeFile
   } = useFileUpload({ onUploadComplete });
 
-  // Event handlers
+  const {
+    isProcessing,
+    processingProgress,
+    processFiles,
+    loadDocuments
+  } = useFastApiProcessor();
+
+  // Handle file selection (don't process immediately)
   const handleFileInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
       const fileArray = Array.from(files);
-      await handleFilesUpload(fileArray);
+      setPendingFiles(prev => [...prev, ...fileArray]);
     }
   };
 
-  // Styling variables
+  // Handle drag and drop (don't process immediately)
+  const handleDropFiles = (e: React.DragEvent) => {
+    e.preventDefault();
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    setPendingFiles(prev => [...prev, ...droppedFiles]);
+    handleDrop(e); // For visual feedback
+  };
+
+  // Process all pending files through FastAPI
+  const handleProcessFiles = async () => {
+    if (pendingFiles.length === 0) return;
+
+    try {
+      await processFiles(pendingFiles);
+      
+      // Clear pending files after successful processing
+      setPendingFiles([]);
+      
+      // Notify parent component
+      if (onUploadComplete) {
+        onUploadComplete([]);
+      }
+    } catch (error) {
+      console.error('Processing failed:', error);
+    }
+  };
+
+  // Remove file from pending list
+  const removePendingFile = (index: number) => {
+    setPendingFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
   const containerClass = isCompact ? "space-y-4" : "space-y-6";
-  const isUploading = uploadingFiles.length > 0;
+  const hasPendingFiles = pendingFiles.length > 0;
 
   return (
     <>
       <div className={containerClass}>
-        {/* Upload Area with Drag & Drop */}
+        {/* Upload Area */}
         <UploadArea
           isDragOver={isDragOver}
-          isUploading={isUploading}
+          isUploading={isProcessing}
           isCompact={isCompact}
           stats={stats}
-          onDrop={handleDrop}
+          onDrop={handleDropFiles}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onFileInputChange={handleFileInputChange}
         />
 
-        {/* File Processing Status */}
+        {/* Pending Files List */}
+        {hasPendingFiles && (
+          <div className="bg-white rounded-lg border p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-semibold">Ready to Process ({pendingFiles.length})</h4>
+              <Button
+                onClick={handleProcessFiles}
+                disabled={isProcessing}
+                className="flex items-center gap-2"
+              >
+                {isProcessing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Play className="h-4 w-4" />
+                )}
+                {isProcessing ? 'Processing...' : 'Process Files'}
+              </Button>
+            </div>
+            
+            <div className="space-y-2">
+              {pendingFiles.map((file, index) => (
+                <div key={`${file.name}-${index}`} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
+                    <p className="text-xs text-gray-500">
+                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removePendingFile(index)}
+                    disabled={isProcessing}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Processing Progress */}
+        {processingProgress && (
+          <div className="bg-white rounded-lg border p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-semibold">Processing Files</h4>
+              <span className="text-sm text-gray-600">
+                {processingProgress.current} / {processingProgress.total}
+              </span>
+            </div>
+            <div className="mb-2">
+              <div className="bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ 
+                    width: `${(processingProgress.current / processingProgress.total) * 100}%` 
+                  }}
+                />
+              </div>
+            </div>
+            <p className="text-sm text-gray-600">
+              Currently processing: {processingProgress.currentFile}
+            </p>
+          </div>
+        )}
+
+        {/* File Processing Status (keep existing for Azure uploads) */}
         <FileStatusList
           uploadingFiles={uploadingFiles}
           onRemoveFile={removeFile}

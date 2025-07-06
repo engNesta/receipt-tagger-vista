@@ -7,10 +7,20 @@ import ReceiptsSection from '@/features/receipts/ReceiptsSection';
 import ReceiptModal from '@/components/ReceiptModal';
 import LoadMoreModal from '@/components/LoadMoreModal';
 import MongoDBTest from '@/components/MongoDBTest';
-import { useReceiptData } from '@/hooks/useReceiptData';
 import { useReceiptFiltering } from '@/hooks/useReceiptFiltering';
+import { useFastApiProcessor } from '@/hooks/useFastApiProcessor';
 import type { Receipt } from '@/types';
-import { APP_CONFIG } from '@/constants';
+
+// Transform FastAPI document to Receipt format
+const transformFastApiDocToReceipt = (doc: any, index: number): Receipt => ({
+  id: index + 1,
+  imageUrl: doc.file_url || '/placeholder.svg', // You might need to add file URL to your FastAPI response
+  vendor: doc.tags?.find((tag: any) => tag.type === 'vendor')?.value || 'Unknown Vendor',
+  price: doc.tags?.find((tag: any) => tag.type === 'price')?.value || '$0.00',
+  productName: doc.tags?.find((tag: any) => tag.type === 'product')?.value || 'Unknown Product',
+  verificationLetter: doc.tags?.find((tag: any) => tag.type === 'verification')?.value || 'N/A',
+  fileId: doc.id
+});
 
 const Index = () => {
   const { user } = useAuth();
@@ -18,8 +28,10 @@ const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showLoadMoreModal, setShowLoadMoreModal] = useState(false);
+  const [receipts, setReceipts] = useState<Receipt[]>([]);
 
-  const { receipts, handleReceiptsAdded, createReceiptsFromFiles, loadReceiptsFromDatabase } = useReceiptData();
+  const { processedDocuments, loadDocuments } = useFastApiProcessor();
+  
   const {
     filteredReceipts,
     selectedTag,
@@ -30,29 +42,29 @@ const Index = () => {
     handleSortClick
   } = useReceiptFiltering(receipts);
 
+  // Transform processed documents to receipts when they change
+  useEffect(() => {
+    const transformedReceipts = processedDocuments.map((doc, index) => 
+      transformFastApiDocToReceipt(doc, index)
+    );
+    setReceipts(transformedReceipts);
+  }, [processedDocuments]);
+
+  // Load documents when user changes
   useEffect(() => {
     if (user) {
-      loadReceiptsFromDatabase();
+      loadDocuments();
     }
-  }, [user]);
+  }, [user, loadDocuments]);
 
   const handleReceiptClick = (receipt: Receipt) => {
     setSelectedReceipt(receipt);
     setIsModalOpen(true);
   };
 
-  const handleLoadMoreComplete = () => {
-    handleReceiptsAdded();
-    setShowLoadMoreModal(false);
-  };
-
-  const handleUploadComplete = (processedFiles: any[]) => {
-    console.log('Files uploaded successfully, reloading receipts from database:', processedFiles.length);
-    if (processedFiles.length > 0) {
-      setTimeout(() => {
-        loadReceiptsFromDatabase();
-      }, APP_CONFIG.UPLOAD.RELOAD_DELAY);
-    }
+  const handleUploadComplete = () => {
+    console.log('Upload completed, documents will be automatically refreshed');
+    // The useFastApiProcessor hook handles reloading documents after processing
   };
 
   return (
@@ -85,7 +97,10 @@ const Index = () => {
         <LoadMoreModal 
           isOpen={showLoadMoreModal}
           onClose={() => setShowLoadMoreModal(false)}
-          onReceiptsAdded={handleLoadMoreComplete}
+          onReceiptsAdded={() => {
+            // For demo purposes - in real app this would add more FastAPI documents
+            setShowLoadMoreModal(false);
+          }}
         />
 
         <ReceiptModal

@@ -1,4 +1,3 @@
-
 // Centralized type definitions for the entire application
 
 export interface Receipt {
@@ -41,4 +40,31 @@ export interface PipelineStats {
 
 export interface UploadCallbacks {
   onUploadComplete?: (processedFiles?: ProcessedFile[]) => void;
+}
+
+export interface FastApiDocument {
+  id: string;
+  filename: string;
+  user_directory: string;
+  tags: Array<{
+    type: string;
+    value: string;
+    confidence?: number;
+  }>;
+  metadata: Record<string, any>;
+  processed_at: string;
+  file_url?: string;
+}
+
+export interface FastApiUploadResponse {
+  status: 'success' | 'skipped' | 'error';
+  metadata?: any;
+  reason?: string;
+  detail?: string;
+}
+
+export interface FastApiDocumentsResponse {
+  status: 'success' | 'error';
+  documents?: FastApiDocument[];
+  detail?: string;
 }
