@@ -41,11 +41,11 @@ export const fastApiService = {
   // Upload and process a single file
   async uploadFile(file: File, userDirectory: string): Promise<FastApiUploadResponse> {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('user_directory', userDirectory);
+    formData.append('files', file); // Changed from 'file' to 'files'
+    formData.append('user_id', userDirectory); // Changed from 'user_directory' to 'user_id'
 
     console.log(`Uploading file ${file.name} to ${FASTAPI_BASE_URL}/upload/`);
-    console.log(`User directory: ${userDirectory}`);
+    console.log(`User ID: ${userDirectory}`);
 
     const response = await fetch(`${FASTAPI_BASE_URL}/upload/`, {
       method: 'POST',
