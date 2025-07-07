@@ -6,6 +6,7 @@ import UploadArea from './UploadArea';
 import FileStatusList from './FileStatusList';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useFastApiProcessor } from '@/hooks/useFastApiProcessor';
+import { useToast } from '@/hooks/use-toast';
 
 interface UploadSectionProps {
   onUploadComplete?: (processedFiles?: any[]) => void;
@@ -17,6 +18,7 @@ const UploadSection: React.FC<UploadSectionProps> = ({
   isCompact = false 
 }) => {
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const { toast } = useToast();
   
   const {
     isDragOver,
@@ -69,6 +71,13 @@ const UploadSection: React.FC<UploadSectionProps> = ({
       // Clear pending files after successful processing
       setPendingFiles([]);
       
+      // Show success toast
+      toast({
+        title: "Files processed successfully!",
+        description: `${pendingFiles.length} files have been processed and saved.`,
+        className: "bg-green-50 border-green-200 text-green-800",
+      });
+      
       // Notify parent component
       if (onUploadComplete) {
         console.log('UploadSection: Notifying parent of upload completion');
@@ -76,6 +85,11 @@ const UploadSection: React.FC<UploadSectionProps> = ({
       }
     } catch (error) {
       console.error('UploadSection: Processing failed:', error);
+      toast({
+        title: "Processing failed",
+        description: "There was an error processing your files. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
