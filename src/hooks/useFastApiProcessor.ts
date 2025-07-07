@@ -57,8 +57,10 @@ export const useFastApiProcessor = () => {
         }
       }
 
-      // Fetch updated documents after processing
-      await loadDocuments();
+      // Wait a moment for backend processing to complete, then fetch updated documents
+      setTimeout(async () => {
+        await loadDocuments();
+      }, 3000);
 
       // Show completion toast
       toast({
@@ -89,15 +91,19 @@ export const useFastApiProcessor = () => {
 
     try {
       const userDirectory = user.id;
+      console.log('Loading documents for user:', userDirectory);
       const response = await fastApiService.getDocuments(userDirectory);
       
       if (response.status === 'success' && response.documents) {
+        console.log('Loaded documents:', response.documents);
         setProcessedDocuments(response.documents);
       } else {
         console.error('Failed to load documents:', response.detail);
+        setProcessedDocuments([]);
       }
     } catch (error) {
       console.error('Error loading documents:', error);
+      setProcessedDocuments([]);
     }
   }, [user]);
 

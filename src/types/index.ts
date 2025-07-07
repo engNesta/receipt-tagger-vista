@@ -1,3 +1,4 @@
+
 // Centralized type definitions for the entire application
 
 export interface Receipt {
@@ -44,16 +45,25 @@ export interface UploadCallbacks {
 
 export interface FastApiDocument {
   id: string;
-  filename: string;
+  user_id: string;
   user_directory: string;
-  tags: Array<{
-    type: string;
-    value: string;
-    confidence?: number;
-  }>;
-  metadata: Record<string, any>;
-  processed_at: string;
-  file_url?: string;
+  job_id: string;
+  original_blob_name: string;
+  ingested_path: string;
+  original_filename: string;
+  timestamp: number;
+  status: string;
+  tags: {
+    vendor?: string;
+    product_or_service?: string;
+    price?: number;
+    [key: string]: any;
+  };
+  _rid?: string;
+  _self?: string;
+  _etag?: string;
+  _attachments?: string;
+  _ts?: number;
 }
 
 export interface FastApiUploadResponse {

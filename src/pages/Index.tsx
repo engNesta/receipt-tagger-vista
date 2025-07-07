@@ -14,11 +14,11 @@ import type { Receipt } from '@/types';
 // Transform FastAPI document to Receipt format
 const transformFastApiDocToReceipt = (doc: any, index: number): Receipt => ({
   id: index + 1,
-  imageUrl: doc.file_url || '/placeholder.svg', // You might need to add file URL to your FastAPI response
-  vendor: doc.tags?.find((tag: any) => tag.type === 'vendor')?.value || 'Unknown Vendor',
-  price: doc.tags?.find((tag: any) => tag.type === 'price')?.value || '$0.00',
-  productName: doc.tags?.find((tag: any) => tag.type === 'product')?.value || 'Unknown Product',
-  verificationLetter: doc.tags?.find((tag: any) => tag.type === 'verification')?.value || 'N/A',
+  imageUrl: doc.ingested_path || '/placeholder.svg',
+  vendor: doc.tags?.vendor || 'Unknown Vendor',
+  price: doc.tags?.price ? `${doc.tags.price} kr` : '$0.00',
+  productName: doc.tags?.product_or_service || 'Unknown Product',
+  verificationLetter: doc.status || 'N/A',
   fileId: doc.id
 });
 
@@ -44,9 +44,11 @@ const Index = () => {
 
   // Transform processed documents to receipts when they change
   useEffect(() => {
+    console.log('Processing documents:', processedDocuments);
     const transformedReceipts = processedDocuments.map((doc, index) => 
       transformFastApiDocToReceipt(doc, index)
     );
+    console.log('Transformed receipts:', transformedReceipts);
     setReceipts(transformedReceipts);
   }, [processedDocuments]);
 
@@ -63,8 +65,13 @@ const Index = () => {
   };
 
   const handleUploadComplete = () => {
-    console.log('Upload completed, documents will be automatically refreshed');
-    // The useFastApiProcessor hook handles reloading documents after processing
+    console.log('Upload completed, reloading documents...');
+    // Reload documents after upload to get the tagged data
+    if (user) {
+      setTimeout(() => {
+        loadDocuments();
+      }, 2000); // Give backend time to process
+    }
   };
 
   return (
@@ -98,7 +105,6 @@ const Index = () => {
           isOpen={showLoadMoreModal}
           onClose={() => setShowLoadMoreModal(false)}
           onReceiptsAdded={() => {
-            // For demo purposes - in real app this would add more FastAPI documents
             setShowLoadMoreModal(false);
           }}
         />

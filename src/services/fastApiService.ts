@@ -1,12 +1,27 @@
+
 const FASTAPI_BASE_URL = 'https://fastapi-server-1-l30y.onrender.com'; // Updated to your actual FastAPI server URL
 
 export interface FastApiDocument {
   id: string;
-  filename: string;
+  user_id: string;
   user_directory: string;
-  tags: string[];
-  metadata: Record<string, any>;
-  processed_at: string;
+  job_id: string;
+  original_blob_name: string;
+  ingested_path: string;
+  original_filename: string;
+  timestamp: number;
+  status: string;
+  tags: {
+    vendor?: string;
+    product_or_service?: string;
+    price?: number;
+    [key: string]: any;
+  };
+  _rid?: string;
+  _self?: string;
+  _etag?: string;
+  _attachments?: string;
+  _ts?: number;
 }
 
 export interface FastApiUploadResponse {
