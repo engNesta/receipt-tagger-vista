@@ -68,6 +68,7 @@ export interface FastApiDocument {
 
 export interface FastApiUploadResponse {
   status: 'success' | 'skipped' | 'error';
+  documents?: FastApiDocument[];
   metadata?: any;
   reason?: string;
   detail?: string;
