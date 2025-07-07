@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/layout/Header';
@@ -120,10 +121,11 @@ const Index = () => {
   };
 
   const handleUploadComplete = async () => {
-    console.log('Upload completed, documents should already be updated from upload response');
+    console.log('Upload completed, refreshing documents from backend');
     // Clear any previous errors when upload completes
     clearError();
-    // Documents are now updated directly from upload response, no need to reload
+    // Reload documents from backend to get the latest uploads
+    await loadDocuments();
   };
 
   console.log('=== INDEX RENDER STATE ===');
