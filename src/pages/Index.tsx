@@ -15,7 +15,7 @@ import type { Receipt } from '@/types';
 const transformFastApiDocToReceipt = (doc: any, index: number): Receipt => {
   console.log('Transforming document:', doc);
   const receipt = {
-    id: index + 1,
+    id: parseInt(doc.id.replace(/-/g, '').slice(0, 8), 16) || (Date.now() + index),
     imageUrl: doc.ingested_path || '/placeholder.svg',
     vendor: doc.tags?.vendor || 'Unknown Vendor',
     price: doc.tags?.price ? `${doc.tags.price} kr` : '0 kr',
@@ -35,7 +35,7 @@ const Index = () => {
   const [showLoadMoreModal, setShowLoadMoreModal] = useState(false);
   const [receipts, setReceipts] = useState<Receipt[]>([]);
 
-  const { processedDocuments, loadDocuments } = useFastApiProcessor();
+  const { processedDocuments, loadDocuments, processFiles } = useFastApiProcessor();
   
   const {
     filteredReceipts,
@@ -68,7 +68,7 @@ const Index = () => {
     }
   }, [processedDocuments]);
 
-  // Load documents when user changes (only once on mount)
+  // Load documents when user changes
   useEffect(() => {
     if (user) {
       console.log('Index.tsx - User changed, loading documents for:', user.id);
@@ -81,9 +81,10 @@ const Index = () => {
     setIsModalOpen(true);
   };
 
-  const handleUploadComplete = () => {
-    console.log('Index.tsx - Upload completed, documents should update automatically');
-    // No need to reload manually - the processFiles function updates the state directly
+  const handleUploadComplete = async () => {
+    console.log('Index.tsx - Upload completed, reloading documents');
+    // Reload documents after upload to ensure we get the latest data
+    await loadDocuments();
   };
 
   console.log('Index.tsx - Render - receipts count:', receipts.length);

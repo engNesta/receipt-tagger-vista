@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { fastApiService, type FastApiDocument, type FastApiUploadResponse } from '@/services/fastApiService';
@@ -19,19 +20,21 @@ export const useFastApiProcessor = () => {
   const processFiles = useCallback(async (files: File[]) => {
     if (!user || files.length === 0) return;
 
+    console.log('FastAPI Processor: Starting to process', files.length, 'files');
     setIsProcessing(true);
     setProcessingProgress({ current: 0, total: files.length, currentFile: '' });
 
     try {
-      const userDirectory = user.id; // Using user ID as directory
+      const userDirectory = user.id;
       const results: FastApiUploadResponse[] = [];
       let successful = 0;
       let failed = 0;
-      const newDocuments: FastApiDocument[] = [];
 
       // Process files one by one with progress updates
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        console.log(`FastAPI Processor: Processing file ${i + 1}/${files.length}: ${file.name}`);
+        
         setProcessingProgress({
           current: i + 1,
           total: files.length,
@@ -40,20 +43,16 @@ export const useFastApiProcessor = () => {
 
         try {
           const result = await fastApiService.uploadFile(file, userDirectory);
+          console.log('FastAPI Processor: Upload result for', file.name, ':', result);
           results.push(result);
           
           if (result.status === 'success') {
             successful++;
-            // If the upload response contains documents, add them to our collection
-            if (result.documents && result.documents.length > 0) {
-              newDocuments.push(...result.documents);
-              console.log('Found documents in upload result:', result.documents);
-            }
           } else {
             failed++;
           }
         } catch (error) {
-          console.error(`Error processing ${file.name}:`, error);
+          console.error(`FastAPI Processor: Error processing ${file.name}:`, error);
           results.push({
             status: 'error',
             detail: error instanceof Error ? error.message : 'Unknown error'
@@ -62,19 +61,9 @@ export const useFastApiProcessor = () => {
         }
       }
 
-      // Update documents state with newly processed documents IMMEDIATELY
-      if (newDocuments.length > 0) {
-        console.log('Adding new documents from upload response:', newDocuments);
-        setProcessedDocuments(prevDocs => {
-          const existingIds = new Set(prevDocs.map(doc => doc.id));
-          const uniqueNewDocs = newDocuments.filter(doc => !existingIds.has(doc.id));
-          const updatedDocs = [...prevDocs, ...uniqueNewDocs];
-          console.log('Updated processedDocuments state:', updatedDocs);
-          return updatedDocs;
-        });
-      } else {
-        console.log('No new documents found in upload responses');
-      }
+      // After processing all files, reload documents to get the latest state
+      console.log('FastAPI Processor: All files processed, reloading documents');
+      await loadDocuments();
 
       // Show completion toast
       toast({
@@ -86,7 +75,7 @@ export const useFastApiProcessor = () => {
       return { successful, failed, results };
 
     } catch (error) {
-      console.error('Batch processing error:', error);
+      console.error('FastAPI Processor: Batch processing error:', error);
       toast({
         title: "Processing Failed",
         description: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -101,29 +90,35 @@ export const useFastApiProcessor = () => {
 
   // Load documents from FastAPI
   const loadDocuments = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('FastAPI Processor: No user, skipping document load');
+      return;
+    }
 
     try {
       const userDirectory = user.id;
-      console.log('Loading documents for user:', userDirectory);
+      console.log('FastAPI Processor: Loading documents for user:', userDirectory);
       const response = await fastApiService.getDocuments(userDirectory);
       
+      console.log('FastAPI Processor: API response:', response);
+      
       if (response.status === 'success' && response.documents) {
-        console.log('Loaded documents from API:', response.documents);
+        console.log('FastAPI Processor: Successfully loaded', response.documents.length, 'documents');
+        console.log('FastAPI Processor: Documents data:', response.documents);
         setProcessedDocuments(response.documents);
       } else {
-        console.error('Failed to load documents:', response.detail);
-        // Don't clear documents here, keep existing ones
+        console.error('FastAPI Processor: Failed to load documents:', response.detail);
+        // Set empty array if no documents found
+        setProcessedDocuments([]);
       }
     } catch (error) {
-      console.error('Error loading documents:', error);
-      // Don't clear documents here, keep existing ones
+      console.error('FastAPI Processor: Error loading documents:', error);
+      // Don't clear existing documents on error, just log it
     }
   }, [user]);
 
-  // Add debug logging for state changes
-  console.log('useFastApiProcessor state - processedDocuments count:', processedDocuments.length);
-  console.log('useFastApiProcessor state - processedDocuments:', processedDocuments);
+  console.log('FastAPI Processor: Current state - processedDocuments count:', processedDocuments.length);
+  console.log('FastAPI Processor: Current state - processedDocuments:', processedDocuments);
 
   return {
     isProcessing,

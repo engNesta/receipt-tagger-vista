@@ -34,8 +34,7 @@ const UploadSection: React.FC<UploadSectionProps> = ({
   const {
     isProcessing,
     processingProgress,
-    processFiles,
-    loadDocuments
+    processFiles
   } = useFastApiProcessor();
 
   // Handle file selection (don't process immediately)
@@ -43,6 +42,7 @@ const UploadSection: React.FC<UploadSectionProps> = ({
     const files = event.target.files;
     if (files && files.length > 0) {
       const fileArray = Array.from(files);
+      console.log('UploadSection: Files selected:', fileArray.map(f => f.name));
       setPendingFiles(prev => [...prev, ...fileArray]);
     }
   };
@@ -51,6 +51,7 @@ const UploadSection: React.FC<UploadSectionProps> = ({
   const handleDropFiles = (e: React.DragEvent) => {
     e.preventDefault();
     const droppedFiles = Array.from(e.dataTransfer.files);
+    console.log('UploadSection: Files dropped:', droppedFiles.map(f => f.name));
     setPendingFiles(prev => [...prev, ...droppedFiles]);
     handleDrop(e); // For visual feedback
   };
@@ -59,18 +60,22 @@ const UploadSection: React.FC<UploadSectionProps> = ({
   const handleProcessFiles = async () => {
     if (pendingFiles.length === 0) return;
 
+    console.log('UploadSection: Starting to process', pendingFiles.length, 'files through FastAPI');
+
     try {
-      await processFiles(pendingFiles);
+      const result = await processFiles(pendingFiles);
+      console.log('UploadSection: Processing completed:', result);
       
       // Clear pending files after successful processing
       setPendingFiles([]);
       
       // Notify parent component
       if (onUploadComplete) {
+        console.log('UploadSection: Notifying parent of upload completion');
         onUploadComplete([]);
       }
     } catch (error) {
-      console.error('Processing failed:', error);
+      console.error('UploadSection: Processing failed:', error);
     }
   };
 
