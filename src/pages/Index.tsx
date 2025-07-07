@@ -25,8 +25,9 @@ const transformFastApiDocToReceipt = (doc: FastApiDocument, index: number): Rece
     if (typeof priceValue === 'number') {
       formattedPrice = `${priceValue} kr`;
     } else if (typeof priceValue === 'string') {
-      formattedPrice = priceValue.includes('kr') ? priceValue : `${priceValue} kr`;
-    }
+  formattedPrice = priceValue?.toLowerCase().includes('kr') ? priceValue : `${priceValue} kr`;
+}
+
   }
   
   const receipt: Receipt = {
