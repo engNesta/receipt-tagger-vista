@@ -70,32 +70,30 @@ const Index = () => {
     console.log('processedDocuments is array:', Array.isArray(processedDocuments));
     console.log('processedDocuments length:', processedDocuments?.length);
     
-    // Only proceed if we have actual documents array
-    if (Array.isArray(processedDocuments)) {
-      if (processedDocuments.length > 0) {
-        console.log('Processing documents array with length:', processedDocuments.length);
-        console.log('Starting transformation of', processedDocuments.length, 'documents');
+    // Only proceed if we have valid documents data
+    if (Array.isArray(processedDocuments) && processedDocuments.length > 0) {
+      console.log('Processing documents array with length:', processedDocuments.length);
+      console.log('Starting transformation of', processedDocuments.length, 'documents');
+      
+      try {
+        const transformedReceipts = processedDocuments.map((doc, index) => {
+          console.log(`Transforming document ${index + 1}/${processedDocuments.length}:`, doc);
+          return transformFastApiDocToReceipt(doc, index);
+        });
         
-        try {
-          const transformedReceipts = processedDocuments.map((doc, index) => {
-            console.log(`Transforming document ${index + 1}/${processedDocuments.length}:`, doc);
-            return transformFastApiDocToReceipt(doc, index);
-          });
-          
-          console.log('Successfully transformed receipts:', transformedReceipts);
-          console.log('Setting receipts state with', transformedReceipts.length, 'receipts');
-          
-          setReceipts(transformedReceipts);
-          
-          console.log('Receipts state updated successfully');
-        } catch (error) {
-          console.error('Error during transformation:', error);
-          setReceipts([]);
-        }
-      } else {
-        console.log('Empty documents array, setting empty receipts');
+        console.log('Successfully transformed receipts:', transformedReceipts);
+        console.log('Setting receipts state with', transformedReceipts.length, 'receipts');
+        
+        setReceipts(transformedReceipts);
+        
+        console.log('Receipts state updated successfully');
+      } catch (error) {
+        console.error('Error during transformation:', error);
         setReceipts([]);
       }
+    } else if (Array.isArray(processedDocuments) && processedDocuments.length === 0) {
+      console.log('Empty documents array, setting empty receipts');
+      setReceipts([]);
     } else {
       console.log('processedDocuments is not ready yet, skipping transformation');
     }
