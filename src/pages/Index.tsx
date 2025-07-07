@@ -12,15 +12,20 @@ import { useFastApiProcessor } from '@/hooks/useFastApiProcessor';
 import type { Receipt } from '@/types';
 
 // Transform FastAPI document to Receipt format
-const transformFastApiDocToReceipt = (doc: any, index: number): Receipt => ({
-  id: index + 1,
-  imageUrl: doc.ingested_path || '/placeholder.svg',
-  vendor: doc.tags?.vendor || 'Unknown Vendor',
-  price: doc.tags?.price ? `${doc.tags.price} kr` : '0 kr',
-  productName: doc.tags?.product_or_service || 'Unknown Product',
-  verificationLetter: doc.status || 'N/A',
-  fileId: doc.id
-});
+const transformFastApiDocToReceipt = (doc: any, index: number): Receipt => {
+  console.log('Transforming document:', doc);
+  const receipt = {
+    id: index + 1,
+    imageUrl: doc.ingested_path || '/placeholder.svg',
+    vendor: doc.tags?.vendor || 'Unknown Vendor',
+    price: doc.tags?.price ? `${doc.tags.price} kr` : '0 kr',
+    productName: doc.tags?.product_or_service || 'Unknown Product',
+    verificationLetter: doc.status || 'N/A',
+    fileId: doc.id
+  };
+  console.log('Transformed receipt:', receipt);
+  return receipt;
+};
 
 const Index = () => {
   const { user } = useAuth();
@@ -48,17 +53,20 @@ const Index = () => {
     console.log('Index.tsx - processedDocuments count:', processedDocuments.length);
     console.log('Index.tsx - processedDocuments data:', processedDocuments);
     
-    if (processedDocuments.length > 0) {
-      const transformedReceipts = processedDocuments.map((doc, index) => 
-        transformFastApiDocToReceipt(doc, index)
-      );
+    if (processedDocuments && processedDocuments.length > 0) {
+      console.log('Index.tsx - Starting transformation of documents');
+      const transformedReceipts = processedDocuments.map((doc, index) => {
+        console.log(`Index.tsx - Transforming document ${index}:`, doc);
+        return transformFastApiDocToReceipt(doc, index);
+      });
       console.log('Index.tsx - Transformed receipts:', transformedReceipts);
       setReceipts(transformedReceipts);
+      console.log('Index.tsx - Set receipts state with:', transformedReceipts.length, 'receipts');
     } else {
       console.log('Index.tsx - No documents to transform, setting empty receipts');
       setReceipts([]);
     }
-  }, [processedDocuments]); // Simplified dependency - React will handle deep comparison
+  }, [processedDocuments]);
 
   // Load documents when user changes (only once on mount)
   useEffect(() => {
@@ -78,8 +86,9 @@ const Index = () => {
     // No need to reload manually - the processFiles function updates the state directly
   };
 
-  console.log('Index.tsx - Final state - receipts count:', receipts.length);
-  console.log('Index.tsx - Final state - receipts data:', receipts);
+  console.log('Index.tsx - Render - receipts count:', receipts.length);
+  console.log('Index.tsx - Render - receipts data:', receipts);
+  console.log('Index.tsx - Render - processedDocuments count:', processedDocuments.length);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
