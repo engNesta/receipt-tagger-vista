@@ -26,7 +26,7 @@ export interface FastApiDocument {
 
 export interface FastApiUploadResponse {
   status: 'success' | 'skipped' | 'error';
-  documents?: FastApiDocument[]; // Documents returned from upload
+  documents?: FastApiDocument[];
   metadata?: any;
   reason?: string;
   detail?: string;
@@ -39,7 +39,7 @@ export interface FastApiDocumentsResponse {
 }
 
 export const fastApiService = {
-  // Upload and process a single file
+  // Upload and process a single file with user context
   async uploadFile(file: File, userDirectory: string): Promise<FastApiUploadResponse> {
     const formData = new FormData();
     formData.append('files', file);
@@ -53,6 +53,9 @@ export const fastApiService = {
     const response = await fetch(`${FASTAPI_BASE_URL}/upload/`, {
       method: 'POST',
       body: formData,
+      headers: {
+        'X-User-ID': userDirectory, // Add user context to headers
+      }
     });
 
     console.log(`Response status: ${response.status}`);
@@ -65,15 +68,27 @@ export const fastApiService = {
 
     const result = await response.json();
     console.log('Upload result:', result);
+    
+    // Ensure returned documents have the correct user_id
+    if (result.documents) {
+      result.documents = result.documents.filter((doc: FastApiDocument) => 
+        doc.user_id === userDirectory || doc.user_directory === userDirectory
+      );
+      console.log('Filtered documents for user:', result.documents);
+    }
+    
     return result;
   },
 
-  // Get all processed documents for a user
+  // Get all processed documents for a specific user
   async getDocuments(userDirectory: string): Promise<FastApiDocumentsResponse> {
     console.log(`Fetching documents for user: ${userDirectory}`);
     
     const response = await fetch(`${FASTAPI_BASE_URL}/documents/${userDirectory}`, {
       method: 'GET',
+      headers: {
+        'X-User-ID': userDirectory, // Add user context to headers
+      }
     });
 
     console.log(`Get documents response status: ${response.status}`);
@@ -87,7 +102,7 @@ export const fastApiService = {
         return {
           status: 'success',
           documents: [],
-          detail: 'No documents found'
+          detail: 'No documents found for this user'
         };
       }
       
@@ -96,10 +111,19 @@ export const fastApiService = {
 
     const result = await response.json();
     console.log('Documents result:', result);
+    
+    // Ensure returned documents belong to the requesting user
+    if (result.documents) {
+      result.documents = result.documents.filter((doc: FastApiDocument) => 
+        doc.user_id === userDirectory || doc.user_directory === userDirectory
+      );
+      console.log('Filtered documents for user:', userDirectory, result.documents);
+    }
+    
     return result;
   },
 
-  // Process multiple files in batch
+  // Process multiple files in batch with user context
   async processBatch(files: File[], userDirectory: string): Promise<{
     successful: number;
     failed: number;
@@ -108,6 +132,8 @@ export const fastApiService = {
     const results: FastApiUploadResponse[] = [];
     let successful = 0;
     let failed = 0;
+
+    console.log(`Processing batch of ${files.length} files for user: ${userDirectory}`);
 
     for (const file of files) {
       try {
@@ -120,6 +146,7 @@ export const fastApiService = {
           failed++;
         }
       } catch (error) {
+        console.error(`Error processing file ${file.name} for user ${userDirectory}:`, error);
         results.push({
           status: 'error',
           detail: error instanceof Error ? error.message : 'Unknown error'
@@ -128,6 +155,7 @@ export const fastApiService = {
       }
     }
 
+    console.log(`Batch processing complete for user ${userDirectory}: ${successful} successful, ${failed} failed`);
     return { successful, failed, results };
   }
 };
