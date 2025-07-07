@@ -55,9 +55,10 @@ const Index = () => {
       console.log('Index.tsx - Transformed receipts:', transformedReceipts);
       setReceipts(transformedReceipts);
     } else {
-      console.log('Index.tsx - No documents to transform');
+      console.log('Index.tsx - No documents to transform, setting empty receipts');
+      setReceipts([]);
     }
-  }, [processedDocuments]);
+  }, [processedDocuments.length, JSON.stringify(processedDocuments)]);
 
   // Load documents when user changes (only once on mount)
   useEffect(() => {
@@ -65,7 +66,7 @@ const Index = () => {
       console.log('Index.tsx - User changed, loading documents for:', user.id);
       loadDocuments();
     }
-  }, [user]); // Remove loadDocuments from dependencies to prevent loops
+  }, [user]);
 
   const handleReceiptClick = (receipt: Receipt) => {
     setSelectedReceipt(receipt);
