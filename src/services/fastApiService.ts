@@ -93,18 +93,10 @@ export const fastApiService = {
     const result = await response.json();
     console.log('Upload result:', result);
     
-    // Ensure returned documents have the correct user_id
-    if (result.documents) {
-      result.documents = result.documents.filter((doc: FastApiDocument) => 
-        doc.user_id === userDirectory || doc.user_directory === userDirectory
-      );
-      console.log('Filtered documents for user:', result.documents);
-    }
-    
     return result;
   },
 
-  // Get all processed documents for a specific user
+  // Get all processed documents for a specific user - Updated to match your API
   async getDocuments(userDirectory: string): Promise<FastApiDocumentsResponse> {
     console.log(`Fetching documents for user: ${userDirectory}`);
     
@@ -114,7 +106,8 @@ export const fastApiService = {
       throw new Error(`API service unavailable: ${healthCheck.message}`);
     }
     
-    const response = await fetch(`${FASTAPI_BASE_URL}/documents/${userDirectory}`, {
+    // Updated to use query parameter instead of path parameter
+    const response = await fetch(`${FASTAPI_BASE_URL}/documents/?user_id=${encodeURIComponent(userDirectory)}`, {
       method: 'GET',
       headers: {
         'X-User-ID': userDirectory, // Add user context to headers
