@@ -1,5 +1,4 @@
-
-const FASTAPI_BASE_URL = 'http://localhost:8000'; // Update this to your FastAPI server URL
+const FASTAPI_BASE_URL = 'https://fastapi-server-1-l30y.onrender.com'; // Updated to your actual FastAPI server URL
 
 export interface FastApiDocument {
   id: string;
@@ -30,29 +29,46 @@ export const fastApiService = {
     formData.append('file', file);
     formData.append('user_directory', userDirectory);
 
+    console.log(`Uploading file ${file.name} to ${FASTAPI_BASE_URL}/upload/`);
+    console.log(`User directory: ${userDirectory}`);
+
     const response = await fetch(`${FASTAPI_BASE_URL}/upload/`, {
       method: 'POST',
       body: formData,
     });
 
+    console.log(`Response status: ${response.status}`);
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Upload failed: ${response.status} - ${errorText}`);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return response.json();
+    const result = await response.json();
+    console.log('Upload result:', result);
+    return result;
   },
 
   // Get all processed documents for a user
   async getDocuments(userDirectory: string): Promise<FastApiDocumentsResponse> {
+    console.log(`Fetching documents for user: ${userDirectory}`);
+    
     const response = await fetch(`${FASTAPI_BASE_URL}/documents/${userDirectory}`, {
       method: 'GET',
     });
 
+    console.log(`Get documents response status: ${response.status}`);
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Get documents failed: ${response.status} - ${errorText}`);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return response.json();
+    const result = await response.json();
+    console.log('Documents result:', result);
+    return result;
   },
 
   // Process multiple files in batch
