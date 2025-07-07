@@ -26,6 +26,7 @@ export interface FastApiDocument {
 
 export interface FastApiUploadResponse {
   status: 'success' | 'skipped' | 'error';
+  documents?: FastApiDocument[]; // Add documents array to upload response
   metadata?: any;
   reason?: string;
   detail?: string;

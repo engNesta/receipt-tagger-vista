@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { fastApiService, type FastApiDocument, type FastApiUploadResponse } from '@/services/fastApiService';
@@ -28,6 +27,7 @@ export const useFastApiProcessor = () => {
       const results: FastApiUploadResponse[] = [];
       let successful = 0;
       let failed = 0;
+      const newDocuments: FastApiDocument[] = [];
 
       // Process files one by one with progress updates
       for (let i = 0; i < files.length; i++) {
@@ -44,6 +44,10 @@ export const useFastApiProcessor = () => {
           
           if (result.status === 'success') {
             successful++;
+            // If the upload response contains documents, add them to our collection
+            if (result.documents && result.documents.length > 0) {
+              newDocuments.push(...result.documents);
+            }
           } else {
             failed++;
           }
@@ -57,10 +61,22 @@ export const useFastApiProcessor = () => {
         }
       }
 
-      // Wait a moment for backend processing to complete, then fetch updated documents
-      setTimeout(async () => {
+      // Update documents state with newly processed documents
+      if (newDocuments.length > 0) {
+        console.log('Adding new documents from upload response:', newDocuments);
+        setProcessedDocuments(prevDocs => {
+          const existingIds = new Set(prevDocs.map(doc => doc.id));
+          const uniqueNewDocs = newDocuments.filter(doc => !existingIds.has(doc.id));
+          return [...prevDocs, ...uniqueNewDocs];
+        });
+      }
+
+      // Try to load all documents as a fallback, but don't fail if it doesn't work
+      try {
         await loadDocuments();
-      }, 3000);
+      } catch (error) {
+        console.log('Could not load all documents, but that\'s okay - using upload response documents');
+      }
 
       // Show completion toast
       toast({
@@ -99,11 +115,11 @@ export const useFastApiProcessor = () => {
         setProcessedDocuments(response.documents);
       } else {
         console.error('Failed to load documents:', response.detail);
-        setProcessedDocuments([]);
+        // Don't clear documents here, keep existing ones
       }
     } catch (error) {
       console.error('Error loading documents:', error);
-      setProcessedDocuments([]);
+      // Don't clear documents here, keep existing ones
     }
   }, [user]);
 
