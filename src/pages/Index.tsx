@@ -21,13 +21,14 @@ const transformFastApiDocToReceipt = (doc: FastApiDocument, index: number): Rece
   // Extract price and ensure it's formatted correctly
   const priceValue = doc.tags?.price;
   let formattedPrice = '0 kr';
+  
   if (priceValue !== undefined && priceValue !== null) {
     if (typeof priceValue === 'number') {
       formattedPrice = `${priceValue} kr`;
-    } else if (typeof priceValue === 'string') {
-  formattedPrice = priceValue?.toLowerCase().includes('kr') ? priceValue : `${priceValue} kr`;
-}
-
+    } else if (typeof priceValue === 'string' && priceValue.length > 0) {
+      // Only call toLowerCase if we're sure it's a string
+      formattedPrice = priceValue.toLowerCase().includes('kr') ? priceValue : `${priceValue} kr`;
+    }
   }
   
   const receipt: Receipt = {
