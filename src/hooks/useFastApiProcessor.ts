@@ -71,16 +71,16 @@ export const useFastApiProcessor = () => {
         }
       }
 
-      // Update processedDocuments with all new documents from uploads (user-scoped)
+      // IMMEDIATELY update processedDocuments with new documents
       if (allNewDocuments.length > 0) {
-        console.log('FastAPI Processor: Adding', allNewDocuments.length, 'new documents to state for user:', userDirectory);
+        console.log('FastAPI Processor: IMMEDIATELY adding', allNewDocuments.length, 'new documents to state');
         setProcessedDocuments(prev => {
           // Filter existing documents to ensure they belong to current user
           const userFilteredPrev = prev.filter(doc => 
             doc.user_id === userDirectory || doc.user_directory === userDirectory
           );
           const updated = [...userFilteredPrev, ...allNewDocuments];
-          console.log('FastAPI Processor: Updated processedDocuments for user:', userDirectory, updated);
+          console.log('FastAPI Processor: Updated processedDocuments state:', updated);
           return updated;
         });
       }
@@ -111,7 +111,8 @@ export const useFastApiProcessor = () => {
   // Load documents from FastAPI for current user only
   const loadDocuments = useCallback(async () => {
     if (!user) {
-      console.log('FastAPI Processor: No user, skipping document load');
+      console.log('FastAPI Processor: No user, clearing documents');
+      setProcessedDocuments([]);
       return;
     }
 
@@ -121,19 +122,18 @@ export const useFastApiProcessor = () => {
       console.log('FastAPI Processor: Loading documents for user:', userDirectory);
       const response = await fastApiService.getDocuments(userDirectory);
       
-      console.log('FastAPI Processor: API response for user', userDirectory, ':', response);
+      console.log('FastAPI Processor: Load documents response for user', userDirectory, ':', response);
       
-      if (response.status === 'success' && response.documents) {
+      if (response.status === 'success' && response.documents && response.documents.length > 0) {
         // Double-check that all documents belong to the current user
         const userDocuments = response.documents.filter(doc => 
           doc.user_id === userDirectory || doc.user_directory === userDirectory
         );
         console.log('FastAPI Processor: Successfully loaded', userDocuments.length, 'documents for user:', userDirectory);
-        console.log('FastAPI Processor: User documents data:', userDocuments);
+        console.log('FastAPI Processor: Setting processedDocuments state:', userDocuments);
         setProcessedDocuments(userDocuments);
       } else {
-        console.log('FastAPI Processor: No documents found for user', userDirectory, ':', response.detail);
-        // Set empty array for this user
+        console.log('FastAPI Processor: No documents found for user', userDirectory, '- setting empty array');
         setProcessedDocuments([]);
       }
     } catch (error) {
@@ -143,9 +143,11 @@ export const useFastApiProcessor = () => {
     }
   }, [user]);
 
-  console.log('FastAPI Processor: Current state - user:', user?.id);
-  console.log('FastAPI Processor: Current state - processedDocuments count:', processedDocuments.length);
-  console.log('FastAPI Processor: Current state - processedDocuments:', processedDocuments);
+  console.log('=== FastAPI Processor Hook State ===');
+  console.log('User:', user?.id || 'No user');
+  console.log('ProcessedDocuments count:', processedDocuments.length);
+  console.log('ProcessedDocuments array:', processedDocuments);
+  console.log('IsProcessing:', isProcessing);
 
   return {
     isProcessing,

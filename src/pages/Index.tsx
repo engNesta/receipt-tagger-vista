@@ -9,23 +9,26 @@ import LoadMoreModal from '@/components/LoadMoreModal';
 import MongoDBTest from '@/components/MongoDBTest';
 import { useReceiptFiltering } from '@/hooks/useReceiptFiltering';
 import { useFastApiProcessor } from '@/hooks/useFastApiProcessor';
-import type { Receipt } from '@/types';
+import type { Receipt, FastApiDocument } from '@/types';
 
 // Transform FastAPI document to Receipt format
-const transformFastApiDocToReceipt = (doc: any, index: number): Receipt => {
-  console.log('Transforming document:', doc);
+const transformFastApiDocToReceipt = (doc: FastApiDocument, index: number): Receipt => {
+  console.log('Transforming FastAPI document:', doc);
   
-  const receipt = {
-    id: parseInt(doc.id.replace(/-/g, '').slice(0, 8), 16) || (Date.now() + index),
+  // Create a more reliable ID from the document ID
+  const numericId = doc.id ? parseInt(doc.id.replace(/-/g, '').substring(0, 8), 16) : (Date.now() + index);
+  
+  const receipt: Receipt = {
+    id: numericId,
     imageUrl: doc.ingested_path || '/placeholder.svg',
     vendor: doc.tags?.vendor || 'Unknown Vendor',
     price: doc.tags?.price ? `${doc.tags.price} kr` : '0 kr',
-    productName: doc.tags?.product_or_service || 'Unknown Product',
+    productName: doc.tags?.product_or_service || doc.original_filename || 'Unknown Product',
     verificationLetter: doc.status || 'N/A',
     fileId: doc.id
   };
   
-  console.log('Transformed receipt:', receipt);
+  console.log('Transformed to receipt:', receipt);
   return receipt;
 };
 
@@ -51,21 +54,33 @@ const Index = () => {
 
   // Transform processed documents to receipts when they change
   useEffect(() => {
-    console.log('Index.tsx - Processing documents effect triggered');
-    console.log('Index.tsx - processedDocuments count:', processedDocuments.length);
-    console.log('Index.tsx - processedDocuments data:', processedDocuments);
+    console.log('=== TRANSFORMATION EFFECT TRIGGERED ===');
+    console.log('processedDocuments length:', processedDocuments?.length || 0);
+    console.log('processedDocuments data:', processedDocuments);
     
-    if (processedDocuments && processedDocuments.length > 0) {
-      console.log('Index.tsx - Starting transformation of documents');
-      const transformedReceipts = processedDocuments.map((doc, index) => {
-        console.log(`Index.tsx - Transforming document ${index}:`, doc);
-        return transformFastApiDocToReceipt(doc, index);
-      });
-      console.log('Index.tsx - Transformed receipts:', transformedReceipts);
-      setReceipts(transformedReceipts);
-      console.log('Index.tsx - Set receipts state with:', transformedReceipts.length, 'receipts');
+    if (processedDocuments && Array.isArray(processedDocuments) && processedDocuments.length > 0) {
+      console.log('Starting transformation of', processedDocuments.length, 'documents');
+      
+      try {
+        const transformedReceipts = processedDocuments.map((doc, index) => {
+          console.log(`Transforming document ${index + 1}/${processedDocuments.length}:`, doc);
+          return transformFastApiDocToReceipt(doc, index);
+        });
+        
+        console.log('Successfully transformed receipts:', transformedReceipts);
+        console.log('Setting receipts state with', transformedReceipts.length, 'receipts');
+        
+        setReceipts(transformedReceipts);
+        
+        console.log('Receipts state updated');
+      } catch (error) {
+        console.error('Error during transformation:', error);
+        setReceipts([]);
+      }
     } else {
-      console.log('Index.tsx - No documents to transform, setting empty receipts');
+      console.log('No documents to transform or invalid data, setting empty receipts');
+      console.log('processedDocuments type:', typeof processedDocuments);
+      console.log('processedDocuments is array:', Array.isArray(processedDocuments));
       setReceipts([]);
     }
   }, [processedDocuments]);
@@ -73,8 +88,11 @@ const Index = () => {
   // Load documents when user changes
   useEffect(() => {
     if (user) {
-      console.log('Index.tsx - User changed, loading documents for:', user.id);
+      console.log('User changed, loading documents for:', user.id);
       loadDocuments();
+    } else {
+      console.log('No user, clearing receipts');
+      setReceipts([]);
     }
   }, [user, loadDocuments]);
 
@@ -84,14 +102,19 @@ const Index = () => {
   };
 
   const handleUploadComplete = async () => {
-    console.log('Index.tsx - Upload completed, documents should already be updated');
-    // Documents are already updated in the processFiles function
-    // No need to reload here as they're already added to state
+    console.log('Upload completed, reloading documents');
+    // Reload documents to get the latest data
+    if (user) {
+      await loadDocuments();
+    }
   };
 
-  console.log('Index.tsx - Render - receipts count:', receipts.length);
-  console.log('Index.tsx - Render - receipts data:', receipts);
-  console.log('Index.tsx - Render - processedDocuments count:', processedDocuments.length);
+  console.log('=== INDEX RENDER STATE ===');
+  console.log('User:', user?.id || 'No user');
+  console.log('ProcessedDocuments count:', processedDocuments?.length || 0);
+  console.log('Receipts count:', receipts.length);
+  console.log('Filtered receipts count:', filteredReceipts.length);
+  console.log('Current receipts:', receipts);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
