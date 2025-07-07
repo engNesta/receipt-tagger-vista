@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { fastApiService, type FastApiDocument, type FastApiUploadResponse } from '@/services/fastApiService';
@@ -47,6 +48,7 @@ export const useFastApiProcessor = () => {
             // If the upload response contains documents, add them to our collection
             if (result.documents && result.documents.length > 0) {
               newDocuments.push(...result.documents);
+              console.log('Found documents in upload result:', result.documents);
             }
           } else {
             failed++;
@@ -61,14 +63,18 @@ export const useFastApiProcessor = () => {
         }
       }
 
-      // Update documents state with newly processed documents
+      // Update documents state with newly processed documents IMMEDIATELY
       if (newDocuments.length > 0) {
         console.log('Adding new documents from upload response:', newDocuments);
         setProcessedDocuments(prevDocs => {
           const existingIds = new Set(prevDocs.map(doc => doc.id));
           const uniqueNewDocs = newDocuments.filter(doc => !existingIds.has(doc.id));
-          return [...prevDocs, ...uniqueNewDocs];
+          const updatedDocs = [...prevDocs, ...uniqueNewDocs];
+          console.log('Updated processedDocuments state:', updatedDocs);
+          return updatedDocs;
         });
+      } else {
+        console.log('No new documents found in upload responses');
       }
 
       // Try to load all documents as a fallback, but don't fail if it doesn't work
@@ -111,7 +117,7 @@ export const useFastApiProcessor = () => {
       const response = await fastApiService.getDocuments(userDirectory);
       
       if (response.status === 'success' && response.documents) {
-        console.log('Loaded documents:', response.documents);
+        console.log('Loaded documents from API:', response.documents);
         setProcessedDocuments(response.documents);
       } else {
         console.error('Failed to load documents:', response.detail);
@@ -122,6 +128,10 @@ export const useFastApiProcessor = () => {
       // Don't clear documents here, keep existing ones
     }
   }, [user]);
+
+  // Add debug logging for state changes
+  console.log('useFastApiProcessor state - processedDocuments count:', processedDocuments.length);
+  console.log('useFastApiProcessor state - processedDocuments:', processedDocuments);
 
   return {
     isProcessing,

@@ -44,17 +44,25 @@ const Index = () => {
 
   // Transform processed documents to receipts when they change
   useEffect(() => {
-    console.log('Processing documents:', processedDocuments);
-    const transformedReceipts = processedDocuments.map((doc, index) => 
-      transformFastApiDocToReceipt(doc, index)
-    );
-    console.log('Transformed receipts:', transformedReceipts);
-    setReceipts(transformedReceipts);
+    console.log('Index.tsx - Processing documents effect triggered');
+    console.log('Index.jsx - processedDocuments count:', processedDocuments.length);
+    console.log('Index.tsx - processedDocuments data:', processedDocuments);
+    
+    if (processedDocuments.length > 0) {
+      const transformedReceipts = processedDocuments.map((doc, index) => 
+        transformFastApiDocToReceipt(doc, index)
+      );
+      console.log('Index.tsx - Transformed receipts:', transformedReceipts);
+      setReceipts(transformedReceipts);
+    } else {
+      console.log('Index.tsx - No documents to transform');
+    }
   }, [processedDocuments]);
 
   // Load documents when user changes
   useEffect(() => {
     if (user) {
+      console.log('Index.tsx - User changed, loading documents for:', user.id);
       loadDocuments();
     }
   }, [user, loadDocuments]);
@@ -65,7 +73,7 @@ const Index = () => {
   };
 
   const handleUploadComplete = () => {
-    console.log('Upload completed, reloading documents...');
+    console.log('Index.tsx - Upload completed, reloading documents...');
     // Reload documents after upload to get the tagged data
     if (user) {
       setTimeout(() => {
@@ -73,6 +81,9 @@ const Index = () => {
       }, 2000); // Give backend time to process
     }
   };
+
+  console.log('Index.tsx - Final state - receipts count:', receipts.length);
+  console.log('Index.tsx - Final state - receipts data:', receipts);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
