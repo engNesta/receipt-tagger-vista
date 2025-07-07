@@ -55,32 +55,39 @@ const Index = () => {
   // Transform processed documents to receipts when they change
   useEffect(() => {
     console.log('=== TRANSFORMATION EFFECT TRIGGERED ===');
-    console.log('processedDocuments length:', processedDocuments?.length || 0);
-    console.log('processedDocuments data:', processedDocuments);
+    console.log('processedDocuments:', processedDocuments);
+    console.log('processedDocuments type:', typeof processedDocuments);
+    console.log('processedDocuments is array:', Array.isArray(processedDocuments));
+    console.log('processedDocuments length:', processedDocuments?.length);
     
-    if (processedDocuments && Array.isArray(processedDocuments) && processedDocuments.length > 0) {
-      console.log('Starting transformation of', processedDocuments.length, 'documents');
+    if (processedDocuments && Array.isArray(processedDocuments)) {
+      console.log('Processing documents array with length:', processedDocuments.length);
       
-      try {
-        const transformedReceipts = processedDocuments.map((doc, index) => {
-          console.log(`Transforming document ${index + 1}/${processedDocuments.length}:`, doc);
-          return transformFastApiDocToReceipt(doc, index);
-        });
+      if (processedDocuments.length > 0) {
+        console.log('Starting transformation of', processedDocuments.length, 'documents');
         
-        console.log('Successfully transformed receipts:', transformedReceipts);
-        console.log('Setting receipts state with', transformedReceipts.length, 'receipts');
-        
-        setReceipts(transformedReceipts);
-        
-        console.log('Receipts state updated');
-      } catch (error) {
-        console.error('Error during transformation:', error);
+        try {
+          const transformedReceipts = processedDocuments.map((doc, index) => {
+            console.log(`Transforming document ${index + 1}/${processedDocuments.length}:`, doc);
+            return transformFastApiDocToReceipt(doc, index);
+          });
+          
+          console.log('Successfully transformed receipts:', transformedReceipts);
+          console.log('Setting receipts state with', transformedReceipts.length, 'receipts');
+          
+          setReceipts(transformedReceipts);
+          
+          console.log('Receipts state updated successfully');
+        } catch (error) {
+          console.error('Error during transformation:', error);
+          setReceipts([]);
+        }
+      } else {
+        console.log('Empty documents array, setting empty receipts');
         setReceipts([]);
       }
     } else {
-      console.log('No documents to transform or invalid data, setting empty receipts');
-      console.log('processedDocuments type:', typeof processedDocuments);
-      console.log('processedDocuments is array:', Array.isArray(processedDocuments));
+      console.log('processedDocuments is not a valid array, setting empty receipts');
       setReceipts([]);
     }
   }, [processedDocuments]);
@@ -115,6 +122,7 @@ const Index = () => {
   console.log('Receipts count:', receipts.length);
   console.log('Filtered receipts count:', filteredReceipts.length);
   console.log('Current receipts:', receipts);
+  console.log('Current filteredReceipts:', filteredReceipts);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">

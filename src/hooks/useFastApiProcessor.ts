@@ -124,16 +124,21 @@ export const useFastApiProcessor = () => {
       
       console.log('FastAPI Processor: Load documents response for user', userDirectory, ':', response);
       
-      if (response.status === 'success' && response.documents && response.documents.length > 0) {
-        // Double-check that all documents belong to the current user
-        const userDocuments = response.documents.filter(doc => 
-          doc.user_id === userDirectory || doc.user_directory === userDirectory
-        );
-        console.log('FastAPI Processor: Successfully loaded', userDocuments.length, 'documents for user:', userDirectory);
-        console.log('FastAPI Processor: Setting processedDocuments state:', userDocuments);
-        setProcessedDocuments(userDocuments);
+      if (response.status === 'success') {
+        if (response.documents && response.documents.length > 0) {
+          // Double-check that all documents belong to the current user
+          const userDocuments = response.documents.filter(doc => 
+            doc.user_id === userDirectory || doc.user_directory === userDirectory
+          );
+          console.log('FastAPI Processor: Successfully loaded', userDocuments.length, 'documents for user:', userDirectory);
+          console.log('FastAPI Processor: Setting processedDocuments state:', userDocuments);
+          setProcessedDocuments(userDocuments);
+        } else {
+          console.log('FastAPI Processor: No documents found for user', userDirectory, '- setting empty array');
+          setProcessedDocuments([]);
+        }
       } else {
-        console.log('FastAPI Processor: No documents found for user', userDirectory, '- setting empty array');
+        console.log('FastAPI Processor: Error response, setting empty array');
         setProcessedDocuments([]);
       }
     } catch (error) {
