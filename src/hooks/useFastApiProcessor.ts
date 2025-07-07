@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { fastApiService, type FastApiDocument, type FastApiUploadResponse } from '@/services/fastApiService';
@@ -75,13 +74,6 @@ export const useFastApiProcessor = () => {
         });
       } else {
         console.log('No new documents found in upload responses');
-      }
-
-      // Try to load all documents as a fallback, but don't fail if it doesn't work
-      try {
-        await loadDocuments();
-      } catch (error) {
-        console.log('Could not load all documents, but that\'s okay - using upload response documents');
       }
 
       // Show completion toast

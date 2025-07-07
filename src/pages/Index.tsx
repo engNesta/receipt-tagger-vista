@@ -16,7 +16,7 @@ const transformFastApiDocToReceipt = (doc: any, index: number): Receipt => ({
   id: index + 1,
   imageUrl: doc.ingested_path || '/placeholder.svg',
   vendor: doc.tags?.vendor || 'Unknown Vendor',
-  price: doc.tags?.price ? `${doc.tags.price} kr` : '$0.00',
+  price: doc.tags?.price ? `${doc.tags.price} kr` : '0 kr',
   productName: doc.tags?.product_or_service || 'Unknown Product',
   verificationLetter: doc.status || 'N/A',
   fileId: doc.id
@@ -45,7 +45,7 @@ const Index = () => {
   // Transform processed documents to receipts when they change
   useEffect(() => {
     console.log('Index.tsx - Processing documents effect triggered');
-    console.log('Index.jsx - processedDocuments count:', processedDocuments.length);
+    console.log('Index.tsx - processedDocuments count:', processedDocuments.length);
     console.log('Index.tsx - processedDocuments data:', processedDocuments);
     
     if (processedDocuments.length > 0) {
@@ -59,13 +59,13 @@ const Index = () => {
     }
   }, [processedDocuments]);
 
-  // Load documents when user changes
+  // Load documents when user changes (only once on mount)
   useEffect(() => {
     if (user) {
       console.log('Index.tsx - User changed, loading documents for:', user.id);
       loadDocuments();
     }
-  }, [user, loadDocuments]);
+  }, [user]); // Remove loadDocuments from dependencies to prevent loops
 
   const handleReceiptClick = (receipt: Receipt) => {
     setSelectedReceipt(receipt);
@@ -73,13 +73,8 @@ const Index = () => {
   };
 
   const handleUploadComplete = () => {
-    console.log('Index.tsx - Upload completed, reloading documents...');
-    // Reload documents after upload to get the tagged data
-    if (user) {
-      setTimeout(() => {
-        loadDocuments();
-      }, 2000); // Give backend time to process
-    }
+    console.log('Index.tsx - Upload completed, documents should update automatically');
+    // No need to reload manually - the processFiles function updates the state directly
   };
 
   console.log('Index.tsx - Final state - receipts count:', receipts.length);
