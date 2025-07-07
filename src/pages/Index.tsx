@@ -58,7 +58,7 @@ const Index = () => {
       console.log('Index.tsx - No documents to transform, setting empty receipts');
       setReceipts([]);
     }
-  }, [processedDocuments.length, JSON.stringify(processedDocuments)]);
+  }, [processedDocuments]); // Simplified dependency - React will handle deep comparison
 
   // Load documents when user changes (only once on mount)
   useEffect(() => {
@@ -66,7 +66,7 @@ const Index = () => {
       console.log('Index.tsx - User changed, loading documents for:', user.id);
       loadDocuments();
     }
-  }, [user]);
+  }, [user, loadDocuments]);
 
   const handleReceiptClick = (receipt: Receipt) => {
     setSelectedReceipt(receipt);
