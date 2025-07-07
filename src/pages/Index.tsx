@@ -6,6 +6,7 @@ import UploadHero from '@/features/upload/UploadHero';
 import ReceiptsSection from '@/features/receipts/ReceiptsSection';
 import ReceiptModal from '@/components/ReceiptModal';
 import LoadMoreModal from '@/components/LoadMoreModal';
+import ApiDebugPanel from '@/components/debug/ApiDebugPanel';
 
 import { useReceiptFiltering } from '@/hooks/useReceiptFiltering';
 import { useFastApiProcessor } from '@/hooks/useFastApiProcessor';
@@ -54,7 +55,7 @@ const Index = () => {
   const [showLoadMoreModal, setShowLoadMoreModal] = useState(false);
   const [receipts, setReceipts] = useState<Receipt[]>([]);
 
-  const { processedDocuments, loadDocuments, processFiles } = useFastApiProcessor();
+  const { processedDocuments, loadDocuments, processFiles, isLoading, error, clearError } = useFastApiProcessor();
   
   const {
     filteredReceipts,
@@ -122,6 +123,8 @@ const Index = () => {
 
   const handleUploadComplete = async () => {
     console.log('Upload completed, documents should already be updated from upload response');
+    // Clear any previous errors when upload completes
+    clearError();
     // Documents are now updated directly from upload response, no need to reload
   };
 
@@ -145,6 +148,9 @@ const Index = () => {
           <UploadHero onUploadComplete={handleUploadComplete} />
         </div>
 
+        {/* Debug Panel - Remove in production */}
+        <ApiDebugPanel />
+
         <ReceiptsSection
           receipts={receipts}
           filteredReceipts={filteredReceipts}
@@ -156,6 +162,9 @@ const Index = () => {
           onSortClick={handleSortClick}
           onReceiptClick={handleReceiptClick}
           onLoadMoreClick={() => setShowLoadMoreModal(true)}
+          isLoading={isLoading}
+          error={error}
+          onRetry={loadDocuments}
         />
 
         <LoadMoreModal 

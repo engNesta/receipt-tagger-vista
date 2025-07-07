@@ -39,6 +39,30 @@ export interface FastApiDocumentsResponse {
 }
 
 export const fastApiService = {
+  // Health check to verify API is accessible
+  async healthCheck(): Promise<{ status: 'ok' | 'error'; message?: string }> {
+    try {
+      console.log(`Health check: Testing connection to ${FASTAPI_BASE_URL}`);
+      const response = await fetch(`${FASTAPI_BASE_URL}/`, {
+        method: 'GET',
+      });
+
+      if (response.ok) {
+        console.log('Health check: API is accessible');
+        return { status: 'ok' };
+      } else {
+        console.log(`Health check: API returned status ${response.status}`);
+        return { status: 'error', message: `API returned status ${response.status}` };
+      }
+    } catch (error) {
+      console.error('Health check: Failed to connect to API:', error);
+      return { 
+        status: 'error', 
+        message: error instanceof Error ? error.message : 'Network connection failed' 
+      };
+    }
+  },
+
   // Upload and process a single file with user context
   async uploadFile(file: File, userDirectory: string): Promise<FastApiUploadResponse> {
     const formData = new FormData();
@@ -84,6 +108,12 @@ export const fastApiService = {
   async getDocuments(userDirectory: string): Promise<FastApiDocumentsResponse> {
     console.log(`Fetching documents for user: ${userDirectory}`);
     
+    // First check if the API is accessible
+    const healthCheck = await this.healthCheck();
+    if (healthCheck.status === 'error') {
+      throw new Error(`API service unavailable: ${healthCheck.message}`);
+    }
+    
     const response = await fetch(`${FASTAPI_BASE_URL}/documents/${userDirectory}`, {
       method: 'GET',
       headers: {
@@ -106,7 +136,7 @@ export const fastApiService = {
         };
       }
       
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to fetch documents: ${response.status} - ${errorText}`);
     }
 
     const result = await response.json();

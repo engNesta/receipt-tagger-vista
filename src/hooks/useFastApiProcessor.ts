@@ -6,6 +6,8 @@ import { useToast } from '@/hooks/use-toast';
 
 export const useFastApiProcessor = () => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [processedDocuments, setProcessedDocuments] = useState<FastApiDocument[]>([]);
   const [processingProgress, setProcessingProgress] = useState<{
     current: number;
@@ -79,6 +81,7 @@ export const useFastApiProcessor = () => {
           console.log('FastAPI Processor: Combined documents count:', combined.length);
           return combined;
         });
+        setError(null); // Clear any previous errors on successful upload
       }
 
       // Show completion toast
@@ -109,10 +112,13 @@ export const useFastApiProcessor = () => {
     if (!user) {
       console.log('FastAPI Processor: No user, clearing documents');
       setProcessedDocuments([]);
+      setError(null);
       return;
     }
 
     const userDirectory = user.id;
+    setIsLoading(true);
+    setError(null);
     
     try {
       console.log('FastAPI Processor: Loading documents for user:', userDirectory);
@@ -128,14 +134,30 @@ export const useFastApiProcessor = () => {
         console.log('FastAPI Processor: Successfully loaded', userDocuments.length, 'documents for user:', userDirectory);
         console.log('FastAPI Processor: Setting processedDocuments state:', userDocuments);
         setProcessedDocuments(userDocuments);
+        setError(null);
+      } else if (response.status === 'success' && response.documents?.length === 0) {
+        console.log('FastAPI Processor: No documents found for user', userDirectory);
+        setProcessedDocuments([]);
+        setError(null);
       } else {
-        console.log('FastAPI Processor: No documents found for user', userDirectory, ', keeping existing documents');
-        // Don't clear existing documents if load fails - they might have been just uploaded
+        console.log('FastAPI Processor: Unexpected response format:', response);
+        setError('Unable to load documents. Please try again.');
       }
     } catch (error) {
       console.error('FastAPI Processor: Error loading documents for user', userDirectory, ':', error);
+      const errorMessage = error instanceof Error ? error.message : 'Connection failed';
+      
+      // Check if it's a network error
+      if (errorMessage.includes('fetch')) {
+        setError('Unable to connect to document service. Please check your internet connection and try again.');
+      } else {
+        setError(`Failed to load documents: ${errorMessage}`);
+      }
+      
       // Don't clear existing documents on error - they might have been just uploaded
       console.log('FastAPI Processor: Keeping existing documents due to load error');
+    } finally {
+      setIsLoading(false);
     }
   }, [user]);
 
@@ -147,9 +169,12 @@ export const useFastApiProcessor = () => {
 
   return {
     isProcessing,
+    isLoading,
+    error,
     processedDocuments,
     processingProgress,
     processFiles,
-    loadDocuments
+    loadDocuments,
+    clearError: () => setError(null)
   };
 };

@@ -19,6 +19,9 @@ interface ReceiptsSectionProps {
   onSortClick: (order: 'asc' | 'desc') => void;
   onReceiptClick: (receipt: Receipt) => void;
   onLoadMoreClick: () => void;
+  isLoading?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
 }
 
 const ReceiptsSection: React.FC<ReceiptsSectionProps> = ({
@@ -31,7 +34,10 @@ const ReceiptsSection: React.FC<ReceiptsSectionProps> = ({
   onSearchChange,
   onSortClick,
   onReceiptClick,
-  onLoadMoreClick
+  onLoadMoreClick,
+  isLoading,
+  error,
+  onRetry
 }) => {
   const { getText } = useLanguage();
 
@@ -61,14 +67,26 @@ const ReceiptsSection: React.FC<ReceiptsSectionProps> = ({
       />
 
       {/* Receipts Grid or Empty State */}
-      {filteredReceipts.length > 0 ? (
-        <ReceiptsGrid
-          receipts={filteredReceipts}
-          selectedTag={selectedTag}
-          onCardClick={onReceiptClick}
-        />
+      {isLoading || error || filteredReceipts.length > 0 ? (
+        isLoading || error ? (
+          <EmptyState 
+            isLoading={isLoading}
+            error={error || undefined}
+            showRetry={!!error}
+            onRetryClick={onRetry}
+          />
+        ) : (
+          <ReceiptsGrid
+            receipts={filteredReceipts}
+            selectedTag={selectedTag}
+            onCardClick={onReceiptClick}
+          />
+        )
       ) : (
-        <EmptyState />
+        <EmptyState 
+          showRetry={true}
+          onRetryClick={onRetry}
+        />
       )}
     </div>
   );
