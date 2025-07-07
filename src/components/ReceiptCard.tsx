@@ -38,11 +38,11 @@ const ReceiptCard: React.FC<ReceiptCardProps> = React.memo(({ receipt, selectedT
       onClick={onClick}
     >
       <CardContent className="p-0">
-        {/* Receipt Image */}
+        {/* Document Image */}
         <div className="aspect-[3/4] bg-gray-50 relative overflow-hidden">
           <img
             src={receipt.imageUrl}
-            alt={`Receipt ${receipt.id}`}
+            alt={`Document ${receipt.id}`}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
@@ -55,7 +55,8 @@ const ReceiptCard: React.FC<ReceiptCardProps> = React.memo(({ receipt, selectedT
                       <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
                     </svg>
                   </div>
-                  <p class="text-xs font-medium text-center px-2">Receipt ${receipt.id}</p>
+                  <p class="text-xs font-medium text-center px-2">Document ${receipt.id}</p>
+                  <p class="text-xs text-gray-400 text-center px-2 mt-1">${receipt.productName}</p>
                 </div>
               `;
             }}
@@ -76,8 +77,16 @@ const ReceiptCard: React.FC<ReceiptCardProps> = React.memo(({ receipt, selectedT
               </p>
             </div>
           ) : (
-            <div className="flex items-center justify-center py-2">
-              <p className="text-gray-400 text-xs italic text-center">
+            // Show basic info when no tag is selected
+            <div className="space-y-2">
+              <p className="font-semibold text-gray-900 text-sm leading-tight line-clamp-2">
+                {receipt.productName}
+              </p>
+              <div className="flex justify-between items-center">
+                <p className="text-xs text-gray-500">{receipt.vendor}</p>
+                <p className="text-xs font-medium text-green-600">{receipt.price}</p>
+              </div>
+              <p className="text-xs text-gray-400 italic text-center">
                 {getText('selectTagToView')}
               </p>
             </div>

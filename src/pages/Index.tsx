@@ -18,11 +18,22 @@ const transformFastApiDocToReceipt = (doc: FastApiDocument, index: number): Rece
   // Create a more reliable ID from the document ID
   const numericId = doc.id ? parseInt(doc.id.replace(/-/g, '').substring(0, 8), 16) : (Date.now() + index);
   
+  // Extract price and ensure it's formatted correctly
+  const priceValue = doc.tags?.price;
+  let formattedPrice = '0 kr';
+  if (priceValue) {
+    if (typeof priceValue === 'number') {
+      formattedPrice = `${priceValue} kr`;
+    } else if (typeof priceValue === 'string') {
+      formattedPrice = priceValue.includes('kr') ? priceValue : `${priceValue} kr`;
+    }
+  }
+  
   const receipt: Receipt = {
     id: numericId,
     imageUrl: doc.ingested_path || '/placeholder.svg',
     vendor: doc.tags?.vendor || 'Unknown Vendor',
-    price: doc.tags?.price ? `${doc.tags.price} kr` : '0 kr',
+    price: formattedPrice,
     productName: doc.tags?.product_or_service || doc.original_filename || 'Unknown Product',
     verificationLetter: doc.status || 'N/A',
     fileId: doc.id
@@ -59,30 +70,32 @@ const Index = () => {
     console.log('processedDocuments is array:', Array.isArray(processedDocuments));
     console.log('processedDocuments length:', processedDocuments?.length);
     
-    // Only proceed if we have actual documents array with data
-    if (Array.isArray(processedDocuments) && processedDocuments.length > 0) {
-      console.log('Processing documents array with length:', processedDocuments.length);
-      console.log('Starting transformation of', processedDocuments.length, 'documents');
-      
-      try {
-        const transformedReceipts = processedDocuments.map((doc, index) => {
-          console.log(`Transforming document ${index + 1}/${processedDocuments.length}:`, doc);
-          return transformFastApiDocToReceipt(doc, index);
-        });
+    // Only proceed if we have actual documents array
+    if (Array.isArray(processedDocuments)) {
+      if (processedDocuments.length > 0) {
+        console.log('Processing documents array with length:', processedDocuments.length);
+        console.log('Starting transformation of', processedDocuments.length, 'documents');
         
-        console.log('Successfully transformed receipts:', transformedReceipts);
-        console.log('Setting receipts state with', transformedReceipts.length, 'receipts');
-        
-        setReceipts(transformedReceipts);
-        
-        console.log('Receipts state updated successfully');
-      } catch (error) {
-        console.error('Error during transformation:', error);
+        try {
+          const transformedReceipts = processedDocuments.map((doc, index) => {
+            console.log(`Transforming document ${index + 1}/${processedDocuments.length}:`, doc);
+            return transformFastApiDocToReceipt(doc, index);
+          });
+          
+          console.log('Successfully transformed receipts:', transformedReceipts);
+          console.log('Setting receipts state with', transformedReceipts.length, 'receipts');
+          
+          setReceipts(transformedReceipts);
+          
+          console.log('Receipts state updated successfully');
+        } catch (error) {
+          console.error('Error during transformation:', error);
+          setReceipts([]);
+        }
+      } else {
+        console.log('Empty documents array, setting empty receipts');
         setReceipts([]);
       }
-    } else if (Array.isArray(processedDocuments) && processedDocuments.length === 0) {
-      console.log('Empty documents array, setting empty receipts');
-      setReceipts([]);
     } else {
       console.log('processedDocuments is not ready yet, skipping transformation');
     }
