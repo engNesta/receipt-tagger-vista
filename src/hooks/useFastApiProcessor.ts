@@ -71,18 +71,11 @@ export const useFastApiProcessor = () => {
         }
       }
 
-      // IMMEDIATELY update processedDocuments with new documents
+      // Update state with new documents and reload all documents
       if (allNewDocuments.length > 0) {
-        console.log('FastAPI Processor: IMMEDIATELY adding', allNewDocuments.length, 'new documents to state');
-        setProcessedDocuments(prev => {
-          // Filter existing documents to ensure they belong to current user
-          const userFilteredPrev = prev.filter(doc => 
-            doc.user_id === userDirectory || doc.user_directory === userDirectory
-          );
-          const updated = [...userFilteredPrev, ...allNewDocuments];
-          console.log('FastAPI Processor: Updated processedDocuments state:', updated);
-          return updated;
-        });
+        console.log('FastAPI Processor: Adding', allNewDocuments.length, 'new documents to state');
+        // After upload, reload all documents to ensure we have the complete, up-to-date list
+        await loadDocuments();
       }
 
       // Show completion toast
@@ -151,7 +144,7 @@ export const useFastApiProcessor = () => {
   console.log('=== FastAPI Processor Hook State ===');
   console.log('User:', user?.id || 'No user');
   console.log('ProcessedDocuments count:', processedDocuments.length);
-  console.log('ProcessedDocuments array:', processedDocuments);
+  console.log('ProcessedDocuments sample:', processedDocuments.slice(0, 2));
   console.log('IsProcessing:', isProcessing);
 
   return {
