@@ -27,6 +27,7 @@ export const useFastApiProcessor = () => {
     try {
       const userDirectory = user.id;
       const results: FastApiUploadResponse[] = [];
+      const allNewDocuments: FastApiDocument[] = [];
       let successful = 0;
       let failed = 0;
 
@@ -46,8 +47,11 @@ export const useFastApiProcessor = () => {
           console.log('FastAPI Processor: Upload result for', file.name, ':', result);
           results.push(result);
           
-          if (result.status === 'success') {
+          if (result.status === 'success' && result.documents) {
             successful++;
+            // Collect all documents from the upload response
+            allNewDocuments.push(...result.documents);
+            console.log('FastAPI Processor: Added documents from upload:', result.documents);
           } else {
             failed++;
           }
@@ -61,9 +65,15 @@ export const useFastApiProcessor = () => {
         }
       }
 
-      // After processing all files, reload documents to get the latest state
-      console.log('FastAPI Processor: All files processed, reloading documents');
-      await loadDocuments();
+      // Update processedDocuments with all new documents from uploads
+      if (allNewDocuments.length > 0) {
+        console.log('FastAPI Processor: Adding', allNewDocuments.length, 'new documents to state');
+        setProcessedDocuments(prev => {
+          const updated = [...prev, ...allNewDocuments];
+          console.log('FastAPI Processor: Updated processedDocuments:', updated);
+          return updated;
+        });
+      }
 
       // Show completion toast
       toast({
@@ -107,9 +117,8 @@ export const useFastApiProcessor = () => {
         console.log('FastAPI Processor: Documents data:', response.documents);
         setProcessedDocuments(response.documents);
       } else {
-        console.error('FastAPI Processor: Failed to load documents:', response.detail);
-        // Set empty array if no documents found
-        setProcessedDocuments([]);
+        console.log('FastAPI Processor: No documents found or error:', response.detail);
+        // Don't clear existing documents if the API call fails
       }
     } catch (error) {
       console.error('FastAPI Processor: Error loading documents:', error);

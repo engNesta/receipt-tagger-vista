@@ -1,5 +1,5 @@
 
-const FASTAPI_BASE_URL = 'https://fastapi-server-1-l30y.onrender.com'; // Updated to your actual FastAPI server URL
+const FASTAPI_BASE_URL = 'https://fastapi-server-1-l30y.onrender.com';
 
 export interface FastApiDocument {
   id: string;
@@ -26,7 +26,7 @@ export interface FastApiDocument {
 
 export interface FastApiUploadResponse {
   status: 'success' | 'skipped' | 'error';
-  documents?: FastApiDocument[]; // Add documents array to upload response
+  documents?: FastApiDocument[]; // Documents returned from upload
   metadata?: any;
   reason?: string;
   detail?: string;
@@ -44,7 +44,7 @@ export const fastApiService = {
     const formData = new FormData();
     formData.append('files', file);
     formData.append('user_id', userDirectory);
-    formData.append('user_directory', userDirectory); // Add this field as well
+    formData.append('user_directory', userDirectory);
 
     console.log(`Uploading file ${file.name} to ${FASTAPI_BASE_URL}/upload/`);
     console.log(`User ID: ${userDirectory}`);
@@ -81,6 +81,16 @@ export const fastApiService = {
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`Get documents failed: ${response.status} - ${errorText}`);
+      
+      // If it's a 404, return empty success response instead of throwing
+      if (response.status === 404) {
+        return {
+          status: 'success',
+          documents: [],
+          detail: 'No documents found'
+        };
+      }
+      
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 

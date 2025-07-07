@@ -14,6 +14,7 @@ import type { Receipt } from '@/types';
 // Transform FastAPI document to Receipt format
 const transformFastApiDocToReceipt = (doc: any, index: number): Receipt => {
   console.log('Transforming document:', doc);
+  
   const receipt = {
     id: parseInt(doc.id.replace(/-/g, '').slice(0, 8), 16) || (Date.now() + index),
     imageUrl: doc.ingested_path || '/placeholder.svg',
@@ -23,6 +24,7 @@ const transformFastApiDocToReceipt = (doc: any, index: number): Receipt => {
     verificationLetter: doc.status || 'N/A',
     fileId: doc.id
   };
+  
   console.log('Transformed receipt:', receipt);
   return receipt;
 };
@@ -82,9 +84,9 @@ const Index = () => {
   };
 
   const handleUploadComplete = async () => {
-    console.log('Index.tsx - Upload completed, reloading documents');
-    // Reload documents after upload to ensure we get the latest data
-    await loadDocuments();
+    console.log('Index.tsx - Upload completed, documents should already be updated');
+    // Documents are already updated in the processFiles function
+    // No need to reload here as they're already added to state
   };
 
   console.log('Index.tsx - Render - receipts count:', receipts.length);
