@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/layout/Header';
@@ -6,7 +5,6 @@ import UploadHero from '@/features/upload/UploadHero';
 import ReceiptsSection from '@/features/receipts/ReceiptsSection';
 import ReceiptModal from '@/components/ReceiptModal';
 import LoadMoreModal from '@/components/LoadMoreModal';
-import ApiDebugPanel from '@/components/debug/ApiDebugPanel';
 
 import { useReceiptFiltering } from '@/hooks/useReceiptFiltering';
 import { useFastApiProcessor } from '@/hooks/useFastApiProcessor';
@@ -147,9 +145,6 @@ const Index = () => {
         <div className="mt-8">
           <UploadHero onUploadComplete={handleUploadComplete} />
         </div>
-
-        {/* Debug Panel - Remove in production */}
-        <ApiDebugPanel />
 
         <ReceiptsSection
           receipts={receipts}
