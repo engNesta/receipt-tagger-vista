@@ -6,7 +6,7 @@ import UploadHero from '@/features/upload/UploadHero';
 import ReceiptsSection from '@/features/receipts/ReceiptsSection';
 import ReceiptModal from '@/components/ReceiptModal';
 import LoadMoreModal from '@/components/LoadMoreModal';
-import MongoDBTest from '@/components/MongoDBTest';
+
 import { useReceiptFiltering } from '@/hooks/useReceiptFiltering';
 import { useFastApiProcessor } from '@/hooks/useFastApiProcessor';
 import type { Receipt, FastApiDocument } from '@/types';
@@ -25,9 +25,10 @@ const transformFastApiDocToReceipt = (doc: FastApiDocument, index: number): Rece
   if (priceValue !== undefined && priceValue !== null) {
     if (typeof priceValue === 'number') {
       formattedPrice = `${priceValue} kr`;
-    } else if (typeof priceValue === 'string' && priceValue.length > 0) {
-      // Only call toLowerCase if we're sure it's a string
-      formattedPrice = priceValue.toLowerCase().includes('kr') ? priceValue : `${priceValue} kr`;
+    } else {
+      // Handle string case (defensive programming)
+      const priceStr = String(priceValue);
+      formattedPrice = priceStr.toLowerCase().includes('kr') ? priceStr : `${priceStr} kr`;
     }
   }
   
@@ -140,8 +141,6 @@ const Index = () => {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <MongoDBTest />
-        
         <div className="mt-8">
           <UploadHero onUploadComplete={handleUploadComplete} />
         </div>
