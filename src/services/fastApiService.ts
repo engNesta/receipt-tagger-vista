@@ -105,7 +105,7 @@ export const fastApiService = {
   },
 
   async getSummary(jobId: string, userId: string): Promise<Response> {
-    const response = await fetch(`${FASTAPI_BASE_URL}/summary/${jobId}?user_id=${encodeURIComponent(userId)}`, {
+    const response = await fetch(`${FASTAPI_BASE_URL}/summary/${jobId}?user_id=${encodeURIComponent(userDirectory)}`, {
       method: 'GET',
       headers: { 
         'Accept': 'text/event-stream',
