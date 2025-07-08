@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Loader2, RefreshCw } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { fastApiService } from '@/services/fastApiService';
 import type { Receipt } from '@/types';
 
 interface ReceiptModalProps {
@@ -35,10 +36,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
     setSummaryText('');
     
     try {
-      const response = await fetch(`/summary/${receipt.id}`, {
-        headers: { 'Accept': 'text/event-stream' },
-        signal: abortControllerRef.current.signal
-      });
+      const response = await fastApiService.getSummary(receipt.id.toString());
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

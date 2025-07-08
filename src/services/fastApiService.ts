@@ -102,6 +102,22 @@ export const fastApiService = {
     }
     
     return result;
+  },
+
+  async getSummary(documentId: string): Promise<Response> {
+    const response = await fetch(`${FASTAPI_BASE_URL}/summary/${documentId}`, {
+      method: 'GET',
+      headers: { 
+        'Accept': 'text/event-stream',
+        'Cache-Control': 'no-cache'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch summary: ${response.status}`);
+    }
+
+    return response;
   }
 
 };
