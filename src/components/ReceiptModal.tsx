@@ -19,9 +19,32 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
   const { getText } = useLanguage();
   const { user } = useAuth();
   const [summaryText, setSummaryText] = useState('');
+  const [fullSummaryText, setFullSummaryText] = useState('');
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [summaryError, setSummaryError] = useState<string | null>(null);
+  const [isStreaming, setIsStreaming] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const streamingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Typewriter effect for streaming text
+  const startTypewriterEffect = (text: string) => {
+    setSummaryText('');
+    setIsStreaming(true);
+    
+    let currentIndex = 0;
+    
+    const typeNextCharacter = () => {
+      if (currentIndex < text.length) {
+        setSummaryText(text.substring(0, currentIndex + 1));
+        currentIndex++;
+        streamingIntervalRef.current = setTimeout(typeNextCharacter, 50); // 50ms per character
+      } else {
+        setIsStreaming(false);
+      }
+    };
+    
+    typeNextCharacter();
+  };
 
   // Streaming summary functionality
   const startSummaryStream = async () => {
@@ -32,10 +55,18 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
       abortControllerRef.current.abort();
     }
     
+    // Clear any existing typewriter effect
+    if (streamingIntervalRef.current) {
+      clearTimeout(streamingIntervalRef.current);
+      streamingIntervalRef.current = null;
+    }
+    
     abortControllerRef.current = new AbortController();
     setIsLoadingSummary(true);
     setSummaryError(null);
     setSummaryText('');
+    setFullSummaryText('');
+    setIsStreaming(false);
     
     try {
       const response = await fastApiService.getSummary(receipt.fileId, user.id);
@@ -67,7 +98,8 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
           
           // Filter and extract only the summary text
           if (jsonData.status === 'success' && jsonData.summary?.summary) {
-            setSummaryText(jsonData.summary.summary);
+            setFullSummaryText(jsonData.summary.summary);
+            startTypewriterEffect(jsonData.summary.summary);
           } else if (jsonData.status === 'not_found') {
             setSummaryError('No summary found for this receipt');
           } else {
@@ -101,6 +133,10 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
         abortControllerRef.current = null;
+      }
+      if (streamingIntervalRef.current) {
+        clearTimeout(streamingIntervalRef.current);
+        streamingIntervalRef.current = null;
       }
     };
   }, [isOpen, receipt?.id]);
@@ -195,7 +231,12 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
                 </div>
               ) : summaryText ? (
                 <div className="text-sm leading-relaxed space-y-2">
-                  <p className="whitespace-pre-wrap">{summaryText}</p>
+                  <p className="whitespace-pre-wrap">
+                    {summaryText}
+                    {isStreaming && (
+                      <span className="inline-block w-0.5 h-4 bg-primary ml-1 animate-pulse" />
+                    )}
+                  </p>
                 </div>
               ) : (
                 <div className="text-center py-8">
