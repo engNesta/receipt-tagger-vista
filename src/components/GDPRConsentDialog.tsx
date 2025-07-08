@@ -1,27 +1,22 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ExternalLink } from 'lucide-react';
-
 interface GDPRConsentDialogProps {
   isOpen: boolean;
   onConsent: () => void;
   onDecline: () => void;
 }
-
-const GDPRConsentDialog: React.FC<GDPRConsentDialogProps> = ({ 
-  isOpen, 
-  onConsent, 
-  onDecline 
+const GDPRConsentDialog: React.FC<GDPRConsentDialogProps> = ({
+  isOpen,
+  onConsent,
+  onDecline
 }) => {
   const [hasReadPolicy, setHasReadPolicy] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
-
   const allConsentsGiven = hasReadPolicy && consentGiven;
-
   const handleConsent = () => {
     if (allConsentsGiven) {
       // Store consent with timestamp and version for legal compliance
@@ -30,24 +25,22 @@ const GDPRConsentDialog: React.FC<GDPRConsentDialogProps> = ({
         version: '1.0',
         dataProcessingConsent: true,
         policyRead: true,
-        ipAddress: 'client-side', // In production, this would be captured server-side
+        ipAddress: 'client-side',
+        // In production, this would be captured server-side
         userAgent: navigator.userAgent
       };
       localStorage.setItem('gdpr-receipt-consent', JSON.stringify(consentData));
       onConsent();
     }
   };
-
   const resetConsents = () => {
     setHasReadPolicy(false);
     setConsentGiven(false);
   };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={() => {
-      resetConsents();
-      onDecline();
-    }}>
+  return <Dialog open={isOpen} onOpenChange={() => {
+    resetConsents();
+    onDecline();
+  }}>
       <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-y-auto">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-xl font-bold text-center text-blue-800">
@@ -56,7 +49,7 @@ const GDPRConsentDialog: React.FC<GDPRConsentDialogProps> = ({
         </DialogHeader>
 
         <ScrollArea className="flex-1">
-          <div className="space-y-4 pr-4 text-sm leading-relaxed">
+          <div className="space-y-4 pr-4 text-sm leading-relaxed overflow-y-auto space-y-1 ">
             <p className="font-medium text-gray-800">
               Genom att klicka på "Jag godkänner" bekräftar du att du:
             </p>
@@ -128,59 +121,37 @@ const GDPRConsentDialog: React.FC<GDPRConsentDialogProps> = ({
         {/* Consent Checkboxes */}
         <div className="flex-shrink-0 space-y-4 border-t pt-4">
           <div className="flex items-start space-x-3">
-            <Checkbox
-              id="policy-read"
-              checked={hasReadPolicy}
-              onCheckedChange={(checked) => setHasReadPolicy(checked === true)}
-              className="mt-1"
-            />
+            <Checkbox id="policy-read" checked={hasReadPolicy} onCheckedChange={checked => setHasReadPolicy(checked === true)} className="mt-1" />
             <label htmlFor="policy-read" className="text-sm font-medium leading-relaxed cursor-pointer">
               Jag bekräftar att jag har läst och förstått integritetspolicyn
             </label>
           </div>
 
           <div className="flex items-start space-x-3">
-            <Checkbox
-              id="data-consent"
-              checked={consentGiven}
-              onCheckedChange={(checked) => setConsentGiven(checked === true)}
-              className="mt-1"
-            />
+            <Checkbox id="data-consent" checked={consentGiven} onCheckedChange={checked => setConsentGiven(checked === true)} className="mt-1" />
             <label htmlFor="data-consent" className="text-sm font-medium leading-relaxed cursor-pointer">
               Jag samtycker frivilligt och medvetet till databehandling enligt ovan
             </label>
           </div>
 
-          {!allConsentsGiven && (
-            <p className="text-sm text-red-600 font-medium">
+          {!allConsentsGiven && <p className="text-sm text-red-600 font-medium">
               Båda rutorna måste kryssas i för att kunna fortsätta
-            </p>
-          )}
+            </p>}
         </div>
 
         {/* Action Buttons */}
         <div className="flex gap-3 flex-shrink-0 pt-4">
-          <Button
-            variant="outline"
-            onClick={() => {
-              resetConsents();
-              onDecline();
-            }}
-            className="flex-1"
-          >
+          <Button variant="outline" onClick={() => {
+          resetConsents();
+          onDecline();
+        }} className="flex-1">
             Avbryt
           </Button>
-          <Button
-            onClick={handleConsent}
-            disabled={!allConsentsGiven}
-            className="flex-1 bg-green-600 hover:bg-green-700"
-          >
+          <Button onClick={handleConsent} disabled={!allConsentsGiven} className="flex-1 bg-green-600 hover:bg-green-700">
             Jag godkänner
           </Button>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
-
 export default GDPRConsentDialog;
