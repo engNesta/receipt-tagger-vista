@@ -48,7 +48,7 @@ const GDPRConsentDialog: React.FC<GDPRConsentDialogProps> = ({
       resetConsents();
       onDecline();
     }}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-y-auto">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-xl font-bold text-center text-blue-800">
             Samtycke till databehandling (MVP-test)
