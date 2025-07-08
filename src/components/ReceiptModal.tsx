@@ -1,8 +1,9 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Loader2, RefreshCw, Search } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { fastApiService } from '@/services/fastApiService';
@@ -21,6 +22,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
   const [summaryText, setSummaryText] = useState('');
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [summaryError, setSummaryError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // Streaming summary functionality
@@ -105,6 +107,22 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
 
   const displayInfo = getDisplayValue();
 
+  // Filter summary text based on search term
+  const filteredSummaryText = useMemo(() => {
+    if (!searchTerm.trim() || !summaryText) return summaryText;
+    
+    const searchLower = searchTerm.toLowerCase();
+    const sentences = summaryText.split(/[.!?]+/).filter(sentence => sentence.trim());
+    
+    const matchingSentences = sentences.filter(sentence => 
+      sentence.toLowerCase().includes(searchLower)
+    );
+    
+    return matchingSentences.length > 0 
+      ? matchingSentences.join('. ').trim() + (matchingSentences.join('').slice(-1).match(/[.!?]/) ? '' : '.')
+      : getText('noMatchFound') || 'No matches found for your search.';
+  }, [summaryText, searchTerm, getText]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl">
@@ -149,8 +167,21 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
 
           {/* Right side - Summary Stream */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Summary</h3>
-            <div 
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-lg">Summary</h3>
+              {summaryText && !isLoadingSummary && (
+                <div className="relative w-64">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                  <Input
+                    placeholder="Filter summary..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9 py-2 text-sm"
+                  />
+                </div>
+              )}
+            </div>
+            <div
               id="summaryStream" 
               className="min-h-[300px] max-h-[400px] overflow-y-auto border rounded-lg p-4 bg-gray-50"
             >
@@ -174,7 +205,12 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
                 </div>
               ) : summaryText ? (
                 <div className="text-sm leading-relaxed space-y-2">
-                  <p className="whitespace-pre-wrap">{summaryText}</p>
+                  <p className="whitespace-pre-wrap">{filteredSummaryText}</p>
+                  {searchTerm && filteredSummaryText !== summaryText && (
+                    <div className="text-xs text-gray-500 mt-2 pt-2 border-t">
+                      Showing filtered results for "{searchTerm}"
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-8">
