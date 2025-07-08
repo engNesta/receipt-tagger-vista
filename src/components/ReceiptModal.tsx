@@ -35,7 +35,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
     setSummaryText('');
     
     try {
-      const response = await fetch(`/summary/${receipt.id}`, {
+      const response = await fetch(`/${receipt.id}`, {
         headers: { 'Accept': 'text/event-stream' },
         signal: abortControllerRef.current.signal
       });
