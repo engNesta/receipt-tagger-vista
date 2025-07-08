@@ -2,6 +2,8 @@
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { Loader2, Shield } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import LoginForm from './LoginForm';
@@ -13,9 +15,20 @@ interface AuthGuardProps {
 }
 
 const AuthGuard: React.FC<AuthGuardProps> = ({ children, fallback }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, error, clearAuthError } = useAuth();
   const { getText } = useLanguage();
   const [showSignup, setShowSignup] = React.useState(false);
+
+  // Clear auth errors when switching between login/signup
+  const handleSwitchToSignup = () => {
+    clearAuthError();
+    setShowSignup(true);
+  };
+
+  const handleSwitchToLogin = () => {
+    clearAuthError();
+    setShowSignup(false);
+  };
 
   if (loading) {
     return (
@@ -38,13 +51,28 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children, fallback }) => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="w-full max-w-md">
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>
+                {error}
+                <Button 
+                  variant="link" 
+                  className="p-0 h-auto ml-2 text-destructive" 
+                  onClick={clearAuthError}
+                >
+                  Dismiss
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+          
           {!showSignup ? (
             <LoginForm
-              switchToSignup={() => setShowSignup(true)}
+              switchToSignup={handleSwitchToSignup}
             />
           ) : (
             <SignupForm
-              switchToLogin={() => setShowSignup(false)}
+              switchToLogin={handleSwitchToLogin}
             />
           )}
           

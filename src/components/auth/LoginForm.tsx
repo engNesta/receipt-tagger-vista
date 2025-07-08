@@ -31,11 +31,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, switchToSignup }) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
-        password,
+        password
       });
 
       if (error) {
-        setError(error.message);
+        // Handle specific auth errors
+        if (error.message.includes('Invalid login credentials')) {
+          setError(getText('invalidCredentials') || 'Invalid email or password');
+        } else if (error.message.includes('Failed to fetch')) {
+          setError('Network error. Please check your connection and try again.');
+        } else if (error.message.includes('Email not confirmed')) {
+          setError('Please check your email and click the confirmation link.');
+        } else {
+          setError(error.message);
+        }
         return;
       }
 
@@ -45,8 +54,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, switchToSignup }) => {
       });
 
       onSuccess?.();
-    } catch (err) {
-      setError(getText('unexpectedError'));
+    } catch (err: any) {
+      console.error('Login error:', err);
+      
+      if (err?.message?.includes('Failed to fetch')) {
+        setError('Unable to connect to authentication service. Please try again.');
+      } else {
+        setError(getText('unexpectedError') || 'An unexpected error occurred');
+      }
     } finally {
       setIsLoading(false);
     }
