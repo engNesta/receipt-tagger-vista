@@ -52,12 +52,33 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
       const decoder = new TextDecoder();
       setIsLoadingSummary(false);
       
+      let buffer = '';
+      
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         
         const chunk = decoder.decode(value, { stream: true });
-        setSummaryText(prev => prev + chunk);
+        buffer += chunk;
+        
+        // Try to parse complete JSON objects from the buffer
+        try {
+          const jsonData = JSON.parse(buffer);
+          
+          // Filter and extract only the summary text
+          if (jsonData.status === 'success' && jsonData.summary?.summary) {
+            setSummaryText(jsonData.summary.summary);
+          } else if (jsonData.status === 'not_found') {
+            setSummaryError('No summary found for this receipt');
+          } else {
+            setSummaryError('Unexpected response format');
+          }
+          
+          buffer = ''; // Clear buffer after successful parse
+        } catch (parseError) {
+          // JSON not complete yet, continue accumulating
+          continue;
+        }
       }
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
