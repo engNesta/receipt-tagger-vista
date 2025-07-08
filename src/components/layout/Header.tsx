@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -7,18 +6,21 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import LanguageSelector from '@/components/LanguageSelector';
 import UserProfile from '@/components/auth/UserProfile';
-
 interface HeaderProps {
   showProfileModal: boolean;
   setShowProfileModal: (show: boolean) => void;
 }
-
-const Header: React.FC<HeaderProps> = ({ showProfileModal, setShowProfileModal }) => {
-  const { getText } = useLanguage();
-  const { user } = useAuth();
-
-  return (
-    <header className="bg-white shadow-sm border-b sticky top-0 z-50">
+const Header: React.FC<HeaderProps> = ({
+  showProfileModal,
+  setShowProfileModal
+}) => {
+  const {
+    getText
+  } = useLanguage();
+  const {
+    user
+  } = useAuth();
+  return <header className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Brand */}
@@ -48,16 +50,12 @@ const Header: React.FC<HeaderProps> = ({ showProfileModal, setShowProfileModal }
                   <DialogTitle>{getText('profile')}</DialogTitle>
                 </DialogHeader>
                 <UserProfile />
-                <div className="mt-4 text-center text-sm text-gray-500">
-                  {getText('signOutNote') || 'Signing out will redirect you to the login page'}
-                </div>
+                
               </DialogContent>
             </Dialog>
           </div>
         </div>
       </div>
-    </header>
-  );
+    </header>;
 };
-
 export default Header;
