@@ -1,6 +1,8 @@
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Loader2, RefreshCw } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { Receipt } from '@/types';
 
@@ -13,6 +15,74 @@ interface ReceiptModalProps {
 
 const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpen, onClose }) => {
   const { getText } = useLanguage();
+  const [summaryText, setSummaryText] = useState('');
+  const [isLoadingSummary, setIsLoadingSummary] = useState(false);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Streaming summary functionality
+  const startSummaryStream = async () => {
+    if (!receipt) return;
+    
+    // Cancel any existing stream
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    abortControllerRef.current = new AbortController();
+    setIsLoadingSummary(true);
+    setSummaryError(null);
+    setSummaryText('');
+    
+    try {
+      const response = await fetch(`/summary/${receipt.id}`, {
+        headers: { 'Accept': 'text/event-stream' },
+        signal: abortControllerRef.current.signal
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('Failed to get response reader');
+      }
+      
+      const decoder = new TextDecoder();
+      setIsLoadingSummary(false);
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value, { stream: true });
+        setSummaryText(prev => prev + chunk);
+      }
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return; // Stream was cancelled, ignore
+      }
+      
+      setIsLoadingSummary(false);
+      setSummaryError(error instanceof Error ? error.message : 'Failed to load summary');
+    }
+  };
+
+  // Start streaming when modal opens
+  useEffect(() => {
+    if (isOpen && receipt) {
+      startSummaryStream();
+    }
+    
+    // Cleanup on close
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+    };
+  }, [isOpen, receipt?.id]);
 
   if (!receipt) return null;
 
@@ -37,42 +107,82 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>Receipt #{receipt.id}</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
-          <div className="aspect-[4/5] bg-gray-100 flex items-center justify-center rounded-lg overflow-hidden">
-            <img
-              src={receipt.imageUrl}
-              alt={`Receipt ${receipt.id}`}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                target.parentElement!.innerHTML = `
-                  <div class="flex flex-col items-center justify-center h-full text-gray-400">
-                    <svg class="w-16 h-16 mb-3" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
-                    </svg>
-                    <p class="text-sm font-medium">Receipt ${receipt.id}</p>
-                  </div>
-                `;
-              }}
-            />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left side - Preview */}
+          <div id="preview" className="space-y-4">
+            <div className="aspect-[4/5] bg-gray-100 flex items-center justify-center rounded-lg overflow-hidden">
+              <img
+                src={receipt.imageUrl}
+                alt={`Receipt ${receipt.id}`}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  target.parentElement!.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-gray-400">
+                      <svg class="w-16 h-16 mb-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                      </svg>
+                      <p class="text-sm font-medium">Receipt ${receipt.id}</p>
+                    </div>
+                  `;
+                }}
+              />
+            </div>
+
+            {displayInfo ? (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                <p className="text-sm text-gray-600 mb-2">{displayInfo.label}</p>
+                <p className="font-semibold text-gray-900 text-lg">{displayInfo.value}</p>
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-gray-400 text-sm italic">{getText('selectTagForInfo')}</p>
+              </div>
+            )}
           </div>
 
-          {displayInfo ? (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-              <p className="text-sm text-gray-600 mb-2">{displayInfo.label}</p>
-              <p className="font-semibold text-gray-900 text-lg">{displayInfo.value}</p>
+          {/* Right side - Summary Stream */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg">Summary</h3>
+            <div 
+              id="summaryStream" 
+              className="min-h-[300px] max-h-[400px] overflow-y-auto border rounded-lg p-4 bg-gray-50"
+            >
+              {isLoadingSummary ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                  <span className="text-sm text-gray-600">Loading summary...</span>
+                </div>
+              ) : summaryError ? (
+                <div className="text-center py-8">
+                  <p className="text-sm text-red-600 mb-4">{summaryError}</p>
+                  <Button
+                    onClick={startSummaryStream}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center space-x-2"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    <span>Retry</span>
+                  </Button>
+                </div>
+              ) : summaryText ? (
+                <div className="text-sm leading-relaxed space-y-2">
+                  <p className="whitespace-pre-wrap">{summaryText}</p>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-sm text-gray-500">No summary available</p>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="text-center py-4">
-              <p className="text-gray-400 text-sm italic">{getText('selectTagForInfo')}</p>
-            </div>
-          )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
