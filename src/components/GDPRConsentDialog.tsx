@@ -124,17 +124,6 @@ const GDPRConsentDialog: React.FC<GDPRConsentDialogProps> = ({
           </div>
         </ScrollArea>
 
-        {/* Privacy Policy Link */}
-        <div className="flex-shrink-0 border-t pt-4">
-          <Button
-            variant="link"
-            className="w-full justify-center text-blue-600 hover:text-blue-800"
-            onClick={() => window.open('/privacy-policy', '_blank')}
-          >
-            <ExternalLink className="h-4 w-4 mr-2" />
-            Läs vår integritetspolicy innan du ger samtycke
-          </Button>
-        </div>
 
         {/* Consent Checkboxes */}
         <div className="flex-shrink-0 space-y-4 border-t pt-4">
