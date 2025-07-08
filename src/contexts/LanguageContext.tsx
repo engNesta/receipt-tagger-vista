@@ -39,6 +39,7 @@ const translations = {
     joined: "Registrerad",
     secureFileUpload: "Säker filuppladdning och hantering",
     filesSecurelyStored: "Dina filer lagras säkert och är endast tillgängliga för dig",
+    invalidCredentials: "Ogiltiga inloggningsuppgifter",
 
     // Huvudsida
     title: "Kvitthanteringssystem",
@@ -120,7 +121,42 @@ const translations = {
     agreeToTerms: "Jag godkänner villkoren",
     agreeToDataProcessing: "Jag samtycker till databehandling",
     acknowledgeGDPRRights: "Jag erkänner mina GDPR-rättigheter",
-    consentRequired: "Du måste godkänna alla villkor för att fortsätta"
+    consentRequired: "Du måste godkänna alla villkor för att fortsätta",
+    
+    // UI Components
+    dismiss: "Avfärda",
+    dropFilesHere: "Släpp filer här för bearbetning",
+    dragAndDropFiles: "Dra och släpp filer eller klicka för att bläddra",
+    processing: "Bearbetar...",
+    processingPipeline: "Bearbetningspipeline",
+    clearCompleted: "Rensa slutförda",
+    completed: "slutförd",
+    pending: "väntar",
+    error: "fel",
+    apiDebugPanel: "API Felsökningspanel",
+    fastApiStatus: "FastAPI Status",
+    testApi: "Testa API",
+    checkDocs: "Kontrollera dokument",
+    user: "Användare",
+    documents: "Dokument",
+    notLoggedIn: "Inte inloggad",
+    notChecked: "Inte kontrollerad",
+    loadingDocuments: "Laddar dokument...",
+    pleaseWaitDocuments: "Vänta medan vi hämtar dina dokument.",
+    connectionError: "Anslutningsfel",
+    retry: "Försök igen",
+    uploadDocuments: "Ladda upp dokument",
+    noDocumentsFound: "Inga dokument hittades",
+    startByUploading: "Börja med att ladda upp några dokument för att se dem bearbetade och visade här.",
+    refresh: "Uppdatera",
+    swedishReceiptProcessing: "Svensk kvittotolkning",
+    pasteReceiptText: "Klistra in kvittotext:",
+    pasteReceiptPlaceholder: "Klistra in text från ditt kvitto här...",
+    interpretReceipt: "Tolka kvitto",
+    loadExample: "Ladda exempel",
+    extractedData: "Extraherad data",
+    validationErrors: "Valideringsfel",
+    dataValidated: "✓ Data validerad enligt svenska regler"
   },
   en: {
     // Authentication
@@ -152,6 +188,7 @@ const translations = {
     joined: "Joined",
     secureFileUpload: "Secure file upload and management",
     filesSecurelyStored: "Your files are securely stored and only accessible by you",
+    invalidCredentials: "Invalid email or password",
 
     // LoadReceipts page
     title: "Receipt Management System",
@@ -233,14 +270,49 @@ const translations = {
     agreeToTerms: "I agree to the terms",
     agreeToDataProcessing: "I consent to data processing",
     acknowledgeGDPRRights: "I acknowledge my GDPR rights",
-    consentRequired: "You must accept all terms to continue"
+    consentRequired: "You must accept all terms to continue",
+    
+    // UI Components
+    dismiss: "Dismiss",
+    dropFilesHere: "Drop files here to process",
+    dragAndDropFiles: "Drag and drop files or click to browse",
+    processing: "Processing...",
+    processingPipeline: "Processing Pipeline",
+    clearCompleted: "Clear Completed",
+    completed: "completed",
+    pending: "pending",
+    error: "error",
+    apiDebugPanel: "API Debug Panel",
+    fastApiStatus: "FastAPI Status",
+    testApi: "Test API",
+    checkDocs: "Check Docs",
+    user: "User",
+    documents: "Documents",
+    notLoggedIn: "Not logged in",
+    notChecked: "Not checked",
+    loadingDocuments: "Loading Documents...",
+    pleaseWaitDocuments: "Please wait while we fetch your documents.",
+    connectionError: "Connection Error",
+    retry: "Retry",
+    uploadDocuments: "Upload Documents",
+    noDocumentsFound: "No Documents Found",
+    startByUploading: "Start by uploading some documents to see them processed and displayed here.",
+    refresh: "Refresh",
+    swedishReceiptProcessing: "Swedish Receipt Processing",
+    pasteReceiptText: "Paste receipt text:",
+    pasteReceiptPlaceholder: "Paste text from your receipt here...",
+    interpretReceipt: "Interpret Receipt",
+    loadExample: "Load Example",
+    extractedData: "Extracted Data",
+    validationErrors: "Validation Errors",
+    dataValidated: "✓ Data validated according to Swedish rules"
   }
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('sv'); // Changed default back to Swedish
+  const [language, setLanguage] = useState<Language>('sv');
 
   const getText = (key: string): string => {
     return translations[language][key as keyof typeof translations.sv] || key;

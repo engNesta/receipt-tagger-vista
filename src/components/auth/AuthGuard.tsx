@@ -60,7 +60,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children, fallback }) => {
                   className="p-0 h-auto ml-2 text-destructive" 
                   onClick={clearAuthError}
                 >
-                  Dismiss
+                  {getText('dismiss')}
                 </Button>
               </AlertDescription>
             </Alert>

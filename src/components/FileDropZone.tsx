@@ -133,10 +133,10 @@ const FileDropZone: React.FC<FileDropZoneProps> = ({
       >
         <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Drop files here to process
+          {getText('dropFilesHere')}
         </h3>
         <p className="text-gray-600 mb-4">
-          Drag and drop files or click to browse
+          {getText('dragAndDropFiles')}
         </p>
         
         <input
@@ -152,7 +152,7 @@ const FileDropZone: React.FC<FileDropZoneProps> = ({
           onClick={() => fileInputRef.current?.click()}
           disabled={isProcessing}
         >
-          {isProcessing ? 'Processing...' : 'Choose Files'}
+          {isProcessing ? getText('processing') : getText('chooseFiles')}
         </Button>
       </div>
 
@@ -160,14 +160,14 @@ const FileDropZone: React.FC<FileDropZoneProps> = ({
       {files.length > 0 && (
         <div className="bg-white rounded-lg border p-4">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="font-semibold">Processing Pipeline</h4>
+            <h4 className="font-semibold">{getText('processingPipeline')}</h4>
             <Button 
               variant="outline" 
               size="sm"
               onClick={clearCompletedFiles}
               disabled={isProcessing}
             >
-              Clear Completed
+              {getText('clearCompleted')}
             </Button>
           </div>
           
@@ -194,7 +194,7 @@ const FileDropZone: React.FC<FileDropZoneProps> = ({
                   </div>
                 )}
                 <span className="text-xs text-gray-500 capitalize">
-                  {fileWithStatus.status}
+                  {getText(fileWithStatus.status)}
                 </span>
               </div>
             ))}

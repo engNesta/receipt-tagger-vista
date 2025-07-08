@@ -29,10 +29,10 @@ const EmptyState: React.FC<EmptyStateProps> = ({
             <RefreshCw className="h-12 w-12 text-blue-600 animate-spin" />
           </div>
           <h3 className="text-xl font-semibold text-gray-900 mb-3">
-            Loading Documents...
+            {getText('loadingDocuments')}
           </h3>
           <p className="text-gray-600">
-            Please wait while we fetch your documents.
+            {getText('pleaseWaitDocuments')}
           </p>
         </div>
       </div>
@@ -47,7 +47,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
             <AlertCircle className="h-12 w-12 text-red-600" />
           </div>
           <h3 className="text-xl font-semibold text-gray-900 mb-3">
-            Connection Error
+            {getText('connectionError')}
           </h3>
           <p className="text-gray-600 mb-6 leading-relaxed">
             {error}
@@ -56,13 +56,13 @@ const EmptyState: React.FC<EmptyStateProps> = ({
             {showRetry && onRetryClick && (
               <Button onClick={onRetryClick} variant="outline" className="inline-flex items-center gap-2">
                 <RefreshCw className="h-4 w-4" />
-                Retry
+                {getText('retry')}
               </Button>
             )}
             {onUploadClick && (
               <Button onClick={onUploadClick} className="inline-flex items-center gap-2">
                 <Upload className="h-4 w-4" />
-                Upload Documents
+                {getText('uploadDocuments')}
               </Button>
             )}
           </div>
@@ -81,10 +81,10 @@ const EmptyState: React.FC<EmptyStateProps> = ({
         
         {/* Content */}
         <h3 className="text-xl font-semibold text-gray-900 mb-3">
-          No Documents Found
+          {getText('noDocumentsFound')}
         </h3>
         <p className="text-gray-600 mb-6 leading-relaxed">
-          Start by uploading some documents to see them processed and displayed here.
+          {getText('startByUploading')}
         </p>
         
         {/* Action */}
@@ -92,13 +92,13 @@ const EmptyState: React.FC<EmptyStateProps> = ({
           {showRetry && onRetryClick && (
             <Button onClick={onRetryClick} variant="outline" className="inline-flex items-center gap-2">
               <RefreshCw className="h-4 w-4" />
-              Refresh
+              {getText('refresh')}
             </Button>
           )}
           {onUploadClick && (
             <Button onClick={onUploadClick} className="inline-flex items-center gap-2">
               <Upload className="h-4 w-4" />
-              Upload Documents
+              {getText('uploadDocuments')}
             </Button>
           )}
         </div>

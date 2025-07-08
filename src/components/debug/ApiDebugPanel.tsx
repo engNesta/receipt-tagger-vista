@@ -5,12 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import { fastApiService } from '@/services/fastApiService';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const ApiDebugPanel: React.FC = () => {
   const [apiStatus, setApiStatus] = useState<'unknown' | 'checking' | 'ok' | 'error'>('unknown');
   const [apiMessage, setApiMessage] = useState<string>('');
   const [documentsStatus, setDocumentsStatus] = useState<string>('Not checked');
   const { user } = useAuth();
+  const { getText } = useLanguage();
 
   const checkApiHealth = async () => {
     setApiStatus('checking');
@@ -26,7 +28,7 @@ const ApiDebugPanel: React.FC = () => {
 
   const checkDocuments = async () => {
     if (!user) {
-      setDocumentsStatus('No user authenticated');
+      setDocumentsStatus(getText('notLoggedIn'));
       return;
     }
 
@@ -54,11 +56,11 @@ const ApiDebugPanel: React.FC = () => {
   return (
     <Card className="w-full max-w-md mx-auto mb-6">
       <CardHeader>
-        <CardTitle className="text-sm">API Debug Panel</CardTitle>
+        <CardTitle className="text-sm">{getText('apiDebugPanel')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-sm">FastAPI Status:</span>
+          <span className="text-sm">{getText('fastApiStatus')}:</span>
           <div className="flex items-center gap-2">
             {getStatusIcon(apiStatus)}
             <Badge variant={apiStatus === 'ok' ? 'default' : apiStatus === 'error' ? 'destructive' : 'secondary'}>
@@ -73,16 +75,16 @@ const ApiDebugPanel: React.FC = () => {
         
         <div className="flex gap-2">
           <Button size="sm" onClick={checkApiHealth} disabled={apiStatus === 'checking'}>
-            Test API
+            {getText('testApi')}
           </Button>
           <Button size="sm" variant="outline" onClick={checkDocuments} disabled={!user}>
-            Check Docs
+            {getText('checkDocs')}
           </Button>
         </div>
         
         <div className="text-xs">
-          <p><strong>User:</strong> {user?.id ? `${user.id.substring(0, 8)}...` : 'Not logged in'}</p>
-          <p><strong>Documents:</strong> {documentsStatus}</p>
+          <p><strong>{getText('user')}:</strong> {user?.id ? `${user.id.substring(0, 8)}...` : getText('notLoggedIn')}</p>
+          <p><strong>{getText('documents')}:</strong> {documentsStatus}</p>
         </div>
       </CardContent>
     </Card>

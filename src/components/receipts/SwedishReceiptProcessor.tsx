@@ -62,28 +62,28 @@ Tack för ditt köp!`;
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            Svensk Kvittotolkning
+            {getText('swedishReceiptProcessing')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2">
-              Klistra in kvittotext:
+              {getText('pasteReceiptText')}
             </label>
             <Textarea
               value={receiptText}
               onChange={(e) => setReceiptText(e.target.value)}
-              placeholder="Klistra in text från ditt kvitto här..."
+              placeholder={getText('pasteReceiptPlaceholder')}
               className="min-h-32"
             />
           </div>
           
           <div className="flex gap-2">
             <Button onClick={handleProcess} disabled={!receiptText.trim()}>
-              Tolka Kvitto
+              {getText('interpretReceipt')}
             </Button>
             <Button onClick={handleLoadSample} variant="outline">
-              Ladda Exempel
+              {getText('loadExample')}
             </Button>
           </div>
         </CardContent>
@@ -98,7 +98,7 @@ Tack för ditt köp!`;
               ) : (
                 <XCircle className="h-5 w-5 text-red-600" />
               )}
-              Extraherad Data
+              {getText('extractedData')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
