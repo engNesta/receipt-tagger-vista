@@ -9,7 +9,6 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import AuthGuard from "@/components/auth/AuthGuard";
 
 const Index = lazy(() => import("@/pages/Index"));
-const FileProcessor = lazy(() => import("@/pages/FileProcessor"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -40,7 +39,6 @@ const App = () => {
               }>
                 <Routes>
                   <Route path="/" element={<Index />} />
-                  <Route path="/file-processor" element={<FileProcessor />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
