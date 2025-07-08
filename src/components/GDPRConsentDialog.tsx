@@ -96,7 +96,7 @@ const GDPRConsentDialog: React.FC<GDPRConsentDialogProps> = ({
               </div>
             </div>
 
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-4">
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-[8px]">
               <p className="font-medium text-yellow-800">
                 <strong>Observera:</strong> Inga kvittodata kommer behandlas eller sparas förrän samtycke har registrerats.
               </p>
