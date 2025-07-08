@@ -15,10 +15,19 @@ export const useAuth = () => {
   const handleAuthError = (error: any, context: string) => {
     logger.error(`Auth error in ${context}:`, error);
     
-    // Clear corrupted auth data on specific errors
-    if (error?.message?.includes('refresh_token_not_found') || 
-        error?.message?.includes('invalid_grant') ||
-        error?.message?.includes('Failed to fetch')) {
+    // Detect network-related errors
+    const isNetworkError = error?.message?.includes('Failed to fetch') ||
+                          error?.message?.includes('Network request failed') ||
+                          error?.message?.includes('TypeError: fetch') ||
+                          error?.code === 'NETWORK_ERROR' ||
+                          !navigator.onLine;
+    
+    const isAuthError = error?.message?.includes('refresh_token_not_found') || 
+                       error?.message?.includes('invalid_grant');
+    
+    if (isNetworkError) {
+      setError('Network connection issue. Please check your internet connection or try switching networks.');
+    } else if (isAuthError) {
       localStorage.removeItem('supabase.auth.token');
       setError('Authentication session expired. Please sign in again.');
     } else {
@@ -87,6 +96,27 @@ export const useAuth = () => {
     }
   };
 
+  const retryWithBackoff = async (operation: () => Promise<any>, maxRetries = 3) => {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error: any) {
+        if (attempt === maxRetries) throw error;
+        
+        // Only retry on network errors
+        const isRetryableError = error?.message?.includes('Failed to fetch') ||
+                                error?.message?.includes('Network request failed') ||
+                                !navigator.onLine;
+        
+        if (!isRetryableError) throw error;
+        
+        // Exponential backoff: 1s, 2s, 4s
+        const delay = Math.pow(2, attempt - 1) * 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  };
+
   return {
     user,
     session,
@@ -94,6 +124,7 @@ export const useAuth = () => {
     error,
     isAuthenticated: !!user,
     signOut,
-    clearAuthError
+    clearAuthError,
+    retryWithBackoff
   };
 };
