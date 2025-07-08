@@ -1,5 +1,32 @@
 
-import type { Receipt, ProcessedFile } from '@/types';
+import type { Receipt, ProcessedFile, FastApiDocument } from '@/types';
+
+// Transform FastAPI document to Receipt format
+export const transformFastApiDocToReceipt = (doc: FastApiDocument, index: number): Receipt => {
+  const numericId = doc.id ? parseInt(doc.id.replace(/-/g, '').substring(0, 8), 16) : (Date.now() + index);
+  
+  const priceValue = doc.tags?.price;
+  let formattedPrice = '0 kr';
+  
+  if (priceValue !== undefined && priceValue !== null) {
+    if (typeof priceValue === 'number') {
+      formattedPrice = `${priceValue} kr`;
+    } else {
+      const priceStr = String(priceValue);
+      formattedPrice = priceStr.toLowerCase().includes('kr') ? priceStr : `${priceStr} kr`;
+    }
+  }
+  
+  return {
+    id: numericId,
+    imageUrl: doc.ingested_path || '/placeholder.svg',
+    vendor: doc.tags?.vendor || 'Unknown Vendor',
+    price: formattedPrice,
+    productName: doc.tags?.product_or_service || doc.original_filename || 'Unknown Product',
+    verificationLetter: doc.status || 'N/A',
+    fileId: doc.id
+  };
+};
 
 export const transformFileToReceipt = (file: any, index: number): Receipt => {
   return {
@@ -23,25 +50,4 @@ export const transformProcessedFileToReceipt = (processedFile: ProcessedFile, in
     verificationLetter: `V${String(Date.now()).slice(-3)}${index.toString().padStart(2, '0')}`,
     fileId: processedFile.id
   };
-};
-
-export const createDemoReceipts = (startId: number): Receipt[] => {
-  return [
-    {
-      id: startId + 1,
-      imageUrl: "/placeholder.svg",
-      vendor: "Coop Konsum",
-      price: "1 562 kr",
-      productName: "Lunch & representation",
-      verificationLetter: "V007"
-    },
-    {
-      id: startId + 2,
-      imageUrl: "/placeholder.svg",
-      vendor: "SJ AB",
-      price: "1 895 kr",
-      productName: "Tågresor företag",
-      verificationLetter: "V008"
-    }
-  ];
 };
