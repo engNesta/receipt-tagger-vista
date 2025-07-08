@@ -17,13 +17,15 @@ const UserProfile: React.FC = () => {
     try {
       await signOut();
       toast({
-        title: getText('signedOut'),
-        description: getText('signOutSuccess'),
+        title: getText('signedOut') || 'Signed out',
+        description: getText('signOutSuccess') || 'You have been successfully signed out',
       });
+      // The AuthGuard will automatically redirect to login form when user becomes null
     } catch (error) {
+      console.error('Sign out error:', error);
       toast({
         title: "Error",
-        description: getText('signOutError'),
+        description: getText('signOutError') || 'Failed to sign out. Please try again.',
         variant: "destructive",
       });
     }

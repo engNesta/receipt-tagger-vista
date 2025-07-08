@@ -48,6 +48,9 @@ const Header: React.FC<HeaderProps> = ({ showProfileModal, setShowProfileModal }
                   <DialogTitle>{getText('profile')}</DialogTitle>
                 </DialogHeader>
                 <UserProfile />
+                <div className="mt-4 text-center text-sm text-gray-500">
+                  {getText('signOutNote') || 'Signing out will redirect you to the login page'}
+                </div>
               </DialogContent>
             </Dialog>
           </div>
