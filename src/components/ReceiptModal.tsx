@@ -38,7 +38,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
     setSummaryText('');
     
     try {
-      const response = await fastApiService.getSummary(receipt.id.toString(), user.id);
+      const response = await fastApiService.getSummary(receipt.fileId, user.id);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
