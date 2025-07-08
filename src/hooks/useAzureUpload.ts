@@ -63,11 +63,6 @@ export const useAzureUpload = () => {
 
       console.log('Upload successful:', data);
 
-      toast({
-        title: "Upload Successful",
-        description: data.message || `${file.name} has been uploaded successfully.`,
-      });
-
       return {
         success: true,
         file: data.file,
