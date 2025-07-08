@@ -104,12 +104,13 @@ export const fastApiService = {
     return result;
   },
 
-  async getSummary(documentId: string): Promise<Response> {
-    const response = await fetch(`${FASTAPI_BASE_URL}/summary/${documentId}`, {
+  async getSummary(jobId: string, userId: string): Promise<Response> {
+    const response = await fetch(`${FASTAPI_BASE_URL}/summary/${jobId}?user_id=${encodeURIComponent(userId)}`, {
       method: 'GET',
       headers: { 
         'Accept': 'text/event-stream',
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'X-User-ID': userId
       }
     });
 

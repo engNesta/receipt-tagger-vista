@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Loader2, RefreshCw } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/hooks/useAuth';
 import { fastApiService } from '@/services/fastApiService';
 import type { Receipt } from '@/types';
 
@@ -16,6 +17,7 @@ interface ReceiptModalProps {
 
 const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpen, onClose }) => {
   const { getText } = useLanguage();
+  const { user } = useAuth();
   const [summaryText, setSummaryText] = useState('');
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [summaryError, setSummaryError] = useState<string | null>(null);
@@ -23,7 +25,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
 
   // Streaming summary functionality
   const startSummaryStream = async () => {
-    if (!receipt) return;
+    if (!receipt || !user) return;
     
     // Cancel any existing stream
     if (abortControllerRef.current) {
@@ -36,7 +38,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
     setSummaryText('');
     
     try {
-      const response = await fastApiService.getSummary(receipt.id.toString());
+      const response = await fastApiService.getSummary(receipt.id.toString(), user.id);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
