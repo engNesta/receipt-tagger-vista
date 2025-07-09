@@ -54,6 +54,16 @@ export const fastApiService = {
   },
 
   async uploadFile(file: File, userDirectory: string): Promise<FastApiUploadResponse> {
+    // Validate file type and size before upload
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error('Invalid file type. Only JPEG, PNG, GIF, and PDF files are allowed.');
+    }
+    
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      throw new Error('File size too large. Maximum size is 10MB.');
+    }
+
     const formData = new FormData();
     formData.append('files', file);
     formData.append('user_id', userDirectory);
@@ -62,12 +72,12 @@ export const fastApiService = {
     const response = await fetch(`${FASTAPI_BASE_URL}/upload/`, {
       method: 'POST',
       body: formData,
-      headers: { 'X-User-ID': userDirectory }
+      headers: { 'X-User-ID': userDirectory },
+      signal: AbortSignal.timeout(30000) // 30 second timeout
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Upload failed with status ${response.status}. Please try again.`);
     }
 
     return response.json();

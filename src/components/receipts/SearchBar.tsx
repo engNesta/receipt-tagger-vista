@@ -3,6 +3,7 @@ import React from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { sanitizeSearchQuery } from '@/utils/sanitizer';
 
 interface SearchBarProps {
   searchTerm: string;
@@ -18,8 +19,12 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, onSearchChange }) => 
       <Input
         placeholder={getText('searchPlaceholder')}
         value={searchTerm}
-        onChange={(e) => onSearchChange(e.target.value)}
+        onChange={(e) => {
+          const sanitizedValue = sanitizeSearchQuery(e.target.value);
+          onSearchChange(sanitizedValue);
+        }}
         className="pl-10 py-3 text-lg border-2 focus:border-blue-500 transition-colors"
+        maxLength={100}
       />
     </div>
   );
