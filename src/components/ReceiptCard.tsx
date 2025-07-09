@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import OptimizedImage from '@/components/ui/optimized-image';
+import FileViewer from '@/components/ui/file-viewer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { Receipt } from '@/types';
 
@@ -40,7 +40,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = React.memo(({ receipt, selectedT
     >
       <CardContent className="p-0">
         {/* Document Image */}
-        <OptimizedImage
+        <FileViewer
           src={receipt.imageUrl}
           alt={`Document ${receipt.id}`}
           className="group-hover:scale-105 transition-transform duration-300"

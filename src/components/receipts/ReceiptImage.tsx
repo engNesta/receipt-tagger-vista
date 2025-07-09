@@ -1,5 +1,5 @@
 import React from 'react';
-import OptimizedImage from '@/components/ui/optimized-image';
+import FileViewer from '@/components/ui/file-viewer';
 import type { Receipt } from '@/types';
 
 interface ReceiptImageProps {
@@ -9,7 +9,7 @@ interface ReceiptImageProps {
 const ReceiptImage: React.FC<ReceiptImageProps> = ({ receipt }) => {
   return (
     <div className="aspect-[4/5] bg-gray-100 flex items-center justify-center rounded-lg overflow-hidden">
-      <OptimizedImage
+      <FileViewer
         src={receipt.imageUrl}
         alt={`Receipt ${receipt.id}`}
         className="group-hover:scale-105 transition-transform duration-300"
