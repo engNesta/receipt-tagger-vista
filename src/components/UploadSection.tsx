@@ -6,6 +6,7 @@ import PendingFilesList from './upload/PendingFilesList';
 import ProcessingProgress from './upload/ProcessingProgress';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useFileProcessor } from '@/hooks/useFileProcessor';
+import type { UploadCallbacks } from '@/types';
 
 interface UploadSectionProps {
   onUploadComplete?: (processedFiles?: any[]) => void;

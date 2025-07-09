@@ -1,6 +1,6 @@
 import React from 'react';
 import UploadArea from '../UploadArea';
-import { PipelineStats } from '@/types';
+import type { PipelineStats } from '@/types';
 
 interface FileDropAreaProps {
   isDragOver: boolean;
@@ -22,19 +22,17 @@ const FileDropArea: React.FC<FileDropAreaProps> = ({
   onDragOver,
   onDragLeave,
   onFileInputChange
-}) => {
-  return (
-    <UploadArea
-      isDragOver={isDragOver}
-      isUploading={isProcessing}
-      isCompact={isCompact}
-      stats={stats}
-      onDrop={onDrop}
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onFileInputChange={onFileInputChange}
-    />
-  );
-};
+}) => (
+  <UploadArea
+    isDragOver={isDragOver}
+    isUploading={isProcessing}
+    isCompact={isCompact}
+    stats={stats}
+    onDrop={onDrop}
+    onDragOver={onDragOver}
+    onDragLeave={onDragLeave}
+    onFileInputChange={onFileInputChange}
+  />
+);
 
 export default FileDropArea;

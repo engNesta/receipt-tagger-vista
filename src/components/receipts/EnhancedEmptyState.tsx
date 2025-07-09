@@ -4,7 +4,7 @@ import { FileText, Upload, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useConsent } from '@/hooks/useConsent';
-import ConsentDialog from '../ConsentDialog';
+import GDPRConsentDialog from '../GDPRConsentDialog';
 
 interface EnhancedEmptyStateProps {
   onUploadClick: () => void;
@@ -117,7 +117,7 @@ const EnhancedEmptyState: React.FC<EnhancedEmptyStateProps> = ({
         </div>
       </div>
 
-      <ConsentDialog
+      <GDPRConsentDialog
         isOpen={showConsentDialog}
         onConsent={handleConsentGiven}
         onDecline={handleConsentDeclined}
