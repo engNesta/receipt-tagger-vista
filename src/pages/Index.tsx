@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Upload, FileText } from 'lucide-react';
+import { Upload, FileText, Users } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -13,26 +14,33 @@ const Index = () => {
           </div>
           
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Receipt Processing System
+            Accountant Portal
           </h1>
           
           <p className="text-xl text-gray-600 mb-8">
-            Upload and process your receipts with AI-powered Swedish accounting integration
+            Manage your clients and process receipts with AI-powered Swedish accounting integration
           </p>
         </div>
 
-        <div className="space-y-4">
-          <Link to="/rawdrop">
-            <Button size="lg" className="w-full sm:w-auto min-w-[200px] flex items-center justify-center gap-3 px-8 py-4 text-base font-medium">
-              <Upload size={20} />
-              Start Processing Receipts
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Link to="/clients">
+            <Button size="lg" className="w-full flex items-center justify-center gap-3 px-8 py-4 text-base font-medium bg-blue-600 hover:bg-blue-700">
+              <Users size={20} />
+              Client Management
             </Button>
           </Link>
           
-          <p className="text-sm text-gray-500">
-            Supports JPG, PNG, PDF formats • Optimized for Swedish receipts
-          </p>
+          <Link to="/rawdrop">
+            <Button size="lg" variant="outline" className="w-full flex items-center justify-center gap-3 px-8 py-4 text-base font-medium">
+              <Upload size={20} />
+              Process Receipts
+            </Button>
+          </Link>
         </div>
+        
+        <p className="text-sm text-gray-500 mt-6">
+          Complete client lifecycle management • Receipt processing • Swedish accounting integration
+        </p>
       </div>
     </div>
   );
