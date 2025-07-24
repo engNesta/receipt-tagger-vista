@@ -14,6 +14,16 @@ export const APP_CONFIG = {
   UI: {
     VERIFICATION_LETTER_LENGTH: 3,
     MAX_FILENAME_LENGTH: 50,
+  },
+  ROUTES: {
+    HOME: '/',
+    RAWDROP: '/rawdrop',
+    CLIENTS: '/clients',
+    CLIENTS_ADD: '/clients/add',
+    CLIENTS_MANAGE: '/clients/manage',
+    CLIENTS_VIEW: '/clients/:id/view',
+    MATCHING_REPORT: '/matching-report',
+    SIE_GENERATED: '/sie-generated',
   }
 } as const;
 
@@ -24,4 +34,27 @@ export const ERROR_MESSAGES = {
   FILE_TOO_LARGE: 'File is too large. Please choose a smaller file.',
   UNSUPPORTED_FORMAT: 'Unsupported file format.',
   NETWORK_ERROR: 'Network error. Please check your connection.',
+  CLIENT_NOT_FOUND: 'Client not found.',
+  GENERAL_ERROR: 'An error occurred. Please try again.',
+} as const;
+
+export const SUCCESS_MESSAGES = {
+  CLIENT_CREATED: 'Client created successfully!',
+  CLIENT_DELETED: 'Client deleted successfully!',
+  UPLOAD_COMPLETE: 'Files uploaded successfully!',
+  SIE_GENERATED: 'SIE file generated successfully!',
+} as const;
+
+export const DOCUMENT_CATEGORIES = {
+  RECEIPTS: 'receipts',
+  INVOICES_PAID: 'invoices_paid',
+  INVOICES_SENT: 'invoices_sent',
+  BANK_STATEMENTS: 'bank_statements',
+} as const;
+
+export const CATEGORY_LABELS = {
+  [DOCUMENT_CATEGORIES.RECEIPTS]: 'Receipts',
+  [DOCUMENT_CATEGORIES.INVOICES_PAID]: 'Invoices Paid',
+  [DOCUMENT_CATEGORIES.INVOICES_SENT]: 'Invoices Sent',
+  [DOCUMENT_CATEGORIES.BANK_STATEMENTS]: 'Bank Statements',
 } as const;

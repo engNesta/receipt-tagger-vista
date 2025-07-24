@@ -1,6 +1,7 @@
 
 // Centralized type definitions for the entire application
 
+// Base entities
 export interface Receipt {
   id: number;
   imageUrl: string;
@@ -32,6 +33,7 @@ export interface FileWithStatus {
   azureUrl?: string;
 }
 
+// Statistics and metrics
 export interface PipelineStats {
   totalProcessed: number;
   successCount: number;
@@ -39,10 +41,12 @@ export interface PipelineStats {
   lastProcessed: Date | null;
 }
 
+// Callback types
 export interface UploadCallbacks {
   onUploadComplete?: (processedFiles?: ProcessedFile[]) => void;
 }
 
+// FastAPI related types
 export interface FastApiDocument {
   id: string;
   user_id: string;
@@ -79,3 +83,6 @@ export interface FastApiDocumentsResponse {
   documents?: FastApiDocument[];
   detail?: string;
 }
+
+// Re-export mock data types for consistency
+export type { MockClient, MockDocument, MockMatchingRecord } from '@/data/mockData';

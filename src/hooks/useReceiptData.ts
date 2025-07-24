@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { mockReceipts } from '@/data/mockData';
 import type { Receipt, ProcessedFile } from '@/types';
 import { transformFileToReceipt, transformProcessedFileToReceipt } from '@/utils/receiptTransformers';
 
@@ -43,28 +43,9 @@ export const useReceiptData = () => {
 
   const loadReceiptsFromDatabase = async () => {
     try {
-      console.log('Loading receipts from database (no auth)');
-      // For now, just use dummy data
-      const dummyReceipts = [
-        {
-          id: 1,
-          imageUrl: "/placeholder.svg",
-          vendor: "ICA Supermarket",
-          price: "234 kr",
-          productName: "Kontorsmaterial",
-          verificationLetter: "V001"
-        },
-        {
-          id: 2,
-          imageUrl: "/placeholder.svg",
-          vendor: "Staples",
-          price: "1 299 kr",
-          productName: "Datorutrustning",
-          verificationLetter: "V002"
-        }
-      ];
-      setReceipts(dummyReceipts);
-      console.log('Loaded dummy receipts:', dummyReceipts.length);
+      console.log('Loading receipts from mock data');
+      setReceipts(mockReceipts);
+      console.log('Loaded mock receipts:', mockReceipts.length);
     } catch (error) {
       console.error('Error loading receipts:', error);
     }

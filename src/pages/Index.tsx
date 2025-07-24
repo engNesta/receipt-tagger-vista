@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Upload, FileText, Users, BarChart3 } from 'lucide-react';
+import { APP_CONFIG } from '@/constants';
 
 const Index = () => {
   return (
@@ -23,21 +24,21 @@ const Index = () => {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Link to="/clients">
+          <Link to={APP_CONFIG.ROUTES.CLIENTS}>
             <Button size="lg" className="w-full flex items-center justify-center gap-3 px-8 py-4 text-base font-medium bg-blue-600 hover:bg-blue-700">
               <Users size={20} />
               Client Management
             </Button>
           </Link>
           
-          <Link to="/rawdrop">
+          <Link to={APP_CONFIG.ROUTES.RAWDROP}>
             <Button size="lg" variant="outline" className="w-full flex items-center justify-center gap-3 px-8 py-4 text-base font-medium">
               <Upload size={20} />
               Process Receipts
             </Button>
           </Link>
           
-          <Link to="/matching-report">
+          <Link to={APP_CONFIG.ROUTES.MATCHING_REPORT}>
             <Button size="lg" variant="outline" className="w-full flex items-center justify-center gap-3 px-8 py-4 text-base font-medium">
               <BarChart3 size={20} />
               Matching Report
