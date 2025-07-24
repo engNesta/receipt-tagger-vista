@@ -1,17 +1,14 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 import type { Receipt, ProcessedFile } from '@/types';
 import { transformFileToReceipt, transformProcessedFileToReceipt } from '@/utils/receiptTransformers';
 
 export const useReceiptData = () => {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
-  const { user } = useAuth();
 
   const createReceiptsFromFiles = async (processedFiles: ProcessedFile[]) => {
     console.log('Creating receipts from processed files:', processedFiles.length);
-    console.log('Current user:', user ? 'authenticated' : 'not authenticated');
 
     const newReceipts = processedFiles
       .filter(pf => pf.azureUrl)
@@ -45,41 +42,37 @@ export const useReceiptData = () => {
   };
 
   const loadReceiptsFromDatabase = async () => {
-    if (!user) {
-      console.log('No user authenticated, skipping database load');
-      return;
-    }
-
     try {
-      console.log('Loading receipts from database for user:', user.id);
-      
-      const { data, error } = await supabase
-        .from('files')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('upload_status', 'completed')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error loading receipts from database:', error);
-        return;
-      }
-
-      console.log('Raw database data:', data);
-      const dbReceipts = data?.map((file, index) => transformFileToReceipt(file, index)) || [];
-      console.log('Transformed receipts:', dbReceipts);
-      setReceipts(dbReceipts);
-      console.log('Loaded receipts from database:', dbReceipts.length);
+      console.log('Loading receipts from database (no auth)');
+      // For now, just use dummy data
+      const dummyReceipts = [
+        {
+          id: 1,
+          imageUrl: "/placeholder.svg",
+          vendor: "ICA Supermarket",
+          price: "234 kr",
+          productName: "Kontorsmaterial",
+          verificationLetter: "V001"
+        },
+        {
+          id: 2,
+          imageUrl: "/placeholder.svg",
+          vendor: "Staples",
+          price: "1 299 kr",
+          productName: "Datorutrustning",
+          verificationLetter: "V002"
+        }
+      ];
+      setReceipts(dummyReceipts);
+      console.log('Loaded dummy receipts:', dummyReceipts.length);
     } catch (error) {
       console.error('Error loading receipts:', error);
     }
   };
 
   useEffect(() => {
-    if (user) {
-      loadReceiptsFromDatabase();
-    }
-  }, [user]);
+    loadReceiptsFromDatabase();
+  }, []);
 
   return {
     receipts,

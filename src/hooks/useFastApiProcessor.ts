@@ -1,6 +1,5 @@
 
 import { useState, useCallback } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { fastApiService, type FastApiDocument, type FastApiUploadResponse } from '@/services/fastApiService';
 import { useToast } from '@/hooks/use-toast';
 import { logger } from '@/utils/logger';
@@ -16,13 +15,13 @@ export const useFastApiProcessor = () => {
     currentFile: string;
   } | null>(null);
   
-  const { user } = useAuth();
   const { toast } = useToast();
 
   const processFiles = useCallback(async (files: File[]) => {
-    if (!user || files.length === 0) return;
+    if (files.length === 0) return;
 
-    const userDirectory = user.id;
+    // Use a dummy user directory for now
+    const userDirectory = 'demo-user';
     logger.info('Processing files', { count: files.length, user: userDirectory });
     
     setIsProcessing(true);
@@ -84,16 +83,11 @@ export const useFastApiProcessor = () => {
       setIsProcessing(false);
       setProcessingProgress(null);
     }
-  }, [user, toast]);
+  }, [toast]);
 
   const loadDocuments = useCallback(async () => {
-    if (!user) {
-      setProcessedDocuments([]);
-      setError(null);
-      return;
-    }
-
-    const userDirectory = user.id;
+    // Use a dummy user directory for now
+    const userDirectory = 'demo-user';
     setIsLoading(true);
     setError(null);
     
@@ -122,7 +116,7 @@ export const useFastApiProcessor = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, []);
 
   return {
     isProcessing,
