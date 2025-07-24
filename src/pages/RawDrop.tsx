@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/layout/Header';
 import UploadHero from '@/features/upload/UploadHero';
 import ReceiptsSection from '@/features/receipts/ReceiptsSection';
@@ -13,16 +12,14 @@ import { transformFastApiDocToReceipt } from '@/utils/receiptTransformers';
 import { logger } from '@/utils/logger';
 import type { Receipt } from '@/types';
 
-const Index = () => {
-  const { user } = useAuth();
+const RawDrop = () => {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
+  const dummyUserId = 'dummy-user-id'; // Use dummy user ID since auth is removed
   
   const {
     selectedReceipt,
     isModalOpen,
-    showProfileModal,
     showLoadMoreModal,
-    setShowProfileModal,
     setShowLoadMoreModal,
     handleReceiptClick,
     closeReceiptModal,
@@ -57,14 +54,10 @@ const Index = () => {
     }
   }, [processedDocuments]);
 
-  // Load documents when user changes
+  // Load documents when component mounts
   useEffect(() => {
-    if (user) {
-      loadDocuments();
-    } else {
-      setReceipts([]);
-    }
-  }, [user, loadDocuments]);
+    loadDocuments();
+  }, [loadDocuments]);
 
   const handleUploadComplete = async () => {
     clearError();
@@ -73,10 +66,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-      <Header 
-        showProfileModal={showProfileModal}
-        setShowProfileModal={setShowProfileModal}
-      />
+      <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mt-8">
@@ -116,4 +106,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default RawDrop;

@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useAuth } from '@/hooks/useAuth';
 import { useSummaryStream } from '@/hooks/useSummaryStream';
 import ReceiptImage from '@/components/receipts/ReceiptImage';
 import ReceiptSummary from '@/components/receipts/ReceiptSummary';
@@ -16,7 +15,6 @@ interface ReceiptModalProps {
 }
 
 const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpen, onClose }) => {
-  const { user } = useAuth();
   const {
     summaryText,
     isLoadingSummary,
@@ -25,7 +23,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, selectedTag, isOpe
     startSummaryStream
   } = useSummaryStream({
     receipt,
-    userId: user?.id,
+    userId: 'dummy-user-id', // Use dummy user ID since auth is removed
     isOpen
   });
 

@@ -1,18 +1,19 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import { fastApiService } from '@/services/fastApiService';
-import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const ApiDebugPanel: React.FC = () => {
   const [apiStatus, setApiStatus] = useState<'unknown' | 'checking' | 'ok' | 'error'>('unknown');
   const [apiMessage, setApiMessage] = useState<string>('');
   const [documentsStatus, setDocumentsStatus] = useState<string>('Not checked');
-  const { user } = useAuth();
   const { getText } = useLanguage();
+
+  const dummyUserId = 'dummy-user-id'; // Use dummy user ID since auth is removed
 
   const checkApiHealth = async () => {
     setApiStatus('checking');
@@ -27,13 +28,8 @@ const ApiDebugPanel: React.FC = () => {
   };
 
   const checkDocuments = async () => {
-    if (!user) {
-      setDocumentsStatus(getText('notLoggedIn'));
-      return;
-    }
-
     try {
-      const result = await fastApiService.getDocuments(user.id);
+      const result = await fastApiService.getDocuments(dummyUserId);
       setDocumentsStatus(`${result.status}: ${result.documents?.length || 0} documents found`);
     } catch (error) {
       setDocumentsStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -77,13 +73,13 @@ const ApiDebugPanel: React.FC = () => {
           <Button size="sm" onClick={checkApiHealth} disabled={apiStatus === 'checking'}>
             {getText('testApi')}
           </Button>
-          <Button size="sm" variant="outline" onClick={checkDocuments} disabled={!user}>
+          <Button size="sm" variant="outline" onClick={checkDocuments}>
             {getText('checkDocs')}
           </Button>
         </div>
         
         <div className="text-xs">
-          <p><strong>{getText('user')}:</strong> {user?.id ? `${user.id.substring(0, 8)}...` : getText('notLoggedIn')}</p>
+          <p><strong>{getText('user')}:</strong> {dummyUserId.substring(0, 8)}...</p>
           <p><strong>{getText('documents')}:</strong> {documentsStatus}</p>
         </div>
       </CardContent>

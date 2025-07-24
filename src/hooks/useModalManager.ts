@@ -1,10 +1,10 @@
+
 import { useState } from 'react';
 import type { Receipt } from '@/types';
 
 export const useModalManager = () => {
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
   const [showLoadMoreModal, setShowLoadMoreModal] = useState(false);
 
   const handleReceiptClick = (receipt: Receipt) => {
@@ -18,9 +18,7 @@ export const useModalManager = () => {
   return {
     selectedReceipt,
     isModalOpen,
-    showProfileModal,
     showLoadMoreModal,
-    setShowProfileModal,
     setShowLoadMoreModal,
     handleReceiptClick,
     closeReceiptModal,
