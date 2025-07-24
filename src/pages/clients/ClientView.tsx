@@ -1,17 +1,39 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Building2, Mail, Hash } from 'lucide-react';
+import { ArrowLeft, Building2, Mail, Hash, FolderOpen, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useClients } from '@/contexts/ClientContext';
+import { DocumentFolderStructure } from '@/components/client/DocumentFolderStructure';
+import { DocumentPreviewModal } from '@/components/client/DocumentPreviewModal';
+
+export interface Document {
+  id: string;
+  name: string;
+  type: 'pdf' | 'image' | 'excel';
+  url: string;
+  uploadedAt: Date;
+}
 
 const ClientView = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { clients } = useClients();
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   
   const client = clients.find(c => c.id === id);
+
+  const handleDocumentClick = (document: Document) => {
+    setSelectedDocument(document);
+    setIsPreviewOpen(true);
+  };
+
+  const closePreview = () => {
+    setIsPreviewOpen(false);
+    setSelectedDocument(null);
+  };
 
   if (!client) {
     return (
@@ -28,7 +50,7 @@ const ClientView = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
           <Button 
             variant="ghost" 
@@ -45,48 +67,71 @@ const ClientView = () => {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{client.companyName}</h1>
-              <p className="text-gray-600 mt-1">Client Details</p>
+              <p className="text-gray-600 mt-1">Document Folder View</p>
             </div>
           </div>
         </div>
 
-        <div className="grid gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Company Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <Building2 className="w-5 h-5 text-gray-500" />
-                <div>
-                  <p className="text-sm text-gray-500">Company Name</p>
-                  <p className="font-medium">{client.companyName}</p>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Client Info Sidebar */}
+          <div className="lg:col-span-1">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Client Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <Building2 className="w-5 h-5 text-gray-500" />
+                  <div>
+                    <p className="text-sm text-gray-500">Company</p>
+                    <p className="font-medium">{client.companyName}</p>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <Hash className="w-5 h-5 text-gray-500" />
-                <div>
-                  <p className="text-sm text-gray-500">Registration Number</p>
-                  <p className="font-medium">{client.registrationNumber}</p>
+                
+                <div className="flex items-center space-x-3">
+                  <Hash className="w-5 h-5 text-gray-500" />
+                  <div>
+                    <p className="text-sm text-gray-500">Reg. Number</p>
+                    <p className="font-medium">{client.registrationNumber}</p>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <Mail className="w-5 h-5 text-gray-500" />
-                <div>
-                  <p className="text-sm text-gray-500">Email Address</p>
-                  <p className="font-medium">{client.email}</p>
+                
+                <div className="flex items-center space-x-3">
+                  <Mail className="w-5 h-5 text-gray-500" />
+                  <div>
+                    <p className="text-sm text-gray-500">Email</p>
+                    <p className="font-medium">{client.email}</p>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="pt-4 border-t">
-                <p className="text-sm text-gray-500">Created</p>
-                <p className="font-medium">{client.createdAt.toLocaleDateString()}</p>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Document Folder Structure */}
+          <div className="lg:col-span-3">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <FolderOpen className="w-5 h-5" />
+                  <span>Document Folders - 2024</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DocumentFolderStructure 
+                  clientId={id!}
+                  onDocumentClick={handleDocumentClick}
+                />
+              </CardContent>
+            </Card>
+          </div>
         </div>
+
+        {/* Document Preview Modal */}
+        <DocumentPreviewModal
+          document={selectedDocument}
+          isOpen={isPreviewOpen}
+          onClose={closePreview}
+        />
       </div>
     </div>
   );
