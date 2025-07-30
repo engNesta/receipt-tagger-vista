@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { Trans } from '@/components/Trans';
 
 interface UnifiedControlsProps {
   searchTerm: string;
@@ -30,21 +30,20 @@ const UnifiedControls: React.FC<UnifiedControlsProps> = ({
   onTagClick,
   onSortClick
 }) => {
-  const { getText } = useLanguage();
 
   const filterOptions = [
-    { key: 'vendor', label: getText('vendor') },
-    { key: 'price', label: getText('price') },
-    { key: 'productName', label: getText('productName') },
-    { key: 'verificationLetter', label: getText('verificationLetter') }
+    { key: 'vendor', label: 'Vendor' },
+    { key: 'price', label: 'Amount' },
+    { key: 'productName', label: 'Product/Service' },
+    { key: 'verificationLetter', label: 'Verification Number' }
   ];
 
   const sortOptions = [
-    { key: 'recent', label: getText('mostRecent') },
-    { key: 'price-high', label: getText('priceHighToLow') },
-    { key: 'price-low', label: getText('priceLowToHigh') },
-    { key: 'vendor-az', label: getText('vendorAZ') },
-    { key: 'vendor-za', label: getText('vendorZA') }
+    { key: 'recent', label: 'Most Recent' },
+    { key: 'price-high', label: 'Price: High to Low' },
+    { key: 'price-low', label: 'Price: Low to High' },
+    { key: 'vendor-az', label: 'Vendor: A-Z' },
+    { key: 'vendor-za', label: 'Vendor: Z-A' }
   ];
 
   const handleSortSelection = (sortKey: string) => {
@@ -71,21 +70,21 @@ const UnifiedControls: React.FC<UnifiedControlsProps> = ({
   };
 
   const getSelectedFilterLabel = () => {
-    if (!selectedTag) return getText('allReceipts');
+    if (!selectedTag) return 'All Receipts';
     const option = filterOptions.find(opt => opt.key === selectedTag);
-    return option?.label || getText('allReceipts');
+    return option?.label || 'All Receipts';
   };
 
   const getCurrentSortLabel = () => {
-    if (!selectedTag || !sortOrder) return getText('mostRecent');
+    if (!selectedTag || !sortOrder) return 'Most Recent';
     
     if (selectedTag === 'price') {
-      return sortOrder === 'desc' ? getText('priceHighToLow') : getText('priceLowToHigh');
+      return sortOrder === 'desc' ? 'Price: High to Low' : 'Price: Low to High';
     }
     if (selectedTag === 'vendor') {
-      return sortOrder === 'desc' ? getText('vendorZA') : getText('vendorAZ');
+      return sortOrder === 'desc' ? 'Vendor: Z-A' : 'Vendor: A-Z';
     }
-    return getText('mostRecent');
+    return 'Most Recent';
   };
 
   return (
@@ -95,7 +94,7 @@ const UnifiedControls: React.FC<UnifiedControlsProps> = ({
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
           <Input
-            placeholder={getText('searchPlaceholder')}
+            placeholder="Search receipts by vendor, product, or amount..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10 h-11 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
@@ -115,7 +114,7 @@ const UnifiedControls: React.FC<UnifiedControlsProps> = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-white">
-              <DropdownMenuLabel>{getText('filterBy')}</DropdownMenuLabel>
+              <DropdownMenuLabel>Filter by</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {filterOptions.map((option) => (
                 <DropdownMenuItem
@@ -128,7 +127,7 @@ const UnifiedControls: React.FC<UnifiedControlsProps> = ({
               ))}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onTagClick('')}>
-                {getText('clearFilter')}
+                Clear Filter
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -144,7 +143,7 @@ const UnifiedControls: React.FC<UnifiedControlsProps> = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-white">
-              <DropdownMenuLabel>{getText('sortBy')}</DropdownMenuLabel>
+              <DropdownMenuLabel>Sort by</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {sortOptions.map((option) => (
                 <DropdownMenuItem

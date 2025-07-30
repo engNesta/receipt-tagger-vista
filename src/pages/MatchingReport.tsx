@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { mockMatchingRecords } from '@/data/mockData';
+import LanguageSelector from '@/components/LanguageSelector';
 
 const MatchingReport = () => {
   const navigate = useNavigate();
@@ -16,6 +17,11 @@ const MatchingReport = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Language Selector in top right */}
+      <div className="absolute top-6 right-6">
+        <LanguageSelector />
+      </div>
+      
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="mb-8">
           <Link to="/">

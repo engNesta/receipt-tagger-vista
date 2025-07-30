@@ -5,10 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Upload, FileText, Users, BarChart3 } from 'lucide-react';
 import { APP_CONFIG } from '@/constants';
 import { Trans } from '@/components/Trans';
+import LanguageSelector from '@/components/LanguageSelector';
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center">
+      {/* Language Selector in top right */}
+      <div className="absolute top-6 right-6">
+        <LanguageSelector />
+      </div>
+      
       <div className="max-w-3xl mx-auto text-center px-4">
         <div className="mb-8">
           <div className="bg-blue-50 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 shadow-sm">

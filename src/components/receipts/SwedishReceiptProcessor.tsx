@@ -10,7 +10,7 @@ import {
   validateSwedishReceiptData,
   SwedishReceiptData 
 } from '@/utils/swedishReceiptProcessor';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { Trans } from '@/components/Trans';
 
 interface SwedishReceiptProcessorProps {
   onDataExtracted?: (data: Partial<SwedishReceiptData>) => void;
@@ -19,7 +19,6 @@ interface SwedishReceiptProcessorProps {
 const SwedishReceiptProcessor: React.FC<SwedishReceiptProcessorProps> = ({ 
   onDataExtracted 
 }) => {
-  const { getText } = useLanguage();
   const [receiptText, setReceiptText] = useState('');
   const [extractedData, setExtractedData] = useState<Partial<SwedishReceiptData> | null>(null);
   const [validationResult, setValidationResult] = useState<{ isValid: boolean; errors: string[] } | null>(null);
@@ -62,28 +61,28 @@ Tack för ditt köp!`;
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            {getText('swedishReceiptProcessing')}
+            <Trans text="Swedish Receipt Processing" />
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2">
-              {getText('pasteReceiptText')}
+              <Trans text="Paste receipt text:" />
             </label>
             <Textarea
               value={receiptText}
               onChange={(e) => setReceiptText(e.target.value)}
-              placeholder={getText('pasteReceiptPlaceholder')}
+              placeholder="Paste text from your receipt here..."
               className="min-h-32"
             />
           </div>
           
           <div className="flex gap-2">
             <Button onClick={handleProcess} disabled={!receiptText.trim()}>
-              {getText('interpretReceipt')}
+              <Trans text="Interpret Receipt" />
             </Button>
             <Button onClick={handleLoadSample} variant="outline">
-              {getText('loadExample')}
+              <Trans text="Load Example" />
             </Button>
           </div>
         </CardContent>
@@ -98,7 +97,7 @@ Tack för ditt köp!`;
               ) : (
                 <XCircle className="h-5 w-5 text-red-600" />
               )}
-              {getText('extractedData')}
+              <Trans text="Extracted Data" />
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
