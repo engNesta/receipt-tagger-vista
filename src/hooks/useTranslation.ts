@@ -7,7 +7,9 @@ interface TranslationCache {
 }
 
 const CACHE_KEY = 'lingva_translations';
-const LINGVA_API_BASE = 'https://lingva.ml/api/v1';
+// Use a CORS proxy to bypass CSP restrictions
+const LINGVA_API_BASE = 'https://api.allorigins.win/get?url=';
+const LINGVA_ENDPOINT = 'https://lingva.ml/api/v1';
 
 export const useTranslation = () => {
   const [cache, setCache] = useState<TranslationCache>(() => {
@@ -38,16 +40,22 @@ export const useTranslation = () => {
 
     try {
       const encodedText = encodeURIComponent(text);
-      const response = await fetch(
-        `${LINGVA_API_BASE}/${sourceLang}/${targetLang}/${encodedText}`
-      );
+      const targetUrl = `${LINGVA_ENDPOINT}/${sourceLang}/${targetLang}/${encodedText}`;
+      const proxyUrl = `${LINGVA_API_BASE}${encodeURIComponent(targetUrl)}`;
+      
+      console.log('Making translation request via proxy:', proxyUrl);
+      
+      const response = await fetch(proxyUrl);
 
       if (!response.ok) {
         throw new Error(`Translation API error: ${response.status}`);
       }
 
-      const data = await response.json();
+      const proxyData = await response.json();
+      const data = JSON.parse(proxyData.contents);
       const translation = data.translation;
+
+      console.log('Translation successful:', translation);
 
       // Update cache
       setCache(prev => ({
