@@ -2,7 +2,7 @@
 import React from 'react';
 import { FileText, DollarSign, Package, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { Trans } from '@/components/Trans';
 
 interface TagFiltersProps {
   selectedTag: string | null;
@@ -10,13 +10,11 @@ interface TagFiltersProps {
 }
 
 const TagFilters: React.FC<TagFiltersProps> = ({ selectedTag, onTagClick }) => {
-  const { getText } = useLanguage();
-
   const tags = [
-    { name: getText('vendor'), icon: FileText, key: 'vendor' },
-    { name: getText('price'), icon: DollarSign, key: 'price' },
-    { name: getText('productName'), icon: Package, key: 'productName' },
-    { name: getText('verificationLetter'), icon: CheckCircle, key: 'verificationLetter' }
+    { name: 'Vendor', icon: FileText, key: 'vendor' },
+    { name: 'Amount', icon: DollarSign, key: 'price' },
+    { name: 'Product/Service', icon: Package, key: 'productName' },
+    { name: 'Verification Number', icon: CheckCircle, key: 'verificationLetter' }
   ];
 
   return (

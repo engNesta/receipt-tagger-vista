@@ -20,10 +20,10 @@ const ReceiptsHeader: React.FC<ReceiptsHeaderProps> = ({ onLoadMoreClick }) => {
             </div>
             <div>
               <h1 className="text-xl font-semibold text-gray-900">
-                {getText('receipts')}
+                <Trans text="Receipts" />
               </h1>
               <p className="text-sm text-gray-500">
-                {getText('manageYourReceipts')}
+                <Trans text="Manage your receipts" />
               </p>
             </div>
           </div>
@@ -31,7 +31,7 @@ const ReceiptsHeader: React.FC<ReceiptsHeaderProps> = ({ onLoadMoreClick }) => {
           <div className="flex items-center space-x-3">
             <Button onClick={onLoadMoreClick} className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
-              {getText('addReceipts')}
+              <Trans text="Add Receipts" />
             </Button>
           </div>
         </div>

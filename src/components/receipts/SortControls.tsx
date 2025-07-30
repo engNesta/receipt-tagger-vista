@@ -23,7 +23,7 @@ const SortControls: React.FC<SortControlsProps> = ({ selectedTag, sortOrder, onS
         size="sm"
       >
         <ArrowUpAZ size={16} />
-        {getText('ascending')}
+        <Trans text="Ascending" />
       </Button>
       <Button
         variant={sortOrder === 'desc' ? "default" : "outline"}
@@ -32,7 +32,7 @@ const SortControls: React.FC<SortControlsProps> = ({ selectedTag, sortOrder, onS
         size="sm"
       >
         <ArrowDownZA size={16} />
-        {getText('descending')}
+        <Trans text="Descending" />
       </Button>
     </div>
   );
