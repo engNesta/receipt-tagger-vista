@@ -4,6 +4,7 @@ import { ChevronDown, ChevronRight, Calendar, FolderOpen, FileText, FileImage, F
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useClientDocuments } from '@/contexts/ClientDocumentContext';
 import type { Document } from '@/pages/clients/ClientView';
 
 interface DocumentFolderStructureProps {
@@ -23,27 +24,7 @@ const categories = [
   { id: 'bank_statements', name: 'Bank Statements', icon: FileSpreadsheet }
 ];
 
-// Generate dummy documents for each month/category
-const generateDummyDocuments = (month: string, category: string): Document[] => {
-  const documentTypes: Array<{ type: Document['type'], extension: string }> = [
-    { type: 'pdf', extension: 'pdf' },
-    { type: 'image', extension: 'jpg' },
-    { type: 'excel', extension: 'xlsx' }
-  ];
-
-  const count = Math.floor(Math.random() * 5) + 1; // 1-5 documents per category
-  
-  return Array.from({ length: count }, (_, index) => {
-    const docType = documentTypes[Math.floor(Math.random() * documentTypes.length)];
-    return {
-      id: `${month}-${category}-${index + 1}`,
-      name: `${category}_${month}_${index + 1}.${docType.extension}`,
-      type: docType.type,
-      url: `https://via.placeholder.com/400x600/f0f0f0/666666?text=${category}_${month}_${index + 1}`,
-      uploadedAt: new Date(2024, months.indexOf(month), Math.floor(Math.random() * 28) + 1)
-    };
-  });
-};
+// This function is no longer used - documents come from ClientDocumentContext
 
 const DocumentIcon: React.FC<{ type: Document['type'] }> = ({ type }) => {
   switch (type) {
@@ -64,6 +45,8 @@ export const DocumentFolderStructure: React.FC<DocumentFolderStructureProps> = (
 }) => {
   const [openMonths, setOpenMonths] = useState<string[]>([]);
   const [openCategories, setOpenCategories] = useState<string[]>([]);
+  
+  const { getDocumentsByMonthCategory } = useClientDocuments();
 
   const toggleMonth = (month: string) => {
     setOpenMonths(prev => 
@@ -86,7 +69,7 @@ export const DocumentFolderStructure: React.FC<DocumentFolderStructureProps> = (
       {months.map((month) => {
         const isMonthOpen = openMonths.includes(month);
         const monthDocuments = categories.reduce((acc, category) => {
-          return acc + generateDummyDocuments(month, category.id).length;
+          return acc + getDocumentsByMonthCategory(clientId, month, category.id).length;
         }, 0);
 
         return (
@@ -117,7 +100,7 @@ export const DocumentFolderStructure: React.FC<DocumentFolderStructureProps> = (
                   {categories.map((category) => {
                     const categoryKey = `${month}-${category.id}`;
                     const isCategoryOpen = openCategories.includes(categoryKey);
-                    const documents = generateDummyDocuments(month, category.id);
+                    const documents = getDocumentsByMonthCategory(clientId, month, category.id);
                     const CategoryIcon = category.icon;
 
                     return (

@@ -7,11 +7,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ClientProvider } from "@/contexts/ClientContext";
+import { ClientDocumentProvider } from "@/contexts/ClientDocumentContext";
 import { APP_CONFIG } from "@/constants";
 
 // Lazy-loaded components
 const Index = lazy(() => import("@/pages/Index"));
-const RawDrop = lazy(() => import("@/pages/RawDrop"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const ClientList = lazy(() => import("@/pages/clients/ClientList"));
 const AddClient = lazy(() => import("@/pages/clients/AddClient"));
@@ -47,13 +47,13 @@ const App = () => {
       <TooltipProvider>
         <LanguageProvider>
           <ClientProvider>
-            <Toaster />
-            <Sonner />
+            <ClientDocumentProvider>
+              <Toaster />
+              <Sonner />
             <BrowserRouter>
               <Suspense fallback={<LoadingFallback />}>
                 <Routes>
                   <Route path={APP_CONFIG.ROUTES.HOME} element={<Index />} />
-                  <Route path={APP_CONFIG.ROUTES.RAWDROP} element={<RawDrop />} />
                   <Route path={APP_CONFIG.ROUTES.CLIENTS} element={<ClientList />} />
                   <Route path={APP_CONFIG.ROUTES.CLIENTS_ADD} element={<AddClient />} />
                   <Route path="/clients/created" element={<ClientCreated />} />
@@ -66,6 +66,7 @@ const App = () => {
                 </Routes>
               </Suspense>
             </BrowserRouter>
+            </ClientDocumentProvider>
           </ClientProvider>
         </LanguageProvider>
       </TooltipProvider>

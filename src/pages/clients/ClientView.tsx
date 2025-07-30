@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Building2, Mail, Hash, FolderOpen, Calendar } from 'lucide-react';
+import { ArrowLeft, Building2, Mail, Hash, FolderOpen, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useClients } from '@/contexts/ClientContext';
 import { DocumentFolderStructure } from '@/components/client/DocumentFolderStructure';
 import { DocumentPreviewModal } from '@/components/client/DocumentPreviewModal';
+import { ClientDocumentUploadModal } from '@/components/client/ClientDocumentUploadModal';
 
 export interface Document {
   id: string;
@@ -22,6 +23,8 @@ const ClientView = () => {
   const { clients } = useClients();
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   
   const client = clients.find(c => c.id === id);
 
@@ -33,6 +36,10 @@ const ClientView = () => {
   const closePreview = () => {
     setIsPreviewOpen(false);
     setSelectedDocument(null);
+  };
+
+  const handleDocumentsUploaded = () => {
+    setRefreshKey(prev => prev + 1); // Force refresh of folder structure
   };
 
   if (!client) {
@@ -111,13 +118,20 @@ const ClientView = () => {
           <div className="lg:col-span-3">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <FolderOpen className="w-5 h-5" />
-                  <span>Document Folders - 2024</span>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <FolderOpen className="w-5 h-5" />
+                    <span>Document Folders - 2024</span>
+                  </div>
+                  <Button onClick={() => setIsUploadModalOpen(true)}>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload Documents
+                  </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <DocumentFolderStructure 
+                  key={refreshKey}
                   clientId={id!}
                   onDocumentClick={handleDocumentClick}
                 />
@@ -131,6 +145,14 @@ const ClientView = () => {
           document={selectedDocument}
           isOpen={isPreviewOpen}
           onClose={closePreview}
+        />
+
+        {/* Document Upload Modal */}
+        <ClientDocumentUploadModal
+          isOpen={isUploadModalOpen}
+          onClose={() => setIsUploadModalOpen(false)}
+          clientId={id!}
+          onDocumentsUploaded={handleDocumentsUploaded}
         />
       </div>
     </div>

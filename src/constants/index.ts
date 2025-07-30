@@ -17,7 +17,6 @@ export const APP_CONFIG = {
   },
   ROUTES: {
     HOME: '/',
-    RAWDROP: '/rawdrop',
     CLIENTS: '/clients',
     CLIENTS_ADD: '/clients/add',
     CLIENTS_MANAGE: '/clients/manage',
