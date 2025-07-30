@@ -1,6 +1,6 @@
 import React from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
 import type { Receipt } from '@/types';
+import { Trans } from '@/components/Trans';
 
 interface ReceiptDisplayInfoProps {
   receipt: Receipt;
@@ -8,20 +8,18 @@ interface ReceiptDisplayInfoProps {
 }
 
 const ReceiptDisplayInfo: React.FC<ReceiptDisplayInfoProps> = ({ receipt, selectedTag }) => {
-  const { getText } = useLanguage();
-
   const getDisplayValue = () => {
     if (!selectedTag) return null;
     
     switch (selectedTag) {
       case 'vendor':
-        return { label: getText('vendor'), value: receipt.vendor };
+        return { label: 'Vendor', value: receipt.vendor };
       case 'price':
-        return { label: getText('price'), value: receipt.price };
+        return { label: 'Amount', value: receipt.price };
       case 'productName':
-        return { label: getText('productName'), value: receipt.productName };
+        return { label: 'Product/Service', value: receipt.productName };
       case 'verificationLetter':
-        return { label: getText('verificationLetter'), value: receipt.verificationLetter };
+        return { label: 'Verification Number', value: receipt.verificationLetter };
       default:
         return null;
     }
@@ -32,7 +30,9 @@ const ReceiptDisplayInfo: React.FC<ReceiptDisplayInfoProps> = ({ receipt, select
   if (!displayInfo) {
     return (
       <div className="text-center py-4">
-        <p className="text-gray-400 text-sm italic">{getText('selectTagForInfo')}</p>
+        <p className="text-gray-400 text-sm italic">
+          <Trans text="Select a category to view specific information" />
+        </p>
       </div>
     );
   }

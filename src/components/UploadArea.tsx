@@ -2,7 +2,7 @@
 import React, { useRef } from 'react';
 import { Upload, Loader2, Cloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { Trans } from '@/components/Trans';
 
 interface UploadAreaProps {
   isDragOver: boolean;
@@ -30,7 +30,6 @@ const UploadArea: React.FC<UploadAreaProps> = ({
   onFileInputChange
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { getText } = useLanguage();
 
   const uploadAreaClass = isCompact
     ? "border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors"
@@ -45,10 +44,14 @@ const UploadArea: React.FC<UploadAreaProps> = ({
     >
       <Upload className={`mx-auto ${isCompact ? 'h-8 w-8' : 'h-12 w-12'} text-gray-400 mb-2`} />
       <h3 className={`${isCompact ? 'text-base' : 'text-lg'} font-semibold text-gray-900 mb-2`}>
-        {getText('uploadFiles')}
+        <Trans text="Upload Receipt Files" />
       </h3>
       <p className={`text-gray-600 mb-4 ${isCompact ? 'text-sm' : ''}`}>
-        {isDragOver ? 'Drop files here to process' : 'Drag & drop files or click to browse'}
+        {isDragOver ? (
+          <Trans text="Drop files here to process" />
+        ) : (
+          <Trans text="Drag & drop files or click to browse" />
+        )}
       </p>
       
       <input
@@ -71,7 +74,7 @@ const UploadArea: React.FC<UploadAreaProps> = ({
                 Processing & Storing...
               </>
             ) : (
-              getText('chooseFiles')
+              <Trans text="Choose Files" />
             )}
           </span>
         </Button>

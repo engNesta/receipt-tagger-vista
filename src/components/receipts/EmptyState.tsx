@@ -2,7 +2,7 @@
 import React from 'react';
 import { FileText, Upload, RefreshCw, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { Trans } from '@/components/Trans';
 
 interface EmptyStateProps {
   onUploadClick?: () => void;
@@ -19,7 +19,6 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   isLoading, 
   showRetry 
 }) => {
-  const { getText } = useLanguage();
 
   if (isLoading) {
     return (
@@ -29,10 +28,10 @@ const EmptyState: React.FC<EmptyStateProps> = ({
             <RefreshCw className="h-12 w-12 text-blue-600 animate-spin" />
           </div>
           <h3 className="text-xl font-semibold text-gray-900 mb-3">
-            {getText('loadingDocuments')}
+            <Trans text="Loading Documents..." />
           </h3>
           <p className="text-gray-600">
-            {getText('pleaseWaitDocuments')}
+            <Trans text="Please wait while we fetch your documents." />
           </p>
         </div>
       </div>
@@ -47,7 +46,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
             <AlertCircle className="h-12 w-12 text-red-600" />
           </div>
           <h3 className="text-xl font-semibold text-gray-900 mb-3">
-            {getText('connectionError')}
+            <Trans text="Connection Error" />
           </h3>
           <p className="text-gray-600 mb-6 leading-relaxed">
             {error}
@@ -56,13 +55,13 @@ const EmptyState: React.FC<EmptyStateProps> = ({
             {showRetry && onRetryClick && (
               <Button onClick={onRetryClick} variant="outline" className="inline-flex items-center gap-2">
                 <RefreshCw className="h-4 w-4" />
-                {getText('retry')}
+                <Trans text="Retry" />
               </Button>
             )}
             {onUploadClick && (
               <Button onClick={onUploadClick} className="inline-flex items-center gap-2">
                 <Upload className="h-4 w-4" />
-                {getText('uploadDocuments')}
+                <Trans text="Upload Documents" />
               </Button>
             )}
           </div>
@@ -81,10 +80,10 @@ const EmptyState: React.FC<EmptyStateProps> = ({
         
         {/* Content */}
         <h3 className="text-xl font-semibold text-gray-900 mb-3">
-          {getText('noDocumentsFound')}
+          <Trans text="No Documents Found" />
         </h3>
         <p className="text-gray-600 mb-6 leading-relaxed">
-          {getText('startByUploading')}
+          <Trans text="Start by uploading some documents to see them processed and displayed here." />
         </p>
         
         {/* Action */}
@@ -92,13 +91,13 @@ const EmptyState: React.FC<EmptyStateProps> = ({
           {showRetry && onRetryClick && (
             <Button onClick={onRetryClick} variant="outline" className="inline-flex items-center gap-2">
               <RefreshCw className="h-4 w-4" />
-              {getText('refresh')}
+              <Trans text="Refresh" />
             </Button>
           )}
           {onUploadClick && (
             <Button onClick={onUploadClick} className="inline-flex items-center gap-2">
               <Upload className="h-4 w-4" />
-              {getText('uploadDocuments')}
+              <Trans text="Upload Documents" />
             </Button>
           )}
         </div>

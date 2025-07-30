@@ -2,8 +2,8 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import FileViewer from '@/components/ui/file-viewer';
-import { useLanguage } from '@/contexts/LanguageContext';
 import type { Receipt } from '@/types';
+import { Trans } from '@/components/Trans';
 
 interface ReceiptCardProps {
   receipt: Receipt;
@@ -12,20 +12,18 @@ interface ReceiptCardProps {
 }
 
 const ReceiptCard: React.FC<ReceiptCardProps> = React.memo(({ receipt, selectedTag, onClick }) => {
-  const { getText } = useLanguage();
-
   const getDisplayValue = () => {
     if (!selectedTag) return null;
     
     switch (selectedTag) {
       case 'vendor':
-        return { label: getText('vendor'), value: receipt.vendor };
+        return { label: 'Vendor', value: receipt.vendor };
       case 'price':
-        return { label: getText('price'), value: receipt.price };
+        return { label: 'Amount', value: receipt.price };
       case 'productName':
-        return { label: getText('productName'), value: receipt.productName };
+        return { label: 'Product/Service', value: receipt.productName };
       case 'verificationLetter':
-        return { label: getText('verificationLetter'), value: receipt.verificationLetter };
+        return { label: 'Verification Number', value: receipt.verificationLetter };
       default:
         return null;
     }
@@ -81,7 +79,7 @@ const ReceiptCard: React.FC<ReceiptCardProps> = React.memo(({ receipt, selectedT
                 <p className="text-xs font-medium text-green-600">{receipt.price}</p>
               </div>
               <p className="text-xs text-gray-400 italic text-center">
-                {getText('selectTagToView')}
+                <Trans text="Select a category to view information" />
               </p>
             </div>
           )}

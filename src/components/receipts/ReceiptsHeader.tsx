@@ -2,14 +2,13 @@
 import React from 'react';
 import { FileText, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { Trans } from '@/components/Trans';
 
 interface ReceiptsHeaderProps {
   onLoadMoreClick: () => void;
 }
 
 const ReceiptsHeader: React.FC<ReceiptsHeaderProps> = ({ onLoadMoreClick }) => {
-  const { getText } = useLanguage();
 
   return (
     <div className="bg-white shadow-sm border-b">

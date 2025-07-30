@@ -2,7 +2,7 @@
 import React from 'react';
 import { ArrowUpAZ, ArrowDownZA } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { Trans } from '@/components/Trans';
 
 interface SortControlsProps {
   selectedTag: string | null;
@@ -11,7 +11,6 @@ interface SortControlsProps {
 }
 
 const SortControls: React.FC<SortControlsProps> = ({ selectedTag, sortOrder, onSortClick }) => {
-  const { getText } = useLanguage();
 
   if (!selectedTag) return null;
 

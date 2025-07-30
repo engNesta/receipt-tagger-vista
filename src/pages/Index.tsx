@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Upload, FileText, Users, BarChart3 } from 'lucide-react';
 import { APP_CONFIG } from '@/constants';
+import { Trans } from '@/components/Trans';
 
 const Index = () => {
   return (
@@ -15,11 +16,11 @@ const Index = () => {
           </div>
           
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Accountant Portal
+            <Trans text="Accountant Portal" />
           </h1>
           
           <p className="text-xl text-gray-600 mb-8">
-            Manage your clients and process receipts with AI-powered Swedish accounting integration
+            <Trans text="Manage your clients and process receipts with AI-powered Swedish accounting integration" />
           </p>
         </div>
 
@@ -27,20 +28,20 @@ const Index = () => {
           <Link to={APP_CONFIG.ROUTES.CLIENTS}>
             <Button size="lg" className="w-full flex items-center justify-center gap-3 px-8 py-4 text-base font-medium bg-blue-600 hover:bg-blue-700">
               <Users size={20} />
-              Client Management
+              <Trans text="Client Management" />
             </Button>
           </Link>
           
           <Link to={APP_CONFIG.ROUTES.MATCHING_REPORT}>
             <Button size="lg" variant="outline" className="w-full flex items-center justify-center gap-3 px-8 py-4 text-base font-medium">
               <BarChart3 size={20} />
-              Matching Report
+              <Trans text="Matching Report" />
             </Button>
           </Link>
         </div>
         
         <p className="text-sm text-gray-500 mt-6">
-          Complete client lifecycle management • Document processing • Swedish accounting integration
+          <Trans text="Complete client lifecycle management • Document processing • Swedish accounting integration" />
         </p>
       </div>
     </div>

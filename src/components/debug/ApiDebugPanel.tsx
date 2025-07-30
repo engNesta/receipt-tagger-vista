@@ -5,13 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import { fastApiService } from '@/services/fastApiService';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { Trans } from '@/components/Trans';
 
 const ApiDebugPanel: React.FC = () => {
   const [apiStatus, setApiStatus] = useState<'unknown' | 'checking' | 'ok' | 'error'>('unknown');
   const [apiMessage, setApiMessage] = useState<string>('');
   const [documentsStatus, setDocumentsStatus] = useState<string>('Not checked');
-  const { getText } = useLanguage();
 
   const dummyUserId = 'dummy-user-id'; // Use dummy user ID since auth is removed
 
@@ -52,11 +51,15 @@ const ApiDebugPanel: React.FC = () => {
   return (
     <Card className="w-full max-w-md mx-auto mb-6">
       <CardHeader>
-        <CardTitle className="text-sm">{getText('apiDebugPanel')}</CardTitle>
+        <CardTitle className="text-sm">
+          <Trans text="API Debug Panel" />
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-sm">{getText('fastApiStatus')}:</span>
+          <span className="text-sm">
+            <Trans text="FastAPI Status" />:
+          </span>
           <div className="flex items-center gap-2">
             {getStatusIcon(apiStatus)}
             <Badge variant={apiStatus === 'ok' ? 'default' : apiStatus === 'error' ? 'destructive' : 'secondary'}>
@@ -71,16 +74,16 @@ const ApiDebugPanel: React.FC = () => {
         
         <div className="flex gap-2">
           <Button size="sm" onClick={checkApiHealth} disabled={apiStatus === 'checking'}>
-            {getText('testApi')}
+            <Trans text="Test API" />
           </Button>
           <Button size="sm" variant="outline" onClick={checkDocuments}>
-            {getText('checkDocs')}
+            <Trans text="Check Docs" />
           </Button>
         </div>
         
         <div className="text-xs">
-          <p><strong>{getText('user')}:</strong> {dummyUserId.substring(0, 8)}...</p>
-          <p><strong>{getText('documents')}:</strong> {documentsStatus}</p>
+          <p><strong><Trans text="User" />:</strong> {dummyUserId.substring(0, 8)}...</p>
+          <p><strong><Trans text="Documents" />:</strong> {documentsStatus}</p>
         </div>
       </CardContent>
     </Card>

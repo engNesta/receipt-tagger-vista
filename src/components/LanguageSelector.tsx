@@ -3,6 +3,7 @@ import React from 'react';
 import { Languages } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Trans } from '@/components/Trans';
 
 const LanguageSelector: React.FC = () => {
   const { language, setLanguage } = useLanguage();
@@ -15,8 +16,8 @@ const LanguageSelector: React.FC = () => {
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="en">English</SelectItem>
-          <SelectItem value="sv">Svenska</SelectItem>
+          <SelectItem value="en"><Trans text="English" /></SelectItem>
+          <SelectItem value="sv"><Trans text="Svenska" /></SelectItem>
         </SelectContent>
       </Select>
     </div>

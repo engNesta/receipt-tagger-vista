@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import { FileText, Upload, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { useConsent } from '@/hooks/useConsent';
 import GDPRConsentDialog from '../GDPRConsentDialog';
+import { Trans } from '@/components/Trans';
 
 interface EnhancedEmptyStateProps {
   onUploadClick: () => void;
@@ -15,7 +15,6 @@ const EnhancedEmptyState: React.FC<EnhancedEmptyStateProps> = ({
   onUploadClick,
   onLoadSampleClick
 }) => {
-  const { getText } = useLanguage();
   const { hasConsent, grantConsent } = useConsent();
   const [showConsentDialog, setShowConsentDialog] = useState(false);
   const [pendingAction, setPendingAction] = useState<'upload' | 'sample' | null>(null);
@@ -70,7 +69,7 @@ const EnhancedEmptyState: React.FC<EnhancedEmptyStateProps> = ({
           {/* Content Section with proper hierarchy */}
           <div className="mb-10">
             <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 leading-tight">
-              {getText('noReceiptsEmptyTitle')}
+              <Trans text="Get started with your receipts" />
             </h3>
             
             <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-md mx-auto">
@@ -86,7 +85,7 @@ const EnhancedEmptyState: React.FC<EnhancedEmptyStateProps> = ({
               className="w-full sm:w-auto min-w-[200px] flex items-center justify-center gap-3 px-8 py-4 text-base font-medium shadow-sm hover:shadow-md transition-all duration-200"
             >
               <Upload size={20} />
-              {getText('uploadYourReceipts')}
+              <Trans text="Upload Your Receipts" />
             </Button>
             
             {/* Divider with better visual balance */}
@@ -103,7 +102,7 @@ const EnhancedEmptyState: React.FC<EnhancedEmptyStateProps> = ({
               className="w-full sm:w-auto min-w-[200px] flex items-center justify-center gap-3 px-8 py-4 text-base font-medium border-2 hover:bg-gray-50 transition-all duration-200"
             >
               <Plus size={20} />
-              {getText('trySampleData')}
+              <Trans text="Try Sample Data" />
             </Button>
           </div>
 
