@@ -20,8 +20,11 @@ export const Trans: React.FC<TransProps> = ({
 
   useEffect(() => {
     const performTranslation = async () => {
+      console.log(`Trans: translating "${text}" from ${sourceLang} to ${language}`);
+      
       // If the current language is the same as source language, no translation needed
       if (language === sourceLang) {
+        console.log(`Trans: no translation needed, setting to original text`);
         setTranslatedText(text);
         return;
       }
@@ -29,6 +32,7 @@ export const Trans: React.FC<TransProps> = ({
       setIsLoading(true);
       try {
         const result = await translate(text, sourceLang, language);
+        console.log(`Trans: translation result: "${result}"`);
         setTranslatedText(result);
       } catch (error) {
         console.warn('Translation error:', error);
