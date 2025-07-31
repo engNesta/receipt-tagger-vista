@@ -1,13 +1,14 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Plus, Building2, Eye } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Plus, Building2, Eye, Calculator } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useClients } from '@/contexts/ClientContext';
 
 const ClientList = () => {
   const { clients } = useClients();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -43,6 +44,15 @@ const ClientList = () => {
                   </div>
                   
                   <div className="flex space-x-2">
+                    <Button 
+                      variant="default" 
+                      size="sm"
+                      onClick={() => navigate(`/client/${client.id}`)}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <Calculator className="w-4 h-4 mr-2" />
+                      Starta bokföring
+                    </Button>
                     <Link to={`/clients/${client.id}/view`}>
                       <Button variant="outline" size="sm">
                         <Eye className="w-4 h-4 mr-2" />

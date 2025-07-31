@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ClientProvider } from "@/contexts/ClientContext";
 import { ClientDocumentProvider } from "@/contexts/ClientDocumentContext";
+import { AccountingWizardProvider } from "@/contexts/AccountingWizardContext";
 import { APP_CONFIG } from "@/constants";
 
 // Lazy-loaded components
@@ -19,6 +20,7 @@ const ClientCreated = lazy(() => import("@/pages/clients/ClientCreated"));
 const ClientManage = lazy(() => import("@/pages/clients/ClientManage"));
 const ClientDeleted = lazy(() => import("@/pages/clients/ClientDeleted"));
 const ClientView = lazy(() => import("@/pages/clients/ClientView"));
+const AccountingWizard = lazy(() => import("@/pages/accounting/AccountingWizard"));
 const MatchingReport = lazy(() => import("@/pages/MatchingReport"));
 const SIEGenerated = lazy(() => import("@/pages/SIEGenerated"));
 
@@ -48,6 +50,7 @@ const App = () => {
         <LanguageProvider>
           <ClientProvider>
             <ClientDocumentProvider>
+              <AccountingWizardProvider>
               <Toaster />
               <Sonner />
             <BrowserRouter>
@@ -60,12 +63,14 @@ const App = () => {
                   <Route path={APP_CONFIG.ROUTES.CLIENTS_MANAGE} element={<ClientManage />} />
                   <Route path="/clients/deleted" element={<ClientDeleted />} />
                   <Route path="/clients/:id/view" element={<ClientView />} />
+                  <Route path="/client/:id" element={<AccountingWizard />} />
                   <Route path={APP_CONFIG.ROUTES.MATCHING_REPORT} element={<MatchingReport />} />
                   <Route path={APP_CONFIG.ROUTES.SIE_GENERATED} element={<SIEGenerated />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
             </BrowserRouter>
+              </AccountingWizardProvider>
             </ClientDocumentProvider>
           </ClientProvider>
         </LanguageProvider>
