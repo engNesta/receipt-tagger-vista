@@ -30,18 +30,11 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="flex justify-center">
           <Link to={APP_CONFIG.ROUTES.CLIENTS}>
-            <Button size="lg" className="w-full flex items-center justify-center gap-3 px-8 py-4 text-base font-medium bg-blue-600 hover:bg-blue-700">
+            <Button size="lg" className="flex items-center justify-center gap-3 px-8 py-4 text-base font-medium bg-blue-600 hover:bg-blue-700">
               <Users size={20} />
               <Trans text="Client Management" />
-            </Button>
-          </Link>
-          
-          <Link to={APP_CONFIG.ROUTES.MATCHING_REPORT}>
-            <Button size="lg" variant="outline" className="w-full flex items-center justify-center gap-3 px-8 py-4 text-base font-medium">
-              <BarChart3 size={20} />
-              <Trans text="Matching Report" />
             </Button>
           </Link>
         </div>

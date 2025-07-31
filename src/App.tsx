@@ -21,7 +21,7 @@ const ClientManage = lazy(() => import("@/pages/clients/ClientManage"));
 const ClientDeleted = lazy(() => import("@/pages/clients/ClientDeleted"));
 const ClientView = lazy(() => import("@/pages/clients/ClientView"));
 const AccountingWizard = lazy(() => import("@/pages/accounting/AccountingWizard"));
-const MatchingReport = lazy(() => import("@/pages/MatchingReport"));
+
 const SIEGenerated = lazy(() => import("@/pages/SIEGenerated"));
 
 const queryClient = new QueryClient({
@@ -64,7 +64,7 @@ const App = () => {
                   <Route path="/clients/deleted" element={<ClientDeleted />} />
                   <Route path="/clients/:id/view" element={<ClientView />} />
                   <Route path="/client/:id" element={<AccountingWizard />} />
-                  <Route path={APP_CONFIG.ROUTES.MATCHING_REPORT} element={<MatchingReport />} />
+                  
                   <Route path={APP_CONFIG.ROUTES.SIE_GENERATED} element={<SIEGenerated />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>

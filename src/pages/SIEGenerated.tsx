@@ -31,10 +31,10 @@ const SIEGenerated = () => {
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/matching-report">
+            <Link to="/">
               <Button variant="outline" size="sm">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Matching Report
+                Back to Dashboard
               </Button>
             </Link>
             <div>

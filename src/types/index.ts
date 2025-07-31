@@ -85,4 +85,4 @@ export interface FastApiDocumentsResponse {
 }
 
 // Re-export mock data types for consistency
-export type { MockClient, MockDocument, MockMatchingRecord } from '@/data/mockData';
+export type { MockClient, MockDocument } from '@/data/mockData';

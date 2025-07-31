@@ -20,14 +20,6 @@ export interface MockDocument {
   thumbnailUrl: string;
 }
 
-export interface MockMatchingRecord {
-  id: string;
-  record: string;
-  statement: string;
-  matched: boolean;
-  amount?: string;
-  date?: string;
-}
 
 // Mock clients data
 export const mockClients: MockClient[] = [
@@ -101,42 +93,6 @@ export const mockDocumentsByMonth = {
     ]
   }
 };
-
-// Mock matching records data
-export const mockMatchingRecords: MockMatchingRecord[] = [
-  { 
-    id: '1', 
-    record: 'invoice_rent.pdf', 
-    statement: 'bank_statement_july.xlsx', 
-    matched: true,
-    amount: '15,000 SEK',
-    date: '2024-07-15'
-  },
-  { 
-    id: '2', 
-    record: 'taxi.jpg', 
-    statement: 'statement_march.xlsx', 
-    matched: false,
-    amount: '450 SEK',
-    date: '2024-03-22'
-  },
-  { 
-    id: '3', 
-    record: 'freelance_invoice.png', 
-    statement: 'bank_statement_july.xlsx', 
-    matched: true,
-    amount: '8,500 SEK',
-    date: '2024-07-20'
-  },
-  { 
-    id: '4', 
-    record: 'meal.png', 
-    statement: 'bank_statement_july.xlsx', 
-    matched: false,
-    amount: '320 SEK',
-    date: '2024-07-18'
-  }
-];
 
 // Mock receipt data for RawDrop page
 export const mockReceipts = [

@@ -21,7 +21,7 @@ export const APP_CONFIG = {
     CLIENTS_ADD: '/clients/add',
     CLIENTS_MANAGE: '/clients/manage',
     CLIENTS_VIEW: '/clients/:id/view',
-    MATCHING_REPORT: '/matching-report',
+    
     SIE_GENERATED: '/sie-generated',
   }
 } as const;
