@@ -6,10 +6,9 @@ interface TranslationCache {
   };
 }
 
-const CACHE_KEY = 'lingva_translations';
-// Use a CORS proxy to bypass CSP restrictions
-const LINGVA_API_BASE = 'https://api.allorigins.win/get?url=';
-const LINGVA_ENDPOINT = 'https://lingva.ml/api/v1';
+const CACHE_KEY = 'google_translations';
+const GOOGLE_TRANSLATE_API_KEY = 'AIzaSyBT3JkI8GDMku2PdNgVjOQ_GVsgAokzNZ4';
+const GOOGLE_TRANSLATE_API_BASE = 'https://translation.googleapis.com/language/translate/v2';
 
 export const useTranslation = () => {
   const [cache, setCache] = useState<TranslationCache>(() => {
@@ -39,21 +38,29 @@ export const useTranslation = () => {
     }
 
     try {
-      const encodedText = encodeURIComponent(text);
-      const targetUrl = `${LINGVA_ENDPOINT}/${sourceLang}/${targetLang}/${encodedText}`;
-      const proxyUrl = `${LINGVA_API_BASE}${encodeURIComponent(targetUrl)}`;
+      const url = `${GOOGLE_TRANSLATE_API_BASE}?key=${GOOGLE_TRANSLATE_API_KEY}`;
       
-      console.log('Making translation request via proxy:', proxyUrl);
+      console.log('Making Google Translate request:', url);
       
-      const response = await fetch(proxyUrl);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          q: text,
+          source: sourceLang,
+          target: targetLang,
+          format: 'text'
+        })
+      });
 
       if (!response.ok) {
-        throw new Error(`Translation API error: ${response.status}`);
+        throw new Error(`Google Translate API error: ${response.status}`);
       }
 
-      const proxyData = await response.json();
-      const data = JSON.parse(proxyData.contents);
-      const translation = data.translation;
+      const data = await response.json();
+      const translation = data.data.translations[0].translatedText;
 
       console.log('Translation successful:', translation);
 
