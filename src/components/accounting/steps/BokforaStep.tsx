@@ -103,6 +103,7 @@ const BokforaStep: React.FC = () => {
                 <TableHead>Beskrivning</TableHead>
                 <TableHead>Datum</TableHead>
                 <TableHead>Belopp</TableHead>
+                <TableHead>Moms</TableHead>
                 <TableHead>Konto</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
@@ -116,6 +117,7 @@ const BokforaStep: React.FC = () => {
                   <TableCell>{entry.transaction.description}</TableCell>
                   <TableCell>{entry.transaction.date}</TableCell>
                   <TableCell>{Math.abs(entry.transaction.amount)} kr</TableCell>
+                  <TableCell>25%</TableCell>
                   <TableCell>6420 - Representation</TableCell>
                   <TableCell>
                     <Badge variant="default">

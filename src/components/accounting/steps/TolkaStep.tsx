@@ -2,18 +2,20 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Upload, Eye, Trash2, ArrowRight, AlertTriangle } from 'lucide-react';
+import { Upload, Eye, Trash2, ArrowRight, Download } from 'lucide-react';
 import { useAccountingWizard } from '@/contexts/AccountingWizardContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import FileDropArea from '@/components/upload/FileDropArea';
 import { useFileProcessor } from '@/hooks/useFileProcessor';
+import UnreadableReceiptsModal from '../modals/UnreadableReceiptsModal';
 import type { Receipt } from '@/types/accounting';
 
 const TolkaStep: React.FC = () => {
   const { session, removeReceipt, updateReceipt, setCurrentStep, addReceipts } = useAccountingWizard();
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const [showUploader, setShowUploader] = useState(false);
+  const [showUnreadableModal, setShowUnreadableModal] = useState(false);
 
   const { 
     pendingFiles, 
@@ -45,12 +47,11 @@ const TolkaStep: React.FC = () => {
 
   if (!session) return null;
 
+  const readableReceipts = session.receipts.filter(r => r.status === 'readable' || r.status === 'verified');
+  const unreadableReceipts = session.receipts.filter(r => r.status === 'unreadable');
+
   const handleFileUpload = (files: File[]) => {
     addFiles(files);
-  };
-
-  const handleMarkUnreadable = (receiptId: string) => {
-    updateReceipt(receiptId, { status: 'unreadable' });
   };
 
   const canProceed = session.receipts.some(r => r.status === 'readable' || r.status === 'verified');
@@ -62,14 +63,25 @@ const TolkaStep: React.FC = () => {
           <h2 className="text-2xl font-bold">Steg 1: Tolka Kvitton</h2>
           <p className="text-gray-600">Granska OCR-resultat och ladda upp fler kvitton vid behov</p>
         </div>
-        <Button onClick={() => setShowUploader(true)} className="flex items-center gap-2">
-          <Upload className="w-4 h-4" />
-          Ladda upp kvitton
-        </Button>
+        <div className="flex gap-2">
+          {unreadableReceipts.length > 0 && (
+            <Button 
+              variant="outline" 
+              onClick={() => setShowUnreadableModal(true)}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Oläsbara kvitton ({unreadableReceipts.length})
+            </Button>
+          )}
+          <Button onClick={() => setShowUploader(true)} className="flex items-center gap-2">
+            <Upload className="w-4 h-4" />
+            Ladda upp kvitton
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-4">
-        {session.receipts.map((receipt) => (
+        {readableReceipts.map((receipt) => (
           <Card key={receipt.id} className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -140,16 +152,6 @@ const TolkaStep: React.FC = () => {
                   </DialogContent>
                 </Dialog>
 
-                {receipt.status !== 'unreadable' && (
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleMarkUnreadable(receipt.id)}
-                  >
-                    <AlertTriangle className="w-4 h-4 mr-1" />
-                    Markera oläsbar
-                  </Button>
-                )}
 
                 <Button 
                   variant="outline" 
@@ -226,6 +228,12 @@ const TolkaStep: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <UnreadableReceiptsModal
+        isOpen={showUnreadableModal}
+        onClose={() => setShowUnreadableModal(false)}
+        unreadableReceipts={unreadableReceipts}
+      />
     </div>
   );
 };

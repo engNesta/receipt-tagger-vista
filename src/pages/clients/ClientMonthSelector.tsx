@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Building2, Calendar, Eye, Calculator } from 'lucide-react';
+import { ArrowLeft, Building2, Calendar, Calculator } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useClients } from '@/contexts/ClientContext';
@@ -12,10 +12,10 @@ const ClientMonthSelector = () => {
   
   const client = clients.find(c => c.id === id);
   
-  // Generate last 12 months
+  // Generate current year months in proper order (January to December)
   const months = Array.from({ length: 12 }, (_, i) => {
     const date = new Date();
-    date.setMonth(date.getMonth() - i);
+    date.setMonth(i); // Start from January (0) to December (11)
     return {
       value: date.toISOString().slice(0, 7), // YYYY-MM format
       display: date.toLocaleDateString('sv-SE', { year: 'numeric', month: 'long' }),
@@ -95,14 +95,6 @@ const ClientMonthSelector = () => {
                   >
                     <Calculator className="w-4 h-4 mr-2" />
                     Starta bokföring
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    onClick={() => handleViewSummary(month.value)}
-                    size="sm"
-                  >
-                    <Eye className="w-4 h-4" />
                   </Button>
                 </div>
               </CardContent>

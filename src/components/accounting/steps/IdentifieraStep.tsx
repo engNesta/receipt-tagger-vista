@@ -4,11 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Upload, Link2, ArrowRight, Check, X } from 'lucide-react';
+import { Upload, Link2, ArrowRight, Check, X, CheckCircle, Search, Download, FileText, CreditCard } from 'lucide-react';
 import { useAccountingWizard } from '@/contexts/AccountingWizardContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import FileDropArea from '@/components/upload/FileDropArea';
 import { useFileProcessor } from '@/hooks/useFileProcessor';
+import { toast } from 'sonner';
+import UnverifiedTab from './UnverifiedTab';
 import type { BankTransaction } from '@/types/accounting';
 
 const IdentifieraStep: React.FC = () => {
@@ -26,6 +28,8 @@ const IdentifieraStep: React.FC = () => {
   } = useAccountingWizard();
   
   const [showBankUploader, setShowBankUploader] = useState(false);
+  const [bankFileUploaded, setBankFileUploaded] = useState(false);
+  const [showTabs, setShowTabs] = useState(false);
 
   const { 
     pendingFiles, 
@@ -45,7 +49,9 @@ const IdentifieraStep: React.FC = () => {
         account: '1234567890'
       }));
       addTransactions(newTransactions);
+      setBankFileUploaded(true);
       setShowBankUploader(false);
+      toast.success(`${newTransactions.length} transaktioner laddades`);
     }
   });
 
@@ -64,6 +70,23 @@ const IdentifieraStep: React.FC = () => {
     createMatch(receiptId, transactionId, 85); // Default confidence
   };
 
+  const handleStartMatching = () => {
+    // Simulate automatic matching
+    const receipts = session?.receipts || [];
+    const transactions = session?.transactions || [];
+    
+    receipts.forEach((receipt, index) => {
+      if (index < transactions.length) {
+        const transaction = transactions[index];
+        const confidence = Math.random() * 0.5 + 0.5; // 50-100% confidence
+        createMatch(receipt.id, transaction.id, confidence * 100);
+      }
+    });
+    
+    setShowTabs(true);
+    toast.success('Automatisk matchning slutförd');
+  };
+
   const canProceed = matchedEntries.length > 0 && unverifiedMatches.length === 0;
 
   return (
@@ -73,13 +96,52 @@ const IdentifieraStep: React.FC = () => {
           <h2 className="text-2xl font-bold">Steg 2: Identifiera Transaktioner</h2>
           <p className="text-gray-600">Matcha kvitton med banktransaktioner</p>
         </div>
-        <Button onClick={() => setShowBankUploader(true)} className="flex items-center gap-2">
-          <Upload className="w-4 h-4" />
-          Ladda upp bankfil
-        </Button>
+        {!bankFileUploaded && (
+          <Button onClick={() => setShowBankUploader(true)} className="flex items-center gap-2">
+            <Upload className="w-4 h-4" />
+            Ladda upp bankfil
+          </Button>
+        )}
       </div>
 
-      <Tabs defaultValue="matched" className="w-full">
+      {!bankFileUploaded && (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <Upload className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Ladda upp bankutdrag först
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Du måste ladda upp ett bankutdrag innan du kan matcha transaktioner
+            </p>
+            <Button onClick={() => setShowBankUploader(true)}>
+              <Upload className="w-4 h-4 mr-2" />
+              Ladda upp bankfil
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {bankFileUploaded && !showTabs && (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Bankfil laddad
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Starta automatisk matchning mellan kvitton och transaktioner
+            </p>
+            <Button onClick={handleStartMatching} className="bg-blue-600 hover:bg-blue-700">
+              <Search className="w-4 h-4 mr-2" />
+              Starta Matchning
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {showTabs && (
+        <Tabs defaultValue="matched" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="matched">
             Matchade ({matchedEntries.length})
@@ -162,10 +224,49 @@ const IdentifieraStep: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="unmatched" className="space-y-4">
+          <div className="flex gap-2 mb-4">
+            <Button 
+              onClick={() => {
+                toast.success('Laddar ner omatchade kvitton...');
+                // Simulate PDF download
+              }}
+              variant="outline"
+              disabled={unmatchedReceipts.length === 0}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Ladda ner kvitton ({unmatchedReceipts.length})
+            </Button>
+            <Button 
+              onClick={() => {
+                toast.success('Laddar ner omatchade transaktioner...');
+                // Simulate PDF download
+              }}
+              variant="outline"
+              disabled={unmatchedTransactions.length === 0}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Ladda ner transaktioner ({unmatchedTransactions.length})
+            </Button>
+            <Button 
+              onClick={() => {
+                toast.success('Laddar ner komplett rapport...');
+                // Simulate PDF download
+              }}
+              variant="outline"
+              disabled={unmatchedReceipts.length === 0 && unmatchedTransactions.length === 0}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Ladda ner båda
+            </Button>
+          </div>
+          
           <div className="grid md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle>Omatchade kvitton</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  Omatchade kvitton ({unmatchedReceipts.length})
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
@@ -173,18 +274,26 @@ const IdentifieraStep: React.FC = () => {
                     <div key={receipt.id} className="p-3 border rounded flex justify-between items-center">
                       <div>
                         <div className="font-medium">{receipt.ocrResult.vendor}</div>
-                        <div className="text-sm text-gray-500">{receipt.ocrResult.amount} kr</div>
+                        <div className="text-sm text-gray-500">
+                          {receipt.ocrResult.date} - {receipt.ocrResult.amount} kr
+                        </div>
                       </div>
-                      <Badge variant="outline">{receipt.ocrResult.date}</Badge>
+                      <Badge variant="outline">Omatchad</Badge>
                     </div>
                   ))}
+                  {unmatchedReceipts.length === 0 && (
+                    <p className="text-gray-500 text-center py-4">Inga omatchade kvitton</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Omatchade transaktioner</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="w-5 h-5" />
+                  Omatchade transaktioner ({unmatchedTransactions.length})
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
@@ -193,9 +302,11 @@ const IdentifieraStep: React.FC = () => {
                       <div className="flex justify-between items-center">
                         <div>
                           <div className="font-medium">{transaction.description}</div>
-                          <div className="text-sm text-gray-500">{Math.abs(transaction.amount)} kr</div>
+                          <div className="text-sm text-gray-500">
+                            {transaction.date} - {Math.abs(transaction.amount)} kr
+                          </div>
                         </div>
-                        <Badge variant="outline">{transaction.date}</Badge>
+                        <Badge variant="outline">Omatchad</Badge>
                       </div>
                       <div className="mt-2">
                         <select 
@@ -217,6 +328,9 @@ const IdentifieraStep: React.FC = () => {
                       </div>
                     </div>
                   ))}
+                  {unmatchedTransactions.length === 0 && (
+                    <p className="text-gray-500 text-center py-4">Inga omatchade transaktioner</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -224,45 +338,20 @@ const IdentifieraStep: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="unverified" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Overifierade matchningar</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Kvitto</TableHead>
-                    <TableHead>Transaktion</TableHead>
-                    <TableHead>Säkerhet</TableHead>
-                    <TableHead>Åtgärder</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {unverifiedMatches.map((match) => (
-                    <TableRow key={match.id}>
-                      <TableCell>{match.receipt.ocrResult.vendor}</TableCell>
-                      <TableCell>{match.transaction.description}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{match.confidence}%</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Button 
-                          size="sm" 
-                          onClick={() => verifyMatch(match.id)}
-                        >
-                          <Check className="w-4 h-4 mr-1" />
-                          Verifiera
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+          <UnverifiedTab
+            unverifiedMatches={unverifiedMatches}
+            onVerifyMatch={(matchId, accountCode, description, vatRate) => {
+              verifyMatch(matchId);
+              toast.success('Match verifierad!');
+            }}
+            onRemoveMatch={(matchId) => {
+              removeMatch(matchId);
+              toast.success('Match borttagen');
+            }}
+          />
         </TabsContent>
-      </Tabs>
+        </Tabs>
+      )}
 
       <div className="flex justify-between">
         <Button 
