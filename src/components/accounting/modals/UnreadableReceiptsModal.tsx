@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Download, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Receipt } from '@/types/accounting';
+import { formatConfidence } from '@/utils/numberFormatters';
 
 interface UnreadableReceiptsModalProps {
   isOpen: boolean;
@@ -59,7 +60,7 @@ const UnreadableReceiptsModal: React.FC<UnreadableReceiptsModalProps> = ({
                         Uppladdad: {receipt.uploadedAt.toLocaleDateString('sv-SE')}
                       </p>
                       <p className="text-xs text-red-600">
-                        OCR-konfidens: {(receipt.ocrResult.confidence * 100).toFixed(0)}%
+                        OCR-konfidens: {formatConfidence(receipt.ocrResult.confidence)}
                       </p>
                     </div>
                   </div>

@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import type { MatchedEntry } from '@/types/accounting';
+import { formatCurrency } from '@/utils/numberFormatters';
 
 interface VerificationModalProps {
   isOpen: boolean;

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Upload, Link2, ArrowRight, Check, X, CheckCircle, Search, Download, FileText, CreditCard } from 'lucide-react';
 import { useAccountingWizard } from '@/contexts/AccountingWizardContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -12,6 +13,7 @@ import { useFileProcessor } from '@/hooks/useFileProcessor';
 import { toast } from 'sonner';
 import UnverifiedTab from './UnverifiedTab';
 import type { BankTransaction } from '@/types/accounting';
+import { formatCurrency, formatConfidence, downloadSelectedReceipts, downloadSelectedTransactions, downloadBothReportsSelected } from '@/utils/numberFormatters';
 
 const IdentifieraStep: React.FC = () => {
   const { 
@@ -30,6 +32,8 @@ const IdentifieraStep: React.FC = () => {
   const [showBankUploader, setShowBankUploader] = useState(false);
   const [bankFileUploaded, setBankFileUploaded] = useState(false);
   const [showTabs, setShowTabs] = useState(false);
+  const [selectedReceipts, setSelectedReceipts] = useState<string[]>([]);
+  const [selectedTransactions, setSelectedTransactions] = useState<string[]>([]);
 
   const { 
     pendingFiles, 
@@ -186,9 +190,9 @@ const IdentifieraStep: React.FC = () => {
                           <div className="text-sm text-gray-500">{match.transaction.date}</div>
                         </div>
                       </TableCell>
-                      <TableCell>{Math.abs(match.transaction.amount)} kr</TableCell>
+                      <TableCell>{formatCurrency(Math.abs(match.transaction.amount))}</TableCell>
                       <TableCell>
-                        <Badge variant="outline">{match.confidence}%</Badge>
+                        <Badge variant="outline">{formatConfidence(match.confidence)}</Badge>
                       </TableCell>
                       <TableCell>
                         <Badge variant={match.verified ? 'default' : 'secondary'}>
@@ -196,24 +200,13 @@ const IdentifieraStep: React.FC = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
-                          {!match.verified && (
-                            <Button 
-                              size="sm" 
-                              onClick={() => verifyMatch(match.id)}
-                            >
-                              <Check className="w-4 h-4 mr-1" />
-                              Verifiera
-                            </Button>
-                          )}
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => removeMatch(match.id)}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => removeMatch(match.id)}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -227,30 +220,37 @@ const IdentifieraStep: React.FC = () => {
           <div className="flex gap-2 mb-4">
             <Button 
               onClick={() => {
-                toast.success('Laddar ner omatchade kvitton...');
-                // Simulate PDF download
+                const selected = unmatchedReceipts.filter(r => selectedReceipts.includes(r.id));
+                downloadSelectedReceipts(selected);
+                toast.success(`Laddar ner ${selected.length > 0 ? selected.length : unmatchedReceipts.length} kvitton...`);
               }}
               variant="outline"
               disabled={unmatchedReceipts.length === 0}
             >
               <Download className="w-4 h-4 mr-2" />
-              Ladda ner kvitton ({unmatchedReceipts.length})
+              Ladda ner kvitton ({selectedReceipts.length > 0 ? selectedReceipts.length : unmatchedReceipts.length})
             </Button>
             <Button 
               onClick={() => {
-                toast.success('Laddar ner omatchade transaktioner...');
-                // Simulate PDF download
+                const selected = unmatchedTransactions.filter(t => selectedTransactions.includes(t.id));
+                downloadSelectedTransactions(selected);
+                toast.success(`Laddar ner ${selected.length > 0 ? selected.length : unmatchedTransactions.length} transaktioner...`);
               }}
               variant="outline"
               disabled={unmatchedTransactions.length === 0}
             >
               <Download className="w-4 h-4 mr-2" />
-              Ladda ner transaktioner ({unmatchedTransactions.length})
+              Ladda ner transaktioner ({selectedTransactions.length > 0 ? selectedTransactions.length : unmatchedTransactions.length})
             </Button>
             <Button 
               onClick={() => {
+                const selectedR = unmatchedReceipts.filter(r => selectedReceipts.includes(r.id));
+                const selectedT = unmatchedTransactions.filter(t => selectedTransactions.includes(t.id));
+                downloadBothReportsSelected(
+                  selectedR.length > 0 ? selectedR : unmatchedReceipts,
+                  selectedT.length > 0 ? selectedT : unmatchedTransactions
+                );
                 toast.success('Laddar ner komplett rapport...');
-                // Simulate PDF download
               }}
               variant="outline"
               disabled={unmatchedReceipts.length === 0 && unmatchedTransactions.length === 0}
@@ -263,19 +263,51 @@ const IdentifieraStep: React.FC = () => {
           <div className="grid md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
-                  Omatchade kvitton ({unmatchedReceipts.length})
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Omatchade kvitton ({unmatchedReceipts.length})
+                  </div>
+                  {unmatchedReceipts.length > 0 && (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedReceipts(unmatchedReceipts.map(r => r.id))}
+                      >
+                        Välj alla
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedReceipts([])}
+                      >
+                        Rensa val
+                      </Button>
+                    </div>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   {unmatchedReceipts.map((receipt) => (
                     <div key={receipt.id} className="p-3 border rounded flex justify-between items-center">
-                      <div>
-                        <div className="font-medium">{receipt.ocrResult.vendor}</div>
-                        <div className="text-sm text-gray-500">
-                          {receipt.ocrResult.date} - {receipt.ocrResult.amount} kr
+                      <div className="flex items-center gap-3">
+                        <Checkbox
+                          checked={selectedReceipts.includes(receipt.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedReceipts([...selectedReceipts, receipt.id]);
+                            } else {
+                              setSelectedReceipts(selectedReceipts.filter(id => id !== receipt.id));
+                            }
+                          }}
+                        />
+                        <div>
+                          <div className="font-medium">{receipt.ocrResult.vendor}</div>
+                          <div className="text-sm text-gray-500">
+                            {receipt.ocrResult.date} - {formatCurrency(receipt.ocrResult.amount)}
+                          </div>
                         </div>
                       </div>
                       <Badge variant="outline">Omatchad</Badge>
@@ -290,9 +322,29 @@ const IdentifieraStep: React.FC = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="w-5 h-5" />
-                  Omatchade transaktioner ({unmatchedTransactions.length})
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="w-5 h-5" />
+                    Omatchade transaktioner ({unmatchedTransactions.length})
+                  </div>
+                  {unmatchedTransactions.length > 0 && (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedTransactions(unmatchedTransactions.map(t => t.id))}
+                      >
+                        Välj alla
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedTransactions([])}
+                      >
+                        Rensa val
+                      </Button>
+                    </div>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -300,10 +352,22 @@ const IdentifieraStep: React.FC = () => {
                   {unmatchedTransactions.map((transaction) => (
                     <div key={transaction.id} className="p-3 border rounded">
                       <div className="flex justify-between items-center">
-                        <div>
-                          <div className="font-medium">{transaction.description}</div>
-                          <div className="text-sm text-gray-500">
-                            {transaction.date} - {Math.abs(transaction.amount)} kr
+                        <div className="flex items-center gap-3">
+                          <Checkbox
+                            checked={selectedTransactions.includes(transaction.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedTransactions([...selectedTransactions, transaction.id]);
+                              } else {
+                                setSelectedTransactions(selectedTransactions.filter(id => id !== transaction.id));
+                              }
+                            }}
+                          />
+                          <div>
+                            <div className="font-medium">{transaction.description}</div>
+                            <div className="text-sm text-gray-500">
+                              {transaction.date} - {formatCurrency(Math.abs(transaction.amount))}
+                            </div>
                           </div>
                         </div>
                         <Badge variant="outline">Omatchad</Badge>
@@ -321,7 +385,7 @@ const IdentifieraStep: React.FC = () => {
                           <option value="">Välj kvitto att matcha...</option>
                           {unmatchedReceipts.map((receipt) => (
                             <option key={receipt.id} value={receipt.id}>
-                              {receipt.ocrResult.vendor} - {receipt.ocrResult.amount} kr
+                              {receipt.ocrResult.vendor} - {formatCurrency(receipt.ocrResult.amount)}
                             </option>
                           ))}
                         </select>

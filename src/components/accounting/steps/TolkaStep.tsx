@@ -10,6 +10,7 @@ import FileDropArea from '@/components/upload/FileDropArea';
 import { useFileProcessor } from '@/hooks/useFileProcessor';
 import UnreadableReceiptsModal from '../modals/UnreadableReceiptsModal';
 import type { Receipt } from '@/types/accounting';
+import { formatCurrency, formatConfidence } from '@/utils/numberFormatters';
 
 const TolkaStep: React.FC = () => {
   const { session, removeReceipt, updateReceipt, setCurrentStep, addReceipts } = useAccountingWizard();
@@ -93,7 +94,7 @@ const TolkaStep: React.FC = () => {
                 <div>
                   <h3 className="font-semibold">{receipt.filename}</h3>
                   <p className="text-sm text-gray-600">
-                    {receipt.ocrResult.vendor} - {receipt.ocrResult.amount} kr
+                    {receipt.ocrResult.vendor} - {formatCurrency(receipt.ocrResult.amount)}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
                     <Badge variant={receipt.status === 'readable' ? 'default' : 
@@ -103,7 +104,7 @@ const TolkaStep: React.FC = () => {
                       {receipt.status === 'unreadable' && 'Oläsbar'}
                     </Badge>
                     <Badge variant="outline">
-                      {receipt.ocrResult.confidence}% säkerhet
+                      {formatConfidence(receipt.ocrResult.confidence)} säkerhet
                     </Badge>
                   </div>
                 </div>
@@ -129,7 +130,7 @@ const TolkaStep: React.FC = () => {
                         </div>
                         <div>
                           <label className="font-semibold">Belopp:</label>
-                          <p>{receipt.ocrResult.amount} kr</p>
+                          <p>{formatCurrency(receipt.ocrResult.amount)}</p>
                         </div>
                         <div>
                           <label className="font-semibold">Datum:</label>
@@ -137,7 +138,7 @@ const TolkaStep: React.FC = () => {
                         </div>
                         <div>
                           <label className="font-semibold">Säkerhet:</label>
-                          <p>{receipt.ocrResult.confidence}%</p>
+                          <p>{formatConfidence(receipt.ocrResult.confidence)}</p>
                         </div>
                       </div>
                       <div>

@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { FileText, CreditCard, Check, X } from 'lucide-react';
 import type { MatchedEntry } from '@/types/accounting';
 import VerificationModal from '../modals/VerificationModal';
+import { formatCurrency, formatConfidence } from '@/utils/numberFormatters';
 
 interface UnverifiedTabProps {
   unverifiedMatches: MatchedEntry[];
@@ -54,7 +55,7 @@ const UnverifiedTab: React.FC<UnverifiedTabProps> = ({
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <p className="font-medium">{match.receipt.filename}</p>
                     <p className="text-sm text-gray-600">{match.receipt.ocrResult.vendor}</p>
-                    <p className="text-sm font-medium">{match.receipt.ocrResult.amount} kr</p>
+                    <p className="text-sm font-medium">{formatCurrency(match.receipt.ocrResult.amount)}</p>
                     <p className="text-xs text-gray-500">{match.receipt.ocrResult.date}</p>
                   </div>
                 </div>
@@ -66,10 +67,10 @@ const UnverifiedTab: React.FC<UnverifiedTabProps> = ({
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <p className="font-medium">{match.transaction.description}</p>
-                    <p className="text-sm font-medium">{match.transaction.amount} kr</p>
+                    <p className="text-sm font-medium">{formatCurrency(Math.abs(match.transaction.amount))}</p>
                     <p className="text-xs text-gray-500">{match.transaction.date}</p>
                     <Badge variant="outline" className="mt-1">
-                      {Math.round(match.confidence)}% matchning
+                      {formatConfidence(match.confidence)} matchning
                     </Badge>
                   </div>
                 </div>

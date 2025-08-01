@@ -7,6 +7,7 @@ import { CheckCircle, Download, FileText, Send, ArrowLeft } from 'lucide-react';
 import { useAccountingWizard } from '@/contexts/AccountingWizardContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { formatCurrency } from '@/utils/numberFormatters';
 
 const BokforaStep: React.FC = () => {
   const { 
@@ -50,6 +51,13 @@ const BokforaStep: React.FC = () => {
 
   const totalAmount = verifiedEntries.reduce((sum, entry) => sum + Math.abs(entry.transaction.amount), 0);
 
+  // Generate VAT rate for demo purposes
+  const getVatRate = (amount: number) => {
+    if (amount > 1000) return 25; // High amount = 25% VAT
+    if (amount > 500) return 12;  // Medium amount = 12% VAT
+    return 0; // Low amount = 0% VAT
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -69,7 +77,7 @@ const BokforaStep: React.FC = () => {
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-blue-600">{totalAmount.toFixed(2)} kr</div>
+            <div className="text-2xl font-bold text-blue-600">{formatCurrency(totalAmount)}</div>
             <div className="text-sm text-gray-600">Total belopp</div>
           </CardContent>
         </Card>
@@ -116,9 +124,13 @@ const BokforaStep: React.FC = () => {
                   </TableCell>
                   <TableCell>{entry.transaction.description}</TableCell>
                   <TableCell>{entry.transaction.date}</TableCell>
-                  <TableCell>{Math.abs(entry.transaction.amount)} kr</TableCell>
-                  <TableCell>25%</TableCell>
-                  <TableCell>6420 - Representation</TableCell>
+                  <TableCell>{formatCurrency(Math.abs(entry.transaction.amount))}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{getVatRate(Math.abs(entry.transaction.amount))}%</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">2641</Badge>
+                  </TableCell>
                   <TableCell>
                     <Badge variant="default">
                       <CheckCircle className="w-3 h-3 mr-1" />
@@ -172,7 +184,7 @@ const BokforaStep: React.FC = () => {
                           {unmatchedReceipts.map((receipt) => (
                             <TableRow key={receipt.id}>
                               <TableCell>{receipt.ocrResult.vendor}</TableCell>
-                              <TableCell>{receipt.ocrResult.amount} kr</TableCell>
+                              <TableCell>{formatCurrency(receipt.ocrResult.amount)}</TableCell>
                               <TableCell>{receipt.ocrResult.date}</TableCell>
                               <TableCell>{receipt.filename}</TableCell>
                             </TableRow>
@@ -198,7 +210,7 @@ const BokforaStep: React.FC = () => {
                           {unmatchedTransactions.map((transaction) => (
                             <TableRow key={transaction.id}>
                               <TableCell>{transaction.description}</TableCell>
-                              <TableCell>{Math.abs(transaction.amount)} kr</TableCell>
+                              <TableCell>{formatCurrency(Math.abs(transaction.amount))}</TableCell>
                               <TableCell>{transaction.date}</TableCell>
                               <TableCell>{transaction.reference}</TableCell>
                             </TableRow>
