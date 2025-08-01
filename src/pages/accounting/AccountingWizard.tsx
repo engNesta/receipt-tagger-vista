@@ -17,14 +17,18 @@ const AccountingWizard: React.FC = () => {
   const { clients } = useClients();
   const { session, initializeSession, setCurrentStep } = useAccountingWizard();
 
+  // Get month from URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const monthValue = urlParams.get('month') || new Date().toISOString().slice(0, 7);
+  const monthDisplay = urlParams.get('monthDisplay') || new Date().toLocaleDateString('sv-SE', { year: 'numeric', month: 'long' });
+
   const client = clients.find(c => c.id === id);
-  const currentMonth = new Date().toLocaleDateString('sv-SE', { year: 'numeric', month: 'long' });
 
   useEffect(() => {
     if (id && !session) {
-      initializeSession(id, currentMonth);
+      initializeSession(id, monthDisplay);
     }
-  }, [id, session, initializeSession, currentMonth]);
+  }, [id, session, initializeSession, monthDisplay]);
 
   if (!client) {
     return (
@@ -78,7 +82,7 @@ const AccountingWizard: React.FC = () => {
             <div className="flex items-center gap-4">
               <Button 
                 variant="ghost" 
-                onClick={() => navigate('/clients')}
+                onClick={() => navigate(`/clients/${id}/months`)}
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -88,7 +92,7 @@ const AccountingWizard: React.FC = () => {
                 <h1 className="text-2xl font-bold text-gray-900">{client.companyName}</h1>
                 <p className="text-sm text-gray-600 flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
-                  {currentMonth}
+                  {monthDisplay}
                 </p>
               </div>
             </div>

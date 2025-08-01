@@ -20,6 +20,7 @@ const ClientCreated = lazy(() => import("@/pages/clients/ClientCreated"));
 const ClientManage = lazy(() => import("@/pages/clients/ClientManage"));
 const ClientDeleted = lazy(() => import("@/pages/clients/ClientDeleted"));
 const ClientView = lazy(() => import("@/pages/clients/ClientView"));
+const ClientMonthSelector = lazy(() => import("@/pages/clients/ClientMonthSelector"));
 const AccountingWizard = lazy(() => import("@/pages/accounting/AccountingWizard"));
 
 const SIEGenerated = lazy(() => import("@/pages/SIEGenerated"));
@@ -63,7 +64,8 @@ const App = () => {
                   <Route path={APP_CONFIG.ROUTES.CLIENTS_MANAGE} element={<ClientManage />} />
                   <Route path="/clients/deleted" element={<ClientDeleted />} />
                   <Route path="/clients/:id/view" element={<ClientView />} />
-                  <Route path="/client/:id" element={<AccountingWizard />} />
+                  <Route path="/clients/:id/months" element={<ClientMonthSelector />} />
+                  <Route path="/accounting/:id" element={<AccountingWizard />} />
                   
                   <Route path={APP_CONFIG.ROUTES.SIE_GENERATED} element={<SIEGenerated />} />
                   <Route path="*" element={<NotFound />} />
